@@ -5,10 +5,10 @@
       "url": "https://lasata.eu",
       "regions": {
         "US": "DOWN",
-        "EU": "DOWN",
+        "EU": "UP",
         "ASIA": "DOWN"
       },
-      "last_check": "2026-08-07T02:18:31Z"
+      "last_check": "2026-08-07T02:51:33Z"
     },
     {
       "name": "Nube Privada (FileBrowser)",
@@ -18,7 +18,7 @@
         "EU": "UP",
         "ASIA": "UP"
       },
-      "last_check": "2026-08-07T02:18:31Z"
+      "last_check": "2026-08-07T02:51:33Z"
     },
     {
       "name": "Webmail (HestiaCP)",
@@ -28,17 +28,17 @@
         "EU": "UP",
         "ASIA": "UP"
       },
-      "last_check": "2026-08-07T02:18:31Z"
+      "last_check": "2026-08-07T02:51:33Z"
     },
     {
       "name": "Server S1 (HestiaCP)",
       "url": "https://s1.lasata.eu:8083",
       "regions": {
-        "US": "DOWN",
-        "EU": "DOWN",
-        "ASIA": "DOWN"
+        "US": "UP",
+        "EU": "UP",
+        "ASIA": "UP"
       },
-      "last_check": "2026-08-07T02:18:31Z"
+      "last_check": "2026-08-07T02:51:33Z"
     }
   ]
 }
