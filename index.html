@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UppWebLa | Estado del Sistema</title>
-    <link rel="icon" type="image/png" href="src/images/icono.png">
+    <link rel="icon" type="image/png" href="src/images/iconoNoChange.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -24,32 +24,76 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 2rem;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        .top-bar {
+        /* --- BARRA DE CLIENTE (WHITE LABEL) --- */
+        .client-nav {
+            width: 100%;
+            background-color: #010409;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            box-sizing: border-box;
+        }
+
+        .client-nav-inner {
             width: 100%;
             max-width: 700px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .client-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .client-logo {
+            height: 28px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .client-return-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+            .client-return-link:hover {
+                text-decoration: underline;
+                color: #79c0ff;
+            }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            flex: 1;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        /* BARRA SUPERIOR DE IDIOMAS */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
             margin-bottom: 2rem;
         }
 
-        .brand-logo {
-            width: 720px;
-            height: 120px;
-            max-width: 70%;
-            object-fit: contain;
-            object-position: left;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        }
-
-        /* --- DESPLEGABLE UNIVERSAL DE IDIOMA --- */
         .lang-dropdown {
             position: relative;
             display: inline-block;
@@ -109,12 +153,6 @@
                 color: var(--accent-blue);
             }
 
-        .container {
-            max-width: 700px;
-            width: 100%;
-            flex: 1;
-        }
-
         .header {
             text-align: center;
             margin-bottom: 2.5rem;
@@ -131,6 +169,7 @@
                 font-size: 0.95rem;
             }
 
+        /* COMPONENTES */
         .component {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -149,10 +188,29 @@
             padding-bottom: 0.8rem;
         }
 
+        /* ENLACE CLICABLE DE COMPONENTE */
         .component-name {
             font-weight: 600;
             font-size: 1.1rem;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+
+            .component-name:hover {
+                color: var(--accent-blue);
+                text-decoration: underline;
+            }
+
+            .component-name svg {
+                width: 16px;
+                height: 16px;
+                fill: currentColor;
+                opacity: 0.7;
+            }
 
         .component-time {
             font-size: 0.85rem;
@@ -305,7 +363,7 @@
             padding: 1rem;
         }
 
-        /* --- MODAL AVANZADO --- */
+        /* MODAL AVANZADO */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -405,13 +463,13 @@
             margin-left: 5px;
         }
 
-        /* LA JAULA PARA CHART.JS (EVITA EL CRECIMIENTO INFINITO) */
         .chart-wrapper {
             position: relative;
-            height: 250px; /* Altura fija para controlar la gráfica */
+            height: 250px;
             width: 100%;
         }
 
+        /* FOOTER (Protegido) */
         footer {
             margin-top: 3rem;
             text-align: center;
@@ -421,17 +479,26 @@
             padding-top: 1.5rem;
             width: 100%;
             max-width: 700px;
+            padding-bottom: 2rem;
         }
 
-            footer a {
-                color: var(--accent-blue);
-                text-decoration: none;
-                font-weight: 600;
-            }
+        .footer-logo {
+            width: 400px;
+            max-width: 80%;
+            margin: 15px auto;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
 
-                footer a:hover {
-                    text-decoration: underline;
-                }
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            footer a:hover {
+                text-decoration: underline;
+            }
 
         @media (max-width: 500px) {
             .regions-grid {
@@ -441,32 +508,41 @@
             .time-filters {
                 justify-content: center;
             }
+
+            .client-nav-inner {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
-
-        <div class="lang-dropdown" id="langDropdown">
-            <div class="lang-btn" onclick="toggleLangMenu()">
-                <img id="currentLangIcon" src="https://flagcdn.com/w20/es.png" alt="ES">
-                <span id="currentLangText">Español</span>
-                <span style="font-size: 0.7rem;">▼</span>
+    <div class="client-nav">
+        <div class="client-nav-inner">
+            <div class="client-brand">
+                <img id="clientLogo" class="client-logo" src="" alt="Logo">
+                <span id="clientName">Empresa</span>
             </div>
-            <div class="lang-menu" id="langMenu">
-                <div class="lang-option" onclick="changeLang('es')">
-                    <img src="https://flagcdn.com/w20/es.png" alt="ES"> Español
-                </div>
-                <div class="lang-option" onclick="changeLang('en')">
-                    <img src="https://flagcdn.com/w20/gb.png" alt="EN"> English
-                </div>
-            </div>
+            <a id="clientLink" href="#" target="_blank" class="client-return-link">Volver a la web</a>
         </div>
     </div>
 
     <div class="container">
+        <div class="top-bar">
+            <div class="lang-dropdown" id="langDropdown">
+                <div class="lang-btn" onclick="toggleLangMenu()">
+                    <img id="currentLangIcon" src="https://flagcdn.com/w20/es.png" alt="ES">
+                    <span id="currentLangText">Español</span>
+                    <span style="font-size: 0.7rem;">▼</span>
+                </div>
+                <div class="lang-menu" id="langMenu">
+                    <div class="lang-option" onclick="changeLang('es')"><img src="https://flagcdn.com/w20/es.png" alt="ES"> Español</div>
+                    <div class="lang-option" onclick="changeLang('en')"><img src="https://flagcdn.com/w20/gb.png" alt="EN"> English</div>
+                </div>
+            </div>
+        </div>
+
         <div class="header">
             <h1 id="ui-title">💻 Estado del Sistema</h1>
             <p id="ui-subtitle">Monitorización en tiempo real desde múltiples regiones</p>
@@ -509,59 +585,73 @@
         </div>
     </div>
 
-    <footer>
-        <p>
-            <span id="ui-footer-opensource">Esta página es de código abierto, impulsada por</span>
-            <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">UppWebLa</a>
-        </p>
-        <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank" rel="noopener">LASATA.EU</a>)</p>
-    </footer>
+    <div id="secure-footer-container"></div>
 
     <script>
-        // Diccionario base seguro
+        // SVG Icon para link externo
+        const externalLinkIcon = `<svg viewBox="0 0 24 24"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg>`;
+
+        let userConfig = {
+            companyName: "UppWebLa",
+            companyLogo: "",
+            returnLinkTextES: "Volver a la web",
+            returnLinkTextEN: "Return to website",
+            returnLinkUrl: "#"
+        };
+
         const fallbackDicts = {
-            es: {
-                title: "💻 Estado del Sistema", subtitle: "Monitorización en tiempo real desde múltiples regiones",
-                loading: "Comprobando satélites... 🛰️", error: "Error de lectura.",
-                up: "En línea", down: "Caído", lastCheck: "Última comprobación: ",
-                uptimeTitle: "Disponibilidad", avgLatency: "Latencia media",
-                incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias.", ms: "ms",
-                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
-            },
-            en: {
-                title: "💻 System Status", subtitle: "Real-time multi-region monitoring",
-                loading: "Checking satellites... 🛰️", error: "Read error.",
-                up: "Online", down: "Offline", lastCheck: "Last check: ",
-                uptimeTitle: "Uptime", avgLatency: "Average latency",
-                incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", ms: "ms",
-                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
-            }
+            es: { title: "💻 Estado del Sistema", subtitle: "Monitorización en tiempo real desde múltiples regiones", loading: "Comprobando satélites... 🛰️", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias.", ms: "ms", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" } },
+            en: { title: "💻 System Status", subtitle: "Real-time multi-region monitoring", loading: "Checking satellites... 🛰️", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", ms: "ms", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" } }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+        let latestData = null, latestIncidents = null, myChart = null, activeHistoryFull = [], activeRegKey = '';
 
-        let latestData = null;
-        let latestIncidents = null;
-        let myChart = null;
-        let activeHistoryFull = [];
-        let activeRegKey = '';
-
-        // --- GESTIÓN DEL IDIOMA ---
-        function toggleLangMenu() {
-            document.getElementById('langMenu').classList.toggle('show');
+        // CARGA DE CONFIGURACIÓN DEL CLIENTE
+        async function loadConfig() {
+            try {
+                const res = await fetch(`config.json?t=${new Date().getTime()}`);
+                if (res.ok) userConfig = { ...userConfig, ...(await res.json()) };
+            } catch (error) { console.warn("No config.json found, using defaults"); }
         }
 
-        document.addEventListener('click', function (e) {
-            if (!document.getElementById('langDropdown').contains(e.target)) {
-                document.getElementById('langMenu').classList.remove('show');
+        function applyClientConfig() {
+            // Título dinámico
+            document.title = `${userConfig.companyName} | ${dict.title} (UppWebLa open-source software)`;
+
+            document.getElementById('clientName').innerText = userConfig.companyName;
+            if (userConfig.companyLogo) {
+                document.getElementById('clientLogo').src = userConfig.companyLogo;
+                document.getElementById('clientLogo').style.display = 'block';
             }
-        });
+
+            const clientLink = document.getElementById('clientLink');
+            clientLink.href = userConfig.returnLinkUrl;
+            clientLink.innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
+        }
+
+        // FOOTER PROTEGIDO GENERADO POR JS
+        function renderProtectedFooter() {
+            const footerHtml = `
+                    <footer>
+                        <p><span id="ui-footer-opensource">${dict.footerOpenSource}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">UppWebLa</a></p>
+                        <p>© 2026 Rubén Castañeda Matute (LASATA.EU) - <span id="ui-footer-rights">${dict.rights}</span></p>
+                        <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">
+                            <img src="src/images/logoNoChange.png" alt="UppWebLa Autor" class="footer-logo">
+                        </a>
+                    </footer>
+                `;
+            document.getElementById('secure-footer-container').innerHTML = footerHtml;
+        }
+
+        // GESTIÓN DEL IDIOMA
+        function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
+        document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
 
         async function changeLang(lang) {
             currentLang = lang;
             localStorage.setItem('uppwebla_lang', lang);
-
             document.getElementById('currentLangIcon').src = lang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
             document.getElementById('currentLangText').innerText = lang === 'es' ? "Español" : "English";
             document.getElementById('langMenu').classList.remove('show');
@@ -570,33 +660,30 @@
             try {
                 const response = await fetch(`${lang}.json?t=${new Date().getTime()}`);
                 if (response.ok) dict = { ...dict, ...(await response.json()) };
-            } catch (error) { console.warn("Usando idioma base."); }
+            } catch (error) { }
 
-            updateStaticUI();
+            applyClientConfig();
+            renderProtectedFooter();
+
+            document.documentElement.lang = currentLang;
+            document.getElementById('ui-title').innerText = dict.title;
+            document.getElementById('ui-subtitle').innerText = dict.subtitle;
+            document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
+            document.getElementById('ui-uptime').innerText = dict.uptimeTitle || "Disponibilidad";
+            document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
+
+            if (document.getElementById('ui-loading')) document.getElementById('ui-loading').innerText = dict.loading;
+
             if (latestData) renderData(latestData);
             if (latestIncidents) renderIncidents(latestIncidents);
 
-            // Actualizar textos del modal si está abierto
             if (document.getElementById('chartModal').style.display === 'flex') {
                 const activeBtn = document.querySelector('.time-btn.active');
                 if (activeBtn) filterChart(activeBtn.id.replace('btn-', ''), activeBtn);
             }
         }
 
-        function updateStaticUI() {
-            document.documentElement.lang = currentLang;
-            document.getElementById('ui-title').innerText = dict.title;
-            document.getElementById('ui-subtitle').innerText = dict.subtitle;
-            document.getElementById('ui-footer-opensource').innerText = dict.footerOpenSource || "Esta página es de código abierto, impulsada por";
-            document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
-            document.getElementById('ui-uptime').innerText = dict.uptimeTitle || "Disponibilidad";
-            document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
-
-            const loader = document.getElementById('ui-loading');
-            if (loader) loader.innerText = dict.loading;
-        }
-
-        // --- RENDERIZADO PRINCIPAL ---
+        // RENDERIZADO PRINCIPAL (AHORA CON TÍTULOS CLICABLES)
         function renderData(data) {
             const container = document.getElementById('status-container');
             if (!container) return;
@@ -615,11 +702,6 @@
                     uniqueComponents.push(comp);
                 }
             });
-
-            if (uniqueComponents.length === 0) {
-                container.innerHTML = `<div class="loader">${dict.error}</div>`;
-                return;
-            }
 
             uniqueComponents.forEach((comp, compIdx) => {
                 const checkTime = comp.last_check || data.last_check;
@@ -648,7 +730,9 @@
                 container.insertAdjacentHTML('beforeend', `
                         <div class="component">
                             <div class="component-header">
-                                <span class="component-name">${comp.name}</span>
+                                <a href="${comp.url}" target="_blank" rel="noopener noreferrer" class="component-name">
+                                    ${comp.name} ${externalLinkIcon}
+                                </a>
                                 <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
                             </div>
                             <div class="regions-grid">${regionsHtml}</div>
@@ -686,11 +770,10 @@
             });
         }
 
-        // --- SISTEMA ANALÍTICO AVANZADO ---
+        // SISTEMA ANALÍTICO
         async function openChart(compIdx, regKey) {
             if (!latestData || !latestData.components[compIdx]) return;
             const comp = latestData.components[compIdx];
-
             document.getElementById('modalCompTitle').innerText = `Cargando...`;
             document.getElementById('chartModal').style.display = 'flex';
 
@@ -700,7 +783,7 @@
                     const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`);
                     if (res.ok) history = await res.json();
                 }
-            } catch (err) { console.error("Error historial:", err); }
+            } catch (err) { }
 
             activeHistoryFull = history;
             activeRegKey = regKey;
@@ -708,7 +791,6 @@
             const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
             document.getElementById('modalCompTitle').innerText = `${comp.name} - ${regionName}`;
 
-            // Seleccionar 24H por defecto
             filterChart('24h', document.getElementById('btn-24h'));
         }
 
@@ -725,30 +807,23 @@
             else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
             else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
 
-            // Filtrar el array completo según el rango
             const filtered = activeHistoryFull.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
 
-            let upCount = 0;
-            let latCount = 0;
-            let totalLat = 0;
-
+            let upCount = 0, latCount = 0, totalLat = 0;
             filtered.forEach(entry => {
                 const regData = entry[activeRegKey];
                 const status = (typeof regData === 'string') ? regData : (regData && regData.status ? regData.status : 'DOWN');
                 const lat = (typeof regData === 'object' && regData.latency) ? regData.latency : 0;
-
                 if (status === 'UP') upCount++;
                 if (lat > 0) { latCount++; totalLat += lat; }
             });
 
-            // Uptime (Disponibilidad) a 4 decimales Enterprise
             const uptimePct = filtered.length > 0 ? ((upCount / filtered.length) * 100).toFixed(4) : "100.0000";
             const avgLat = latCount > 0 ? Math.round(totalLat / latCount) : 0;
 
             document.getElementById('modalUptime').innerText = `${uptimePct}%`;
             document.getElementById('modalAvgLatency').innerText = `${avgLat} ${dict.ms || 'ms'}`;
 
-            // Sistema Anti-Saturación: Reducir puntos si hay demasiados para dibujar
             let downsampled = filtered;
             if (filtered.length > 150) {
                 const step = Math.ceil(filtered.length / 150);
@@ -758,9 +833,7 @@
             const labels = downsampled.map(e => {
                 const d = new Date(e.timestamp);
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-                return (range === '24h' || range === '7d')
-                    ? d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-                    : d.toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit' });
+                return (range === '24h' || range === '7d') ? d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit' });
             });
 
             const latencies = downsampled.map(e => {
@@ -770,29 +843,13 @@
 
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('latencyChart').getContext('2d');
-
-            // LA MAGIA DE MAINTAINASPECTRATIO FALSE + WRAPPER ESTRICTO
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: `${dict.chartTitle || 'Latencia'} (${dict.ms})`,
-                        data: latencies, borderColor: '#58a6ff', backgroundColor: 'rgba(88, 166, 255, 0.1)',
-                        fill: true, tension: 0.3, pointRadius: filtered.length > 50 ? 1 : 4,
-                        pointBackgroundColor: '#58a6ff', borderWidth: 2
-                    }]
+                    datasets: [{ label: `${dict.chartTitle || 'Latencia'} (${dict.ms})`, data: latencies, borderColor: '#58a6ff', backgroundColor: 'rgba(88, 166, 255, 0.1)', fill: true, tension: 0.3, pointRadius: filtered.length > 50 ? 1 : 4, pointBackgroundColor: '#58a6ff', borderWidth: 2 }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Ahora es seguro usarlo porque tiene la "jaula" CSS
-                    plugins: { legend: { labels: { color: '#c9d1d9' } } },
-                    scales: {
-                        x: { ticks: { color: '#8b949e', maxTicksLimit: 10 }, grid: { color: '#30363d' } },
-                        y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true }
-                    },
-                    animation: { duration: 400 }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c9d1d9' } } }, scales: { x: { ticks: { color: '#8b949e', maxTicksLimit: 10 }, grid: { color: '#30363d' } }, y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true } }, animation: { duration: 400 } }
             });
         }
 
@@ -802,7 +859,7 @@
             try {
                 const resStatus = await fetch(`data.json?t=${new Date().getTime()}`);
                 if (resStatus.ok) { latestData = await resStatus.json(); renderData(latestData); }
-            } catch (error) { console.error("Error data:", error); }
+            } catch (error) { }
             try {
                 const resIncidents = await fetch(`incidents.json?t=${new Date().getTime()}`);
                 if (resIncidents.ok) { latestIncidents = await resIncidents.json(); renderIncidents(latestIncidents); }
@@ -811,8 +868,7 @@
         }
 
         async function init() {
-            document.getElementById('currentLangIcon').src = currentLang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
-            document.getElementById('currentLangText').innerText = currentLang === 'es' ? "Español" : "English";
+            await loadConfig();
             await changeLang(currentLang);
             await fetchAllData();
             setInterval(fetchAllData, 60000);
