@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> UppWebLa | Estado del Sistema</title>
-    <link rel="icon" type="image/png" href="src/images/icono.png">
+    <title>UppWebLa | Estado del Sistema</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -31,7 +31,6 @@
             min-height: 100vh;
         }
 
-        /* BARRA SUPERIOR */
         .top-bar {
             width: 100%;
             max-width: 700px;
@@ -88,7 +87,6 @@
                 font-size: 0.95rem;
             }
 
-        /* TARJETAS DE COMPONENTES */
         .component {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -183,7 +181,7 @@
             padding: 2rem;
         }
 
-        /* --- NUEVO: SECCIÓN DE INCIDENCIAS --- */
+        /* SECCIÓN DE INCIDENCIAS */
         .incidents-section {
             margin-top: 3.5rem;
         }
@@ -264,7 +262,7 @@
             padding: 1rem;
         }
 
-        /* VENTANA MODAL PARA LAS GRÁFICAS */
+        /* VENTANA MODAL */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -329,7 +327,7 @@
             font-weight: 700;
         }
 
-        /* FOOTER ESTILO UPPTIME */
+        /* FOOTER */
         footer {
             margin-top: 3rem;
             text-align: center;
@@ -367,7 +365,7 @@
 <body>
 
     <div class="top-bar">
-        <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
+        <img src="logo.png" alt="UppWebLa Logo" class="brand-logo">
         <button id="langToggle" class="lang-btn" onclick="toggleLang()">🌐 EN</button>
     </div>
 
@@ -383,8 +381,7 @@
 
         <div class="incidents-section">
             <h2 id="ui-incidents-title" class="incidents-title">📢 Reportes e Incidencias</h2>
-            <div id="incidents-container">
-            </div>
+            <div id="incidents-container"></div>
         </div>
     </div>
 
@@ -418,8 +415,8 @@
 
         async function loadLanguage(lang) {
             try {
-                const response = await fetch(`lang/${lang}.json?t=${new Date().getTime()}`);
-                if (!response.ok) throw new Error('Archivo de idioma no encontrado');
+                const response = await fetch(`${lang}.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('Idioma no encontrado');
                 dict = await response.json();
                 updateStaticUI();
                 if (latestData) renderData(latestData);
@@ -448,23 +445,31 @@
             loadLanguage(currentLang);
         }
 
-        // --- RENDERIZAR SERVIDORES ---
         function renderData(data) {
             if (!dict.regions) return;
 
             const container = document.getElementById('status-container');
             container.innerHTML = '';
 
-            data.components.forEach((comp, compIdx) => {
-                const date = new Date(comp.last_check);
+            const uniqueComponents = [];
+            const seenNames = new Set();
+            (data.components || []).forEach(comp => {
+                if (!seenNames.has(comp.name)) {
+                    seenNames.add(comp.name);
+                    uniqueComponents.push(comp);
+                }
+            });
+
+            uniqueComponents.forEach((comp, compIdx) => {
+                const date = new Date(comp.last_check || data.last_check);
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
                 const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'medium' }).format(date);
 
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
 
-                Object.entries(comp.regions).forEach(([regKey, regData]) => {
-                    const status = typeof regData === 'string' ? regData : regData.status;
+                Object.entries(comp.regions || {}).forEach(([regKey, regData]) => {
+                    const status = typeof regData === 'string' ? regData : (regData.status || 'UP');
                     const latency = typeof regData === 'object' && regData.latency !== undefined ? regData.latency : 0;
                     const isUp = status === 'UP';
                     const statusClass = isUp ? 'status-up' : 'status-down';
@@ -497,7 +502,6 @@
             });
         }
 
-        // --- RENDERIZAR INCIDENCIAS ---
         function renderIncidents(incidents) {
             const container = document.getElementById('incidents-container');
             container.innerHTML = '';
@@ -532,10 +536,22 @@
             });
         }
 
-        function openChart(compIdx, regKey) {
+        async function openChart(compIdx, regKey) {
             if (!latestData || !latestData.components[compIdx]) return;
             const comp = latestData.components[compIdx];
-            const history = comp.history || [];
+
+            let history = [];
+            try {
+                if (comp.history_file) {
+                    const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`);
+                    if (res.ok) history = await res.json();
+                }
+                if (history.length === 0 && comp.history) {
+                    history = comp.history;
+                }
+            } catch (err) {
+                if (comp.history) history = comp.history;
+            }
 
             const labels = [];
             const latencies = [];
@@ -548,7 +564,7 @@
                 labels.push(timeStr);
 
                 const regData = entry[regKey];
-                const lat = regData && regData.latency ? regData.latency : 0;
+                const lat = regData && regData.latency !== undefined ? regData.latency : (typeof regData === 'object' && regData.latency ? regData.latency : 0);
                 latencies.push(lat);
                 if (lat > 0) { totalLatency += lat; count++; }
             });
@@ -594,20 +610,17 @@
 
         async function fetchAllData() {
             try {
-                // Fetch Estado de servidores
                 const resStatus = await fetch(`data.json?t=${new Date().getTime()}`);
                 if (resStatus.ok) {
                     latestData = await resStatus.json();
                     renderData(latestData);
                 }
 
-                // Fetch Incidencias
                 const resIncidents = await fetch(`incidents.json?t=${new Date().getTime()}`);
                 if (resIncidents.ok) {
                     latestIncidents = await resIncidents.json();
                     renderIncidents(latestIncidents);
                 } else {
-                    // Si el archivo no existe aún, mostramos vacío
                     renderIncidents([]);
                 }
             } catch (error) {
@@ -618,7 +631,7 @@
         async function init() {
             await loadLanguage(currentLang);
             await fetchAllData();
-            setInterval(fetchAllData, 60000); // Refresco general cada 60s
+            setInterval(fetchAllData, 60000);
         }
 
         init();
