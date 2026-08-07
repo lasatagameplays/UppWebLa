@@ -405,6 +405,13 @@
             margin-left: 5px;
         }
 
+        /* LA JAULA PARA CHART.JS (EVITA EL CRECIMIENTO INFINITO) */
+        .chart-wrapper {
+            position: relative;
+            height: 250px; /* Altura fija para controlar la gráfica */
+            width: 100%;
+        }
+
         footer {
             margin-top: 3rem;
             text-align: center;
@@ -496,7 +503,9 @@
                 <div><span id="ui-avg-latency">Latencia media</span>: <span id="modalAvgLatency" class="stat-value">-- ms</span></div>
             </div>
 
-            <canvas id="latencyChart" width="400" height="180"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="latencyChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -569,7 +578,8 @@
 
             // Actualizar textos del modal si está abierto
             if (document.getElementById('chartModal').style.display === 'flex') {
-                filterChart(document.querySelector('.time-btn.active').innerText.toLowerCase(), document.querySelector('.time-btn.active'));
+                const activeBtn = document.querySelector('.time-btn.active');
+                if (activeBtn) filterChart(activeBtn.id.replace('btn-', ''), activeBtn);
             }
         }
 
@@ -606,10 +616,16 @@
                 }
             });
 
+            if (uniqueComponents.length === 0) {
+                container.innerHTML = `<div class="loader">${dict.error}</div>`;
+                return;
+            }
+
             uniqueComponents.forEach((comp, compIdx) => {
-                const date = new Date(comp.last_check || data.last_check);
+                const checkTime = comp.last_check || data.last_check;
+                const date = checkTime ? new Date(checkTime) : new Date();
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-                const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date);
+                const formattedDate = checkTime ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date) : '--';
 
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
@@ -620,24 +636,24 @@
                     const isUp = status === 'UP';
 
                     regionsHtml += `
-                                <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
-                                    <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
-                                    <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
-                                    <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
-                                    <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
-                                </div>
-                            `;
+                            <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
+                                <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
+                                <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
+                                <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
+                                <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
+                            </div>
+                        `;
                 });
 
                 container.insertAdjacentHTML('beforeend', `
-                            <div class="component">
-                                <div class="component-header">
-                                    <span class="component-name">${comp.name}</span>
-                                    <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
-                                </div>
-                                <div class="regions-grid">${regionsHtml}</div>
+                        <div class="component">
+                            <div class="component-header">
+                                <span class="component-name">${comp.name}</span>
+                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
                             </div>
-                        `);
+                            <div class="regions-grid">${regionsHtml}</div>
+                        </div>
+                    `);
             });
         }
 
@@ -658,15 +674,15 @@
                 const isActive = inc.status === 'active';
 
                 container.insertAdjacentHTML('beforeend', `
-                            <div class="incident-card ${isActive ? 'active' : 'resolved'}">
-                                <div class="incident-header">
-                                    <span class="incident-title-text">${inc.title}</span>
-                                    <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${isActive ? (dict.incidentActive || 'Activo') : (dict.incidentResolved || 'Resuelto')}</span>
-                                </div>
-                                <div class="incident-date">🕒 ${formattedDate}</div>
-                                <p class="incident-desc">${inc.description}</p>
+                        <div class="incident-card ${isActive ? 'active' : 'resolved'}">
+                            <div class="incident-header">
+                                <span class="incident-title-text">${inc.title}</span>
+                                <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${isActive ? (dict.incidentActive || 'Activo') : (dict.incidentResolved || 'Resuelto')}</span>
                             </div>
-                        `);
+                            <div class="incident-date">🕒 ${formattedDate}</div>
+                            <p class="incident-desc">${inc.description}</p>
+                        </div>
+                    `);
             });
         }
 
@@ -709,7 +725,7 @@
             else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
             else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
 
-            // Filtrar el array completo según el rango (Precisión analítica del 100%)
+            // Filtrar el array completo según el rango
             const filtered = activeHistoryFull.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
 
             let upCount = 0;
@@ -725,14 +741,14 @@
                 if (lat > 0) { latCount++; totalLat += lat; }
             });
 
-            // Uptime (Disponibilidad) en base a comprobaciones reales
+            // Uptime (Disponibilidad) a 4 decimales Enterprise
             const uptimePct = filtered.length > 0 ? ((upCount / filtered.length) * 100).toFixed(4) : "100.0000";
             const avgLat = latCount > 0 ? Math.round(totalLat / latCount) : 0;
 
             document.getElementById('modalUptime').innerText = `${uptimePct}%`;
             document.getElementById('modalAvgLatency').innerText = `${avgLat} ${dict.ms || 'ms'}`;
 
-            // Sistema Anti-Saturación: Reducir puntos si la gráfica es inmensa (>100 pts)
+            // Sistema Anti-Saturación: Reducir puntos si hay demasiados para dibujar
             let downsampled = filtered;
             if (filtered.length > 150) {
                 const step = Math.ceil(filtered.length / 150);
@@ -754,6 +770,8 @@
 
             if (myChart) myChart.destroy();
             const ctx = document.getElementById('latencyChart').getContext('2d');
+
+            // LA MAGIA DE MAINTAINASPECTRATIO FALSE + WRAPPER ESTRICTO
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -766,13 +784,14 @@
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false, // Ahora es seguro usarlo porque tiene la "jaula" CSS
                     plugins: { legend: { labels: { color: '#c9d1d9' } } },
                     scales: {
                         x: { ticks: { color: '#8b949e', maxTicksLimit: 10 }, grid: { color: '#30363d' } },
                         y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true }
                     },
-                    animation: { duration: 400 } // Transición suave entre tiempos
+                    animation: { duration: 400 }
                 }
             });
         }
