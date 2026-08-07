@@ -48,6 +48,17 @@ Una vez configurado, ve a la pestaña **Actions** y ejecuta el flujo de trabajo 
 
 ---
 
+## 🔄 Cómo actualizar tu clon de UppWebLa
+
+Este proyecto está en constante evolución. Si en el futuro lanzamos nuevas versiones de la interfaz gráfica (`index.html`) o del motor de pings (`uptime.yml`), actualizar tu monitorización es extremadamente sencillo y 100% seguro:
+
+1. Ve a la página principal de tu repositorio en GitHub.
+2. Si hay actualizaciones disponibles, verás un mensaje debajo del botón de código verde que dice *"This branch is X commits behind lasatagameplays/UppWebLa"*.
+3. Haz clic en el botón **"Sync fork"** y luego en **"Update branch"**.
+4. ¡Listo! Tu código se actualizará automáticamente con nuestras últimas mejoras manteniendo intactos tus datos históricos de estado (`data.json`).
+
+---
+
 ## 📄 Licencia y Copyright
 
 Este proyecto es de código abierto y está disponible gratuitamente bajo los términos de la [Licencia MIT](LICENSE).
