@@ -1,0 +1,21 @@
+[
+  {
+    "id": "2026-08-07-001",
+    "service": "Web Principal (LASATA)",
+    "title": "Latencia alta detectada",
+    "start_time": "2026-08-07T12:00:00Z",
+    "end_time": "2026-08-07T15:30:00Z",
+    "status": "resolved_manual",
+    "description": "Estamos investigando un pico de latencia anormal. Nuestro equipo de red est� en ello.",
+    "updates": [
+      {
+        "time": "2026-08-07T12:45:00Z",
+        "text": "Se ha identificado un ataque DDoS. Aplicando filtros."
+      },
+      {
+        "time": "2026-08-07T15:30:00Z",
+        "text": "Filtros aplicados con �xito. Tr�fico restablecido a la normalidad."
+      }
+    ]
+  }
+]
