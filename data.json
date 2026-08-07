@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-07T03:34:10Z",
+  "last_check": "2026-08-07T03:53:16Z",
   "components": [
     {
       "name": "Web Principal (LASATA)",
@@ -11,139 +11,14 @@
         },
         "EU": {
           "status": "UP",
-          "latency": 898
+          "latency": 743
         },
         "ASIA": {
           "status": "UP",
-          "latency": 76
+          "latency": 60
         }
       },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 57
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 898
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 76
-          }
-        }
-      ]
-    },
-    {
-      "name": "Web Principal (LASATA)",
-      "url": "https://lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 57
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 898
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 76
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 57
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 898
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 76
-          }
-        }
-      ]
-    },
-    {
-      "name": "Web Principal (LASATA)",
-      "url": "https://lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 57
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 898
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 76
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 57
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 898
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 76
-          }
-        }
-      ]
-    },
-    {
-      "name": "Web Principal (LASATA)",
-      "url": "https://lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 57
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 898
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 76
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 57
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 898
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 76
-          }
-        }
-      ]
+      "history_file": "history/web-principal.json"
     },
     {
       "name": "Nube Privada (FileBrowser)",
@@ -151,143 +26,18 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 346
+          "latency": 352
         },
         "EU": {
           "status": "UP",
-          "latency": 542
+          "latency": 552
         },
         "ASIA": {
           "status": "UP",
-          "latency": 366
+          "latency": 509
         }
       },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 346
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 542
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 366
-          }
-        }
-      ]
-    },
-    {
-      "name": "Nube Privada (FileBrowser)",
-      "url": "https://archivos.lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 346
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 542
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 366
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 346
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 542
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 366
-          }
-        }
-      ]
-    },
-    {
-      "name": "Nube Privada (FileBrowser)",
-      "url": "https://archivos.lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 346
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 542
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 366
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 346
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 542
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 366
-          }
-        }
-      ]
-    },
-    {
-      "name": "Nube Privada (FileBrowser)",
-      "url": "https://archivos.lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 346
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 542
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 366
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 346
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 542
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 366
-          }
-        }
-      ]
+      "history_file": "history/nube-privada.json"
     },
     {
       "name": "Webmail (Roundcube Webmail)",
@@ -295,143 +45,18 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 641
+          "latency": 400
         },
         "EU": {
           "status": "UP",
-          "latency": 570
+          "latency": 781
         },
         "ASIA": {
           "status": "UP",
-          "latency": 370
+          "latency": 520
         }
       },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 641
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 570
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 370
-          }
-        }
-      ]
-    },
-    {
-      "name": "Webmail (Roundcube Webmail)",
-      "url": "https://webmail.lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 641
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 570
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 370
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 641
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 570
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 370
-          }
-        }
-      ]
-    },
-    {
-      "name": "Webmail (Roundcube Webmail)",
-      "url": "https://webmail.lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 641
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 570
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 370
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 641
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 570
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 370
-          }
-        }
-      ]
-    },
-    {
-      "name": "Webmail (Roundcube Webmail)",
-      "url": "https://webmail.lasata.eu",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 641
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 570
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 370
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 641
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 570
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 370
-          }
-        }
-      ]
+      "history_file": "history/webmail.json"
     },
     {
       "name": "Server S1 (HestiaCP)",
@@ -439,143 +64,18 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 1117
+          "latency": 1200
         },
         "EU": {
           "status": "UP",
-          "latency": 1153
+          "latency": 1108
         },
         "ASIA": {
           "status": "UP",
-          "latency": 869
+          "latency": 1099
         }
       },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 1117
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 1153
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 869
-          }
-        }
-      ]
-    },
-    {
-      "name": "Server S1 (HestiaCP)",
-      "url": "https://s1.lasata.eu:8083",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 1117
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 1153
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 869
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 1117
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 1153
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 869
-          }
-        }
-      ]
-    },
-    {
-      "name": "Server S1 (HestiaCP)",
-      "url": "https://s1.lasata.eu:8083",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 1117
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 1153
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 869
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 1117
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 1153
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 869
-          }
-        }
-      ]
-    },
-    {
-      "name": "Server S1 (HestiaCP)",
-      "url": "https://s1.lasata.eu:8083",
-      "regions": {
-        "US": {
-          "status": "UP",
-          "latency": 1117
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 1153
-        },
-        "ASIA": {
-          "status": "UP",
-          "latency": 869
-        }
-      },
-      "last_check": "2026-08-07T03:34:10Z",
-      "history": [
-        {
-          "timestamp": "2026-08-07T03:34:10Z",
-          "US": {
-            "status": "UP",
-            "latency": 1117
-          },
-          "EU": {
-            "status": "UP",
-            "latency": 1153
-          },
-          "ASIA": {
-            "status": "UP",
-            "latency": 869
-          }
-        }
-      ]
+      "history_file": "history/server-s1.json"
     }
   ]
 }
