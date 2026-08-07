@@ -26,8 +26,31 @@
             align-items: center;
         }
 
+        .top-bar {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .lang-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+            .lang-btn:hover {
+                background: #21262d;
+            }
+
         .container {
-            max-width: 650px;
+            max-width: 700px;
             width: 100%;
         }
 
@@ -51,17 +74,18 @@
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        .component-info {
+        .component-header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
         }
 
         .component-name {
@@ -72,16 +96,43 @@
         .component-time {
             font-size: 0.85rem;
             color: var(--text-muted);
-            margin-top: 0.3rem;
+        }
+
+        .regions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .region-box {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .region-flag {
+            font-size: 1.2rem;
+        }
+
+        .region-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         .status-badge {
-            padding: 0.4rem 1rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 999px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            width: fit-content;
         }
 
         .status-up {
@@ -99,68 +150,138 @@
         .loader {
             text-align: center;
             color: var(--text-muted);
-            font-size: 1rem;
             padding: 2rem;
+        }
+
+        @media (max-width: 500px) {
+            .regions-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+
+    <div class="top-bar">
+        <button id="langToggle" class="lang-btn" onclick="toggleLang()">🌐 EN</button>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>💻 Estado del Sistema</h1>
-            <p>Monitorización en tiempo real de los servicios de LASATA.EU</p>
+            <h1 id="ui-title">💻 Estado del Sistema</h1>
+            <p id="ui-subtitle">Monitorización en tiempo real de los servicios</p>
         </div>
         <div id="status-container">
-            <div class="loader">Comprobando satélites... 🛰️</div>
+            <div class="loader" id="ui-loading">Comprobando satélites... 🛰️</div>
         </div>
     </div>
 
     <script>
-        async function fetchStatus() {
+        // Diccionario de Traducciones
+        const dict = {
+            es: {
+                title: "💻 Estado del Sistema",
+                subtitle: "Monitorización en tiempo real desde múltiples regiones",
+                loading: "Comprobando satélites... 🛰️",
+                error: "Error de lectura. Esperando a la primera ejecución del bot...",
+                up: "En línea",
+                down: "Caído",
+                lastCheck: "Última comprobación: ",
+                btnToggle: "🌐 EN",
+                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
+            },
+            en: {
+                title: "💻 System Status",
+                subtitle: "Real-time multi-region monitoring",
+                loading: "Checking satellites... 🛰️",
+                error: "Read error. Waiting for the first GitHub Actions bot run...",
+                up: "Online",
+                down: "Offline",
+                lastCheck: "Last check: ",
+                btnToggle: "🌐 ES",
+                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
+            }
+        };
+
+        // Detección automática del idioma del navegador
+        let currentLang = navigator.language.startsWith('es') ? 'es' : 'en';
+        let latestData = null; // Almacenamos el JSON para no volver a descargarlo al cambiar idioma
+
+        function updateStaticUI() {
+            document.documentElement.lang = currentLang;
+            document.getElementById('ui-title').innerText = dict[currentLang].title;
+            document.getElementById('ui-subtitle').innerText = dict[currentLang].subtitle;
+            document.getElementById('langToggle').innerText = dict[currentLang].btnToggle;
+
+            const loader = document.getElementById('ui-loading');
+            if (loader) loader.innerText = dict[currentLang].loading;
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            updateStaticUI();
+            if (latestData) renderData(latestData);
+        }
+
+        function renderData(data) {
             const container = document.getElementById('status-container');
-            try {
-                // El parámetro '?t=' rompe la caché de GitHub Pages
-                const response = await fetch(`data.json?t=${new Date().getTime()}`);
-                if (!response.ok) throw new Error('No se pudo encontrar el archivo de datos.');
+            container.innerHTML = '';
 
-                const data = await response.json();
-                container.innerHTML = ''; // Limpiar el loader
+            data.components.forEach(comp => {
+                const date = new Date(comp.last_check);
+                const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
+                const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'medium' }).format(date);
 
-                data.components.forEach(comp => {
-                    const isUp = comp.status === 'UP';
+                let regionsHtml = '';
+                const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
+
+                // Generar los 3 bloques regionales
+                Object.entries(comp.regions).forEach(([regKey, regStatus]) => {
+                    const isUp = regStatus === 'UP';
                     const statusClass = isUp ? 'status-up' : 'status-down';
-                    const statusText = isUp ? 'En línea' : 'Caído';
+                    const statusText = isUp ? dict[currentLang].up : dict[currentLang].down;
+                    const regionName = dict[currentLang].regions[regKey];
+                    const flag = regionFlags[regKey];
 
-                    // Convertir UTC a la zona horaria local del navegador del usuario
-                    const date = new Date(comp.last_check);
-                    const formattedDate = new Intl.DateTimeFormat('es-ES', {
-                        dateStyle: 'long',
-                        timeStyle: 'medium'
-                    }).format(date);
-
-                    const html = `
-                        <div class="component">
-                            <div class="component-info">
-                                <span class="component-name">${comp.name}</span>
-                                <span class="component-time">Última comprobación: ${formattedDate}</span>
+                    regionsHtml += `
+                            <div class="region-box">
+                                <span class="region-flag">${flag}</span>
+                                <span class="region-name">${regionName}</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
                             </div>
-                            <div class="status-badge ${statusClass}">
-                                ${statusText}
+                        `;
+                });
+
+                const componentHtml = `
+                        <div class="component">
+                            <div class="component-header">
+                                <span class="component-name">${comp.name}</span>
+                                <span class="component-time">${dict[currentLang].lastCheck} ${formattedDate}</span>
+                            </div>
+                            <div class="regions-grid">
+                                ${regionsHtml}
                             </div>
                         </div>
                     `;
-                    container.insertAdjacentHTML('beforeend', html);
-                });
+                container.insertAdjacentHTML('beforeend', componentHtml);
+            });
+        }
+
+        async function fetchStatus() {
+            try {
+                const response = await fetch(`data.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('No data');
+                latestData = await response.json();
+                renderData(latestData);
             } catch (error) {
-                container.innerHTML = `<div class="loader" style="color: var(--down-color);">Error de lectura. Esperando a la primera ejecución del bot de GitHub Actions... ⚙️</div>`;
-                console.error(error);
+                document.getElementById('status-container').innerHTML =
+                    `<div class="loader" style="color: var(--down-color);">${dict[currentLang].error}</div>`;
             }
         }
 
-        // Carga inicial
+        // Inicialización
+        updateStaticUI();
         fetchStatus();
-
-        // Refresco automático del dashboard cada 60 segundos
         setInterval(fetchStatus, 60000);
     </script>
 </body>
