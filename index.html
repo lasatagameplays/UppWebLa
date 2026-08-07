@@ -49,28 +49,64 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
-        /* DESPLEGABLE DE IDIOMA CON BANDERAS */
-        .lang-select {
+        /* --- DESPLEGABLE UNIVERSAL DE IDIOMA --- */
+        .lang-dropdown {
+            position: relative;
+            display: inline-block;
+            user-select: none;
+        }
+
+        .lang-btn {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            outline: none;
-            transition: border-color 0.2s, background-color 0.2s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-            .lang-select:hover, .lang-select:focus {
-                border-color: var(--accent-blue);
-                background-color: #21262d;
+            .lang-btn img {
+                width: 20px;
+                border-radius: 2px;
             }
 
-            .lang-select option {
-                background-color: var(--card-bg);
-                color: var(--text-main);
+        .lang-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: none;
+            flex-direction: column;
+            min-width: 140px;
+            z-index: 10;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+            .lang-menu.show {
+                display: flex;
+            }
+
+        .lang-option {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+            .lang-option:hover {
+                background: #21262d;
+                color: var(--accent-blue);
             }
 
         .container {
@@ -190,7 +226,6 @@
             font-size: 1rem;
         }
 
-        /* SECCIÓN DE INCIDENCIAS */
         .incidents-section {
             margin-top: 3.5rem;
         }
@@ -208,7 +243,6 @@
             border-radius: 6px;
             padding: 1.2rem;
             margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
             .incident-card.active {
@@ -271,7 +305,7 @@
             padding: 1rem;
         }
 
-        /* VENTANA MODAL DE GRÁFICAS */
+        /* --- MODAL AVANZADO --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -292,7 +326,7 @@
             border-radius: 12px;
             padding: 1.8rem;
             width: 90%;
-            max-width: 600px;
+            max-width: 650px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             position: relative;
         }
@@ -323,20 +357,54 @@
                 color: var(--text-main);
             }
 
+        .time-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+            .time-btn:hover {
+                color: var(--text-main);
+                border-color: var(--text-main);
+            }
+
+            .time-btn.active {
+                background: var(--accent-blue);
+                color: #fff;
+                border-color: var(--accent-blue);
+            }
+
         .modal-stats {
             display: flex;
+            flex-wrap: wrap;
             gap: 1.5rem;
             margin-bottom: 1.2rem;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
         }
 
         .stat-value {
             color: var(--accent-blue);
             font-weight: 700;
+            font-size: 1.1rem;
+            margin-left: 5px;
         }
 
-        /* FOOTER */
         footer {
             margin-top: 3rem;
             text-align: center;
@@ -363,10 +431,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .incident-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+            .time-filters {
+                justify-content: center;
             }
         }
     </style>
@@ -375,10 +441,22 @@
 
     <div class="top-bar">
         <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
-        <select id="langSelect" class="lang-select" onchange="changeLang(this.value)">
-            <option value="es">🇪🇸 Español</option>
-            <option value="en">🇬🇧 English</option>
-        </select>
+
+        <div class="lang-dropdown" id="langDropdown">
+            <div class="lang-btn" onclick="toggleLangMenu()">
+                <img id="currentLangIcon" src="https://flagcdn.com/w20/es.png" alt="ES">
+                <span id="currentLangText">Español</span>
+                <span style="font-size: 0.7rem;">▼</span>
+            </div>
+            <div class="lang-menu" id="langMenu">
+                <div class="lang-option" onclick="changeLang('es')">
+                    <img src="https://flagcdn.com/w20/es.png" alt="ES"> Español
+                </div>
+                <div class="lang-option" onclick="changeLang('en')">
+                    <img src="https://flagcdn.com/w20/gb.png" alt="EN"> English
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="container">
@@ -403,10 +481,22 @@
                 <h3 id="modalCompTitle" class="modal-title">Detalles de Rendimiento</h3>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="modal-stats">
-                <div><span id="ui-avg-latency">Latencia media</span>: <span id="modalAvgLatency" class="stat-value">0 ms</span></div>
+
+            <div class="time-filters">
+                <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24H</button>
+                <button class="time-btn" id="btn-7d" onclick="filterChart('7d', this)">7D</button>
+                <button class="time-btn" id="btn-1m" onclick="filterChart('1m', this)">1M</button>
+                <button class="time-btn" id="btn-6m" onclick="filterChart('6m', this)">6M</button>
+                <button class="time-btn" id="btn-1y" onclick="filterChart('1y', this)">1A</button>
+                <button class="time-btn" id="btn-all" onclick="filterChart('all', this)">ALL</button>
             </div>
-            <canvas id="latencyChart" width="400" height="200"></canvas>
+
+            <div class="modal-stats">
+                <div><span id="ui-uptime">Disponibilidad</span>: <span id="modalUptime" class="stat-value">--%</span></div>
+                <div><span id="ui-avg-latency">Latencia media</span>: <span id="modalAvgLatency" class="stat-value">-- ms</span></div>
+            </div>
+
+            <canvas id="latencyChart" width="400" height="180"></canvas>
         </div>
     </div>
 
@@ -419,129 +509,107 @@
     </footer>
 
     <script>
-        // DICCIONARIOS DE RESPALDO (Evita bloqueos en la interfaz si falla la red)
+        // Diccionario base seguro
         const fallbackDicts = {
             es: {
-                title: "💻 Estado del Sistema",
-                subtitle: "Monitorización en tiempo real desde múltiples regiones",
-                loading: "Comprobando satélites... 🛰️",
-                error: "Error de lectura. Esperando a la primera ejecución del bot...",
-                up: "En línea",
-                down: "Caído",
-                lastCheck: "Última comprobación: ",
-                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" },
-                chartTitle: "Tiempo de respuesta (Latencia)",
-                avgLatency: "Latencia media",
-                modalTitle: "Historial de rendimiento",
-                footerOpenSource: "Esta página es de código abierto, impulsada por",
-                close: "Cerrar",
-                ms: "ms",
-                clickForGraph: "haz clic para ver gráfica",
-                incidentsTitle: "📢 Reportes e Incidencias",
-                incidentActive: "Incidencia Activa",
-                incidentResolved: "Resuelto",
-                noIncidents: "No hay incidencias reportadas en este momento."
+                title: "💻 Estado del Sistema", subtitle: "Monitorización en tiempo real desde múltiples regiones",
+                loading: "Comprobando satélites... 🛰️", error: "Error de lectura.",
+                up: "En línea", down: "Caído", lastCheck: "Última comprobación: ",
+                uptimeTitle: "Disponibilidad", avgLatency: "Latencia media",
+                incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias.", ms: "ms",
+                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
             },
             en: {
-                title: "💻 System Status",
-                subtitle: "Real-time multi-region monitoring",
-                loading: "Checking satellites... 🛰️",
-                error: "Read error. Waiting for the first GitHub Actions bot run...",
-                up: "Online",
-                down: "Offline",
-                lastCheck: "Last check: ",
-                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" },
-                chartTitle: "Response time (Latency)",
-                avgLatency: "Average latency",
-                modalTitle: "Performance history",
-                footerOpenSource: "This page is open source, powered by",
-                close: "Close",
-                ms: "ms",
-                clickForGraph: "click to view chart",
-                incidentsTitle: "📢 Incident Reports",
-                incidentActive: "Active Incident",
-                incidentResolved: "Resolved",
-                noIncidents: "No incidents reported at this time."
+                title: "💻 System Status", subtitle: "Real-time multi-region monitoring",
+                loading: "Checking satellites... 🛰️", error: "Read error.",
+                up: "Online", down: "Offline", lastCheck: "Last check: ",
+                uptimeTitle: "Uptime", avgLatency: "Average latency",
+                incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", ms: "ms",
+                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
             }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+
         let latestData = null;
         let latestIncidents = null;
         let myChart = null;
+        let activeHistoryFull = [];
+        let activeRegKey = '';
 
-        async function loadLanguage(lang) {
+        // --- GESTIÓN DEL IDIOMA ---
+        function toggleLangMenu() {
+            document.getElementById('langMenu').classList.toggle('show');
+        }
+
+        document.addEventListener('click', function (e) {
+            if (!document.getElementById('langDropdown').contains(e.target)) {
+                document.getElementById('langMenu').classList.remove('show');
+            }
+        });
+
+        async function changeLang(lang) {
             currentLang = lang;
             localStorage.setItem('uppwebla_lang', lang);
 
-            const selectEl = document.getElementById('langSelect');
-            if (selectEl) selectEl.value = lang;
+            document.getElementById('currentLangIcon').src = lang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
+            document.getElementById('currentLangText').innerText = lang === 'es' ? "Español" : "English";
+            document.getElementById('langMenu').classList.remove('show');
 
             dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
-
             try {
                 const response = await fetch(`${lang}.json?t=${new Date().getTime()}`);
-                if (response.ok) {
-                    const fetchedDict = await response.json();
-                    dict = { ...dict, ...fetchedDict };
-                }
-            } catch (error) {
-                console.warn(`No se pudo cargar ${lang}.json dinámicamente, usando diccionario base.`, error);
-            }
+                if (response.ok) dict = { ...dict, ...(await response.json()) };
+            } catch (error) { console.warn("Usando idioma base."); }
 
             updateStaticUI();
             if (latestData) renderData(latestData);
             if (latestIncidents) renderIncidents(latestIncidents);
-        }
 
-        function changeLang(lang) {
-            loadLanguage(lang);
+            // Actualizar textos del modal si está abierto
+            if (document.getElementById('chartModal').style.display === 'flex') {
+                filterChart(document.querySelector('.time-btn.active').innerText.toLowerCase(), document.querySelector('.time-btn.active'));
+            }
         }
 
         function updateStaticUI() {
-            if (!dict.title) return;
             document.documentElement.lang = currentLang;
             document.getElementById('ui-title').innerText = dict.title;
             document.getElementById('ui-subtitle').innerText = dict.subtitle;
-            document.getElementById('ui-footer-opensource').innerText = dict.footerOpenSource;
-            document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
+            document.getElementById('ui-footer-opensource').innerText = dict.footerOpenSource || "Esta página es de código abierto, impulsada por";
             document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
+            document.getElementById('ui-uptime').innerText = dict.uptimeTitle || "Disponibilidad";
+            document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
 
             const loader = document.getElementById('ui-loading');
             if (loader) loader.innerText = dict.loading;
         }
 
+        // --- RENDERIZADO PRINCIPAL ---
         function renderData(data) {
             const container = document.getElementById('status-container');
             if (!container) return;
 
             if (!data || !data.components || data.components.length === 0) {
-                container.innerHTML = `<div class="loader" style="color: var(--text-muted);">${dict.error || 'No hay datos disponibles.'}</div>`;
+                container.innerHTML = `<div class="loader">${dict.error}</div>`;
                 return;
             }
 
             container.innerHTML = '';
-
             const uniqueComponents = [];
             const seenNames = new Set();
-            (data.components || []).forEach(comp => {
+            data.components.forEach(comp => {
                 if (comp && comp.name && !seenNames.has(comp.name)) {
                     seenNames.add(comp.name);
                     uniqueComponents.push(comp);
                 }
             });
 
-            if (uniqueComponents.length === 0) {
-                container.innerHTML = `<div class="loader" style="color: var(--text-muted);">${dict.error || 'No hay componentes activos.'}</div>`;
-                return;
-            }
-
             uniqueComponents.forEach((comp, compIdx) => {
-                const checkTime = comp.last_check || data.last_check;
-                const date = checkTime ? new Date(checkTime) : new Date();
+                const date = new Date(comp.last_check || data.last_check);
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-                const formattedDate = checkTime ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'medium' }).format(date) : '--';
+                const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date);
 
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
@@ -550,33 +618,26 @@
                     const status = typeof regData === 'string' ? regData : (regData.status || 'UP');
                     const latency = typeof regData === 'object' && regData.latency !== undefined ? regData.latency : 0;
                     const isUp = status === 'UP';
-                    const statusClass = isUp ? 'status-up' : 'status-down';
-                    const statusText = isUp ? (dict.up || 'En línea') : (dict.down || 'Caído');
-                    const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
-                    const flag = regionFlags[regKey] || '🌐';
 
                     regionsHtml += `
-                            <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
-                                <span class="region-flag">${flag}</span>
-                                <span class="region-name">${regionName}</span>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                                <span class="region-latency">⚡ ${latency} ${dict.ms || 'ms'}</span>
-                            </div>
-                        `;
+                                <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
+                                    <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
+                                    <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
+                                    <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
+                                    <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
+                                </div>
+                            `;
                 });
 
-                const componentHtml = `
-                        <div class="component">
-                            <div class="component-header">
-                                <span class="component-name">${comp.name}</span>
-                                <span class="component-time">${dict.lastCheck || 'Última comprobación: '} ${formattedDate}</span>
+                container.insertAdjacentHTML('beforeend', `
+                            <div class="component">
+                                <div class="component-header">
+                                    <span class="component-name">${comp.name}</span>
+                                    <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                                </div>
+                                <div class="regions-grid">${regionsHtml}</div>
                             </div>
-                            <div class="regions-grid">
-                                ${regionsHtml}
-                            </div>
-                        </div>
-                    `;
-                container.insertAdjacentHTML('beforeend', componentHtml);
+                        `);
             });
         }
 
@@ -586,38 +647,36 @@
             container.innerHTML = '';
 
             if (!incidents || incidents.length === 0) {
-                container.innerHTML = `<p class="no-incidents">${dict.noIncidents || 'No hay incidencias reportadas en este momento.'}</p>`;
+                container.innerHTML = `<p class="no-incidents">${dict.noIncidents}</p>`;
                 return;
             }
 
             const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-
             incidents.forEach(inc => {
                 const date = new Date(inc.date);
                 const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date);
-
                 const isActive = inc.status === 'active';
-                const cardClass = isActive ? 'active' : 'resolved';
-                const badgeClass = isActive ? 'badge-active' : 'badge-resolved';
-                const badgeText = isActive ? (dict.incidentActive || 'Incidencia Activa') : (dict.incidentResolved || 'Resuelto');
 
-                const incidentHtml = `
-                        <div class="incident-card ${cardClass}">
-                            <div class="incident-header">
-                                <span class="incident-title-text">${inc.title}</span>
-                                <span class="incident-badge ${badgeClass}">${badgeText}</span>
+                container.insertAdjacentHTML('beforeend', `
+                            <div class="incident-card ${isActive ? 'active' : 'resolved'}">
+                                <div class="incident-header">
+                                    <span class="incident-title-text">${inc.title}</span>
+                                    <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${isActive ? (dict.incidentActive || 'Activo') : (dict.incidentResolved || 'Resuelto')}</span>
+                                </div>
+                                <div class="incident-date">🕒 ${formattedDate}</div>
+                                <p class="incident-desc">${inc.description}</p>
                             </div>
-                            <div class="incident-date">🕒 ${formattedDate}</div>
-                            <p class="incident-desc">${inc.description}</p>
-                        </div>
-                    `;
-                container.insertAdjacentHTML('beforeend', incidentHtml);
+                        `);
             });
         }
 
+        // --- SISTEMA ANALÍTICO AVANZADO ---
         async function openChart(compIdx, regKey) {
-            if (!latestData || !latestData.components || !latestData.components[compIdx]) return;
+            if (!latestData || !latestData.components[compIdx]) return;
             const comp = latestData.components[compIdx];
+
+            document.getElementById('modalCompTitle').innerText = `Cargando...`;
+            document.getElementById('chartModal').style.display = 'flex';
 
             let history = [];
             try {
@@ -625,64 +684,97 @@
                     const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`);
                     if (res.ok) history = await res.json();
                 }
-                if (history.length === 0 && comp.history) {
-                    history = comp.history;
-                }
-            } catch (err) {
-                if (comp.history) history = comp.history;
-            }
+            } catch (err) { console.error("Error historial:", err); }
 
-            const labels = [];
-            const latencies = [];
-            let totalLatency = 0;
-            let count = 0;
+            activeHistoryFull = history;
+            activeRegKey = regKey;
 
-            history.forEach(entry => {
-                const date = new Date(entry.timestamp);
-                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                labels.push(timeStr);
+            const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
+            document.getElementById('modalCompTitle').innerText = `${comp.name} - ${regionName}`;
 
-                const regData = entry[regKey];
-                const lat = regData && regData.latency !== undefined ? regData.latency : (typeof regData === 'object' && regData.latency ? regData.latency : 0);
-                latencies.push(lat);
-                if (lat > 0) { totalLatency += lat; count++; }
+            // Seleccionar 24H por defecto
+            filterChart('24h', document.getElementById('btn-24h'));
+        }
+
+        function filterChart(range, btnElement) {
+            if (!btnElement) btnElement = document.getElementById('btn-24h');
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const now = new Date().getTime();
+            let cutoffTime = 0;
+            if (range === '24h') cutoffTime = now - (24 * 3600 * 1000);
+            else if (range === '7d') cutoffTime = now - (7 * 24 * 3600 * 1000);
+            else if (range === '1m') cutoffTime = now - (30 * 24 * 3600 * 1000);
+            else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
+            else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
+
+            // Filtrar el array completo según el rango (Precisión analítica del 100%)
+            const filtered = activeHistoryFull.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
+
+            let upCount = 0;
+            let latCount = 0;
+            let totalLat = 0;
+
+            filtered.forEach(entry => {
+                const regData = entry[activeRegKey];
+                const status = (typeof regData === 'string') ? regData : (regData && regData.status ? regData.status : 'DOWN');
+                const lat = (typeof regData === 'object' && regData.latency) ? regData.latency : 0;
+
+                if (status === 'UP') upCount++;
+                if (lat > 0) { latCount++; totalLat += lat; }
             });
 
-            const avg = count > 0 ? Math.round(totalLatency / count) : 0;
-            const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
+            // Uptime (Disponibilidad) en base a comprobaciones reales
+            const uptimePct = filtered.length > 0 ? ((upCount / filtered.length) * 100).toFixed(4) : "100.0000";
+            const avgLat = latCount > 0 ? Math.round(totalLat / latCount) : 0;
 
-            document.getElementById('modalCompTitle').innerText = `${comp.name} - ${regionName}`;
-            document.getElementById('modalAvgLatency').innerText = `${avg} ${dict.ms || 'ms'}`;
+            document.getElementById('modalUptime').innerText = `${uptimePct}%`;
+            document.getElementById('modalAvgLatency').innerText = `${avgLat} ${dict.ms || 'ms'}`;
 
-            const ctx = document.getElementById('latencyChart').getContext('2d');
+            // Sistema Anti-Saturación: Reducir puntos si la gráfica es inmensa (>100 pts)
+            let downsampled = filtered;
+            if (filtered.length > 150) {
+                const step = Math.ceil(filtered.length / 150);
+                downsampled = filtered.filter((_, idx) => idx % step === 0 || idx === filtered.length - 1);
+            }
+
+            const labels = downsampled.map(e => {
+                const d = new Date(e.timestamp);
+                const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
+                return (range === '24h' || range === '7d')
+                    ? d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+                    : d.toLocaleDateString(locale, { month: 'short', day: 'numeric', hour: '2-digit' });
+            });
+
+            const latencies = downsampled.map(e => {
+                const r = e[activeRegKey];
+                return (typeof r === 'object' && r.latency) ? r.latency : 0;
+            });
+
             if (myChart) myChart.destroy();
-
+            const ctx = document.getElementById('latencyChart').getContext('2d');
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: `${dict.chartTitle || 'Latencia'} (${dict.ms || 'ms'})`,
-                        data: latencies,
-                        borderColor: '#58a6ff',
-                        backgroundColor: 'rgba(88, 166, 255, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#58a6ff'
+                        label: `${dict.chartTitle || 'Latencia'} (${dict.ms})`,
+                        data: latencies, borderColor: '#58a6ff', backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                        fill: true, tension: 0.3, pointRadius: filtered.length > 50 ? 1 : 4,
+                        pointBackgroundColor: '#58a6ff', borderWidth: 2
                     }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { labels: { color: '#c9d1d9' } } },
                     scales: {
-                        x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                        x: { ticks: { color: '#8b949e', maxTicksLimit: 10 }, grid: { color: '#30363d' } },
                         y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true }
-                    }
+                    },
+                    animation: { duration: 400 } // Transición suave entre tiempos
                 }
             });
-
-            document.getElementById('chartModal').style.display = 'flex';
         }
 
         function closeModal(e) { document.getElementById('chartModal').style.display = 'none'; }
@@ -690,38 +782,19 @@
         async function fetchAllData() {
             try {
                 const resStatus = await fetch(`data.json?t=${new Date().getTime()}`);
-                if (resStatus.ok) {
-                    latestData = await resStatus.json();
-                    renderData(latestData);
-                } else {
-                    const container = document.getElementById('status-container');
-                    if (container && (!latestData || !latestData.components)) {
-                        container.innerHTML = `<div class="loader" style="color: var(--down-color);">${dict.error}</div>`;
-                    }
-                }
-            } catch (error) {
-                console.error("Error cargando data.json:", error);
-                const container = document.getElementById('status-container');
-                if (container && (!latestData || !latestData.components)) {
-                    container.innerHTML = `<div class="loader" style="color: var(--down-color);">${dict.error}</div>`;
-                }
-            }
-
+                if (resStatus.ok) { latestData = await resStatus.json(); renderData(latestData); }
+            } catch (error) { console.error("Error data:", error); }
             try {
                 const resIncidents = await fetch(`incidents.json?t=${new Date().getTime()}`);
-                if (resIncidents.ok) {
-                    latestIncidents = await resIncidents.json();
-                    renderIncidents(latestIncidents);
-                } else {
-                    renderIncidents([]);
-                }
-            } catch (error) {
-                renderIncidents([]);
-            }
+                if (resIncidents.ok) { latestIncidents = await resIncidents.json(); renderIncidents(latestIncidents); }
+                else { renderIncidents([]); }
+            } catch (error) { renderIncidents([]); }
         }
 
         async function init() {
-            await loadLanguage(currentLang);
+            document.getElementById('currentLangIcon').src = currentLang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
+            document.getElementById('currentLangText').innerText = currentLang === 'es' ? "Español" : "English";
+            await changeLang(currentLang);
             await fetchAllData();
             setInterval(fetchAllData, 60000);
         }

@@ -37,7 +37,6 @@ jobs:
             if [[ "$code" =~ ^(200|301|302|403|503)$ ]]; then
               status="UP"
             fi
-
             echo "{\"status\": \"$status\", \"latency\": $time_ms}"
           }
 
@@ -68,7 +67,7 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos y generar archivos independientes en history/
+      - name: Unificar datos y generar historial de 1 año (105120 registros)
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -96,7 +95,7 @@ jobs:
               --argjson eu "$status_eu" \
               --argjson as "$status_as" \
               --argjson old "$old_history" \
-              '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-30:]' > "$filepath"
+              '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-105120:]' > "$filepath"
           }
 
           update_history_file "history/web-principal.json" "$W_US" "$W_EU" "$W_AS"
@@ -125,4 +124,4 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json history/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update modular history [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status [skip ci]" && git push)
