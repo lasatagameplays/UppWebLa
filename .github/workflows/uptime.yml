@@ -26,15 +26,11 @@ jobs:
     steps:
       - name: Ping a los servicios y medir latencia
         run: |
-          # Función para hacer ping y medir tiempo de respuesta en milisegundos
           check_service() {
             local url=$1
-            # curl retorna HTTP_CODE TIME_TOTAL (segundos)
             local res=$(curl -L -k -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -o /dev/null -s -w "%{http_code} %{time_total}" "$url" || echo "000 0")
             local code=$(echo "$res" | awk '{print $1}')
             local time_sec=$(echo "$res" | awk '{print $2}')
-            
-            # Convertir segundos a milisegundos enteros
             local time_ms=$(jq -n --arg t "$time_sec" '($t | tonumber * 1000) | round')
 
             local status="DOWN"
@@ -76,31 +72,31 @@ jobs:
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          # Extraer datos por región
           W_US=$(jq -c '.web' US.json); W_EU=$(jq -c '.web' EU.json); W_AS=$(jq -c '.web' ASIA.json)
           C_US=$(jq -c '.cloud' US.json); C_EU=$(jq -c '.cloud' EU.json); C_AS=$(jq -c '.cloud' ASIA.json)
           M_US=$(jq -c '.mail' US.json); M_EU=$(jq -c '.mail' EU.json); M_AS=$(jq -c '.mail' ASIA.json)
           S_US=$(jq -c '.s1' US.json); S_EU=$(jq -c '.s1' EU.json); S_AS=$(jq -c '.s1' ASIA.json)
 
-          # Si no existe data.json inicial, crearlo
           if [ ! -f data.json ]; then
             echo '{"components": []}' > data.json
           fi
 
-          # Script JQ para agregar entrada al historial (manteniendo los últimos 30 registros)
+          OLD_DATA=$(cat data.json)
+
           jq -n \
             --arg ts "$TIMESTAMP" \
             --argjson wu "$W_US" --argjson we "$W_EU" --argjson wa "$W_AS" \
             --argjson cu "$C_US" --argjson ce "$C_EU" --argjson ca "$C_AS" \
             --argjson mu "$M_US" --argjson me "$M_EU" --argjson ma "$M_AS" \
             --argjson su "$S_US" --argjson se "$S_EU" --argjson sa "$S_AS" \
-            --argjson old_data "$([ -f data.json ] && cat data.json || echo '{"components":[]}')" \
+            --argjson old "$OLD_DATA" \
             '
-            def get_history(comp_name):
-              ($old_data.components[]? | select(.name == comp_name).history // []);
-
-            def add_history_entry(comp_name; us; eu; as):
-              ((get_history(comp_name) + [{timestamp: $ts, US: us, EU: eu, ASIA: as}]) | .[-30:]);
+            # Función auxiliar para extraer historial anterior y añadir el nuevo elemento (máx 30)
+            def update_hist(name; us; eu; as):
+              (
+                ($old.components[]? | select(.name == name).history // []) 
+                + [{timestamp: $ts, US: us, EU: eu, ASIA: as}]
+              )[-30:];
 
             {
               last_check: $ts,
@@ -110,28 +106,28 @@ jobs:
                   url: "https://lasata.eu",
                   regions: { US: $wu, EU: $we, ASIA: $wa },
                   last_check: $ts,
-                  history: add_history_entry("Web Principal (LASATA)"; $wu; $we; $wa)
+                  history: update_hist("Web Principal (LASATA)"; $wu; $we; $wa)
                 },
                 {
                   name: "Nube Privada (FileBrowser)",
                   url: "https://archivos.lasata.eu",
                   regions: { US: $cu, EU: $ce, ASIA: $ca },
                   last_check: $ts,
-                  history: add_history_entry("Nube Privada (FileBrowser)"; $cu; $ce; $ca)
+                  history: update_hist("Nube Privada (FileBrowser)"; $cu; $ce; $ca)
                 },
                 {
                   name: "Webmail (Roundcube Webmail)",
                   url: "https://webmail.lasata.eu",
                   regions: { US: $mu, EU: $me, ASIA: $ma },
                   last_check: $ts,
-                  history: add_history_entry("Webmail (Roundcube Webmail)"; $mu; $me; $ma)
+                  history: update_hist("Webmail (Roundcube Webmail)"; $mu; $me; $ma)
                 },
                 {
                   name: "Server S1 (HestiaCP)",
                   url: "https://s1.lasata.eu:8083",
                   regions: { US: $su, EU: $se, ASIA: $sa },
                   last_check: $ts,
-                  history: add_history_entry("Server S1 (HestiaCP)"; $su; $se; $sa)
+                  history: update_hist("Server S1 (HestiaCP)"; $su; $se; $sa)
                 }
               ]
             }' > data.json
