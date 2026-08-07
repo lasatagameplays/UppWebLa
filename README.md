@@ -1,5 +1,5 @@
 ﻿<div align="center">
-  <img src="logo.png" alt="UppWebLa Logo" width="720" />
+  <img src="src/images/logo.png" alt="UppWebLa Logo" width="720" />
   <h1>💻 UppWebLa</h1>
   
   <p>
