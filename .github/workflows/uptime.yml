@@ -68,59 +68,57 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos, historial y actualizar JSON
+      - name: Unificar datos y generar archivos independientes por región
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          W_US=$(jq -c '.web' US.json); W_EU=$(jq -c '.web' EU.json); W_AS=$(jq -c '.web' ASIA.json)
-          C_US=$(jq -c '.cloud' US.json); C_EU=$(jq -c '.cloud' EU.json); C_AS=$(jq -c '.cloud' ASIA.json)
-          M_US=$(jq -c '.mail' US.json); M_EU=$(jq -c '.mail' EU.json); M_AS=$(jq -c '.mail' ASIA.json)
-          S_US=$(jq -c '.s1' US.json); S_EU=$(jq -c '.s1' EU.json); S_AS=$(jq -c '.s1' ASIA.json)
+          W_US=$(cat US.json | jq '.web'); W_EU=$(cat EU.json | jq '.web'); W_AS=$(cat ASIA.json | jq '.web')
+          C_US=$(cat US.json | jq '.cloud'); C_EU=$(cat EU.json | jq '.cloud'); C_AS=$(cat ASIA.json | jq '.cloud')
+          M_US=$(cat US.json | jq '.mail'); M_EU=$(cat EU.json | jq '.mail'); M_AS=$(cat ASIA.json | jq '.mail')
+          S_US=$(cat US.json | jq '.s1'); S_EU=$(cat EU.json | jq '.s1'); S_AS=$(cat ASIA.json | jq '.s1')
 
-          if [ ! -f data.json ]; then
-            echo '{"components": []}' > data.json
-          fi
+          mkdir -p history
 
-          OLD_DATA=$(cat data.json)
+          # Función para actualizar el archivo JSON individual de cada servicio y región
+          update_history_file() {
+            local filepath=$1
+            local status_us=$2
+            local status_eu=$3
+            local status_as=$4
 
+            local old_history="[]"
+            if [ -f "$filepath" ]; then
+              old_history=$(cat "$filepath")
+            fi
+
+            jq -n \
+              --arg ts "$TIMESTAMP" \
+              --argjson us "$status_us" \
+              --argjson eu "$status_eu" \
+              --argjson as "$status_as" \
+              --argjson old "$old_history" \
+              '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-30:]' > "$filepath"
+          }
+
+          update_history_file "history/web-principal.json" "$W_US" "$W_EU" "$W_AS"
+          update_history_file "history/nube-privada.json" "$C_US" "$C_EU" "$C_AS"
+          update_history_file "history/webmail.json" "$M_US" "$M_EU" "$M_AS"
+          update_history_file "history/server-s1.json" "$S_US" "$S_EU" "$S_AS"
+
+          # Generar data.json resumido para la vista principal
           jq -n \
             --arg ts "$TIMESTAMP" \
             --argjson wu "$W_US" --argjson we "$W_EU" --argjson wa "$W_AS" \
             --argjson cu "$C_US" --argjson ce "$C_EU" --argjson ca "$C_AS" \
             --argjson mu "$M_US" --argjson me "$M_EU" --argjson ma "$M_AS" \
             --argjson su "$S_US" --argjson se "$S_EU" --argjson sa "$S_AS" \
-            --argjson old "$OLD_DATA" \
             '{
               last_check: $ts,
               components: [
-                {
-                  name: "Web Principal (LASATA)",
-                  url: "https://lasata.eu",
-                  regions: { US: $wu, EU: $we, ASIA: $wa },
-                  last_check: $ts,
-                  history: (($old.components[]? | select(.name == "Web Principal (LASATA)").history // []) + [{timestamp: $ts, US: $wu, EU: $we, ASIA: $wa}])[-30:]
-                },
-                {
-                  name: "Nube Privada (FileBrowser)",
-                  url: "https://archivos.lasata.eu",
-                  regions: { US: $cu, EU: $ce, ASIA: $ca },
-                  last_check: $ts,
-                  history: (($old.components[]? | select(.name == "Nube Privada (FileBrowser)").history // []) + [{timestamp: $ts, US: $cu, EU: $ce, ASIA: $ca}])[-30:]
-                },
-                {
-                  name: "Webmail (Roundcube Webmail)",
-                  url: "https://webmail.lasata.eu",
-                  regions: { US: $mu, EU: $me, ASIA: $ma },
-                  last_check: $ts,
-                  history: (($old.components[]? | select(.name == "Webmail (Roundcube Webmail)").history // []) + [{timestamp: $ts, US: $mu, EU: $me, ASIA: $ma}])[-30:]
-                },
-                {
-                  name: "Server S1 (HestiaCP)",
-                  url: "https://s1.lasata.eu:8083",
-                  regions: { US: $su, EU: $se, ASIA: $sa },
-                  last_check: $ts,
-                  history: (($old.components[]? | select(.name == "Server S1 (HestiaCP)").history // []) + [{timestamp: $ts, US: $su, EU: $se, ASIA: $sa}])[-30:]
-                }
+                { name: "Web Principal (LASATA)", url: "https://lasata.eu", regions: { US: $wu, EU: $we, ASIA: $wa }, history_file: "history/web-principal.json" },
+                { name: "Nube Privada (FileBrowser)", url: "https://archivos.lasata.eu", regions: { US: $cu, EU: $ce, ASIA: $ca }, history_file: "history/nube-privada.json" },
+                { name: "Webmail (Roundcube Webmail)", url: "https://webmail.lasata.eu", regions: { US: $mu, EU: $me, ASIA: $ma }, history_file: "history/webmail.json" },
+                { name: "Server S1 (HestiaCP)", url: "https://s1.lasata.eu:8083", regions: { US: $su, EU: $se, ASIA: $sa }, history_file: "history/server-s1.json" }
               ]
             }' > data.json
 
@@ -128,5 +126,5 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add data.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & latency [skip ci]" && git push)
+          git add data.json history/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multi-region modular history [skip ci]" && git push)
