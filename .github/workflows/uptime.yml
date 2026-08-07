@@ -26,27 +26,30 @@ jobs:
     steps:
       - name: Ping a los servicios
         run: |
+          # Variable con los "poderes" de curl (Follow Redirects, Insecure SSL, Fake User-Agent, Timeout 10s)
+          CURL_CMD="curl -L -k -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -o /dev/null -s -w %{http_code}"
+
           # 1. Chequeo Web Principal
-          STATUS_WEB=$(curl -o /dev/null -s -w "%{http_code}" "https://lasata.eu" || echo "000")
+          STATUS_WEB=$(eval $CURL_CMD "https://lasata.eu" || echo "000")
           if [ "$STATUS_WEB" -eq 200 ]; then WEB="UP"; else WEB="DOWN"; fi
           
           # 2. Chequeo Nube Privada (FileBrowser)
-          STATUS_CLOUD=$(curl -o /dev/null -s -w "%{http_code}" "https://archivos.lasata.eu" || echo "000")
+          STATUS_CLOUD=$(eval $CURL_CMD "https://archivos.lasata.eu" || echo "000")
           if [ "$STATUS_CLOUD" -eq 200 ]; then CLOUD="UP"; else CLOUD="DOWN"; fi
           
           # 3. Chequeo Webmail (HestiaCP)
-          STATUS_MAIL=$(curl -o /dev/null -s -w "%{http_code}" "https://webmail.lasata.eu" || echo "000")
+          STATUS_MAIL=$(eval $CURL_CMD "https://webmail.lasata.eu" || echo "000")
           if [ "$STATUS_MAIL" -eq 200 ]; then MAIL="UP"; else MAIL="DOWN"; fi
 
           # 4. Chequeo Server S1 (HestiaCP)
-          STATUS_S1=$(curl -o /dev/null -s -w "%{http_code}" "https://s1.lasata.eu:8083" || echo "000")
+          STATUS_S1=$(eval $CURL_CMD "https://s1.lasata.eu:8083" || echo "000")
           if [ "$STATUS_S1" -eq 200 ]; then S1="UP"; else S1="DOWN"; fi
           
           # Guardar resultado regional
           echo "{\"region\": \"${{ matrix.region }}\", \"web\": \"$WEB\", \"cloud\": \"$CLOUD\", \"mail\": \"$MAIL\", \"s1\": \"$S1\"}" > ${{ matrix.region }}.json
 
       - name: Subir artefacto temporal
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: result-${{ matrix.region }}
           path: ${{ matrix.region }}.json
@@ -57,10 +60,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Descargar artefactos regionales
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: result-*
           merge-multiple: true
