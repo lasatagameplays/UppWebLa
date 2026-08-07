@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-07T14:30:45Z",
+  "last_check": "2026-08-07T15:07:03Z",
   "components": [
     {
       "name": "Web Principal (LASATA)",
@@ -7,15 +7,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 68
+          "latency": 278
         },
         "EU": {
           "status": "UP",
-          "latency": 855
+          "latency": 795
         },
         "ASIA": {
           "status": "UP",
-          "latency": 59
+          "latency": 77
         }
       },
       "history_file": "history/web-principal.json"
@@ -26,15 +26,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 565
+          "latency": 587
         },
         "EU": {
           "status": "UP",
-          "latency": 548
+          "latency": 604
         },
         "ASIA": {
           "status": "UP",
-          "latency": 395
+          "latency": 495
         }
       },
       "history_file": "history/nube-privada.json"
@@ -45,15 +45,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 376
+          "latency": 789
         },
         "EU": {
           "status": "UP",
-          "latency": 574
+          "latency": 556
         },
         "ASIA": {
           "status": "UP",
-          "latency": 501
+          "latency": 532
         }
       },
       "history_file": "history/webmail.json"
@@ -64,15 +64,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 4159
+          "latency": 1028
         },
         "EU": {
           "status": "UP",
-          "latency": 1258
+          "latency": 1172
         },
         "ASIA": {
           "status": "UP",
-          "latency": 866
+          "latency": 1080
         }
       },
       "history_file": "history/server-s1.json"
