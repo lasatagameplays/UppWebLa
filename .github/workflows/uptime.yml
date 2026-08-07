@@ -68,7 +68,7 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos, generar historial e indexar incidencias automáticamente
+      - name: Unificar datos, generar historial e indexar incidencias
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -77,6 +77,7 @@ jobs:
           M_US=$(cat US.json | jq '.mail'); M_EU=$(cat EU.json | jq '.mail'); M_AS=$(cat ASIA.json | jq '.mail')
           S_US=$(cat US.json | jq '.s1'); S_EU=$(cat EU.json | jq '.s1'); S_AS=$(cat ASIA.json | jq '.s1')
 
+          # Crear carpetas necesarias de forma segura
           mkdir -p history
           mkdir -p incidents/LASATA.EU
 
@@ -121,12 +122,15 @@ jobs:
               ]
             }' > data.json
 
-          # Auto-indexador de incidencias
-          if ls incidents/*/*.json 1> /dev/null 2>&1; then
-            jq -s 'sort_by(.start_time) | reverse' incidents/*/*.json > incidents-index.json
+          # Búsqueda segura de incidencias sin fallos de Bash
+          shopt -s nullglob
+          inc_files=(incidents/*/*.json)
+          if [ ${#inc_files[@]} -gt 0 ]; then
+            jq -s 'sort_by(.start_time) | reverse' "${inc_files[@]}" > incidents-index.json
           else
             echo "[]" > incidents-index.json
           fi
+          shopt -u nullglob
 
       - name: Subir cambios al repositorio
         run: |
