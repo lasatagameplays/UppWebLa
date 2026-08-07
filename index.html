@@ -49,20 +49,28 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
-        .lang-btn {
-            background: var(--card-bg);
+        /* DESPLEGABLE DE IDIOMA CON BANDERAS */
+        .lang-select {
+            background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
         }
 
-            .lang-btn:hover {
-                background: #21262d;
+            .lang-select:hover, .lang-select:focus {
+                border-color: var(--accent-blue);
+                background-color: #21262d;
+            }
+
+            .lang-select option {
+                background-color: var(--card-bg);
+                color: var(--text-main);
             }
 
         .container {
@@ -179,6 +187,7 @@
             text-align: center;
             color: var(--text-muted);
             padding: 2rem;
+            font-size: 1rem;
         }
 
         /* SECCIÓN DE INCIDENCIAS */
@@ -262,7 +271,7 @@
             padding: 1rem;
         }
 
-        /* VENTANA MODAL */
+        /* VENTANA MODAL DE GRÁFICAS */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -366,7 +375,10 @@
 
     <div class="top-bar">
         <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
-        <button id="langToggle" class="lang-btn" onclick="toggleLang()">🌐 EN</button>
+        <select id="langSelect" class="lang-select" onchange="changeLang(this.value)">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇬🇧 English</option>
+        </select>
     </div>
 
     <div class="container">
@@ -407,23 +419,84 @@
     </footer>
 
     <script>
-        let currentLang = navigator.language.startsWith('es') ? 'es' : 'en';
+        // DICCIONARIOS DE RESPALDO (Evita bloqueos en la interfaz si falla la red)
+        const fallbackDicts = {
+            es: {
+                title: "💻 Estado del Sistema",
+                subtitle: "Monitorización en tiempo real desde múltiples regiones",
+                loading: "Comprobando satélites... 🛰️",
+                error: "Error de lectura. Esperando a la primera ejecución del bot...",
+                up: "En línea",
+                down: "Caído",
+                lastCheck: "Última comprobación: ",
+                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" },
+                chartTitle: "Tiempo de respuesta (Latencia)",
+                avgLatency: "Latencia media",
+                modalTitle: "Historial de rendimiento",
+                footerOpenSource: "Esta página es de código abierto, impulsada por",
+                close: "Cerrar",
+                ms: "ms",
+                clickForGraph: "haz clic para ver gráfica",
+                incidentsTitle: "📢 Reportes e Incidencias",
+                incidentActive: "Incidencia Activa",
+                incidentResolved: "Resuelto",
+                noIncidents: "No hay incidencias reportadas en este momento."
+            },
+            en: {
+                title: "💻 System Status",
+                subtitle: "Real-time multi-region monitoring",
+                loading: "Checking satellites... 🛰️",
+                error: "Read error. Waiting for the first GitHub Actions bot run...",
+                up: "Online",
+                down: "Offline",
+                lastCheck: "Last check: ",
+                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" },
+                chartTitle: "Response time (Latency)",
+                avgLatency: "Average latency",
+                modalTitle: "Performance history",
+                footerOpenSource: "This page is open source, powered by",
+                close: "Close",
+                ms: "ms",
+                clickForGraph: "click to view chart",
+                incidentsTitle: "📢 Incident Reports",
+                incidentActive: "Active Incident",
+                incidentResolved: "Resolved",
+                noIncidents: "No incidents reported at this time."
+            }
+        };
+
+        let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
+        let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let latestData = null;
         let latestIncidents = null;
-        let dict = {};
         let myChart = null;
 
         async function loadLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('uppwebla_lang', lang);
+
+            const selectEl = document.getElementById('langSelect');
+            if (selectEl) selectEl.value = lang;
+
+            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
+
             try {
                 const response = await fetch(`${lang}.json?t=${new Date().getTime()}`);
-                if (!response.ok) throw new Error('Idioma no encontrado');
-                dict = await response.json();
-                updateStaticUI();
-                if (latestData) renderData(latestData);
-                if (latestIncidents) renderIncidents(latestIncidents);
+                if (response.ok) {
+                    const fetchedDict = await response.json();
+                    dict = { ...dict, ...fetchedDict };
+                }
             } catch (error) {
-                console.error("Error cargando idioma:", error);
+                console.warn(`No se pudo cargar ${lang}.json dinámicamente, usando diccionario base.`, error);
             }
+
+            updateStaticUI();
+            if (latestData) renderData(latestData);
+            if (latestIncidents) renderIncidents(latestIncidents);
+        }
+
+        function changeLang(lang) {
+            loadLanguage(lang);
         }
 
         function updateStaticUI() {
@@ -431,7 +504,6 @@
             document.documentElement.lang = currentLang;
             document.getElementById('ui-title').innerText = dict.title;
             document.getElementById('ui-subtitle').innerText = dict.subtitle;
-            document.getElementById('langToggle').innerText = dict.btnToggle;
             document.getElementById('ui-footer-opensource').innerText = dict.footerOpenSource;
             document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
             document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
@@ -440,30 +512,36 @@
             if (loader) loader.innerText = dict.loading;
         }
 
-        function toggleLang() {
-            currentLang = currentLang === 'es' ? 'en' : 'es';
-            loadLanguage(currentLang);
-        }
-
         function renderData(data) {
-            if (!dict.regions) return;
-
             const container = document.getElementById('status-container');
+            if (!container) return;
+
+            if (!data || !data.components || data.components.length === 0) {
+                container.innerHTML = `<div class="loader" style="color: var(--text-muted);">${dict.error || 'No hay datos disponibles.'}</div>`;
+                return;
+            }
+
             container.innerHTML = '';
 
             const uniqueComponents = [];
             const seenNames = new Set();
             (data.components || []).forEach(comp => {
-                if (!seenNames.has(comp.name)) {
+                if (comp && comp.name && !seenNames.has(comp.name)) {
                     seenNames.add(comp.name);
                     uniqueComponents.push(comp);
                 }
             });
 
+            if (uniqueComponents.length === 0) {
+                container.innerHTML = `<div class="loader" style="color: var(--text-muted);">${dict.error || 'No hay componentes activos.'}</div>`;
+                return;
+            }
+
             uniqueComponents.forEach((comp, compIdx) => {
-                const date = new Date(comp.last_check || data.last_check);
+                const checkTime = comp.last_check || data.last_check;
+                const date = checkTime ? new Date(checkTime) : new Date();
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-                const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'medium' }).format(date);
+                const formattedDate = checkTime ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'medium' }).format(date) : '--';
 
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
@@ -473,8 +551,8 @@
                     const latency = typeof regData === 'object' && regData.latency !== undefined ? regData.latency : 0;
                     const isUp = status === 'UP';
                     const statusClass = isUp ? 'status-up' : 'status-down';
-                    const statusText = isUp ? dict.up : dict.down;
-                    const regionName = dict.regions[regKey] || regKey;
+                    const statusText = isUp ? (dict.up || 'En línea') : (dict.down || 'Caído');
+                    const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
                     const flag = regionFlags[regKey] || '🌐';
 
                     regionsHtml += `
@@ -491,7 +569,7 @@
                         <div class="component">
                             <div class="component-header">
                                 <span class="component-name">${comp.name}</span>
-                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                                <span class="component-time">${dict.lastCheck || 'Última comprobación: '} ${formattedDate}</span>
                             </div>
                             <div class="regions-grid">
                                 ${regionsHtml}
@@ -504,10 +582,11 @@
 
         function renderIncidents(incidents) {
             const container = document.getElementById('incidents-container');
+            if (!container) return;
             container.innerHTML = '';
 
             if (!incidents || incidents.length === 0) {
-                container.innerHTML = `<p class="no-incidents">${dict.noIncidents}</p>`;
+                container.innerHTML = `<p class="no-incidents">${dict.noIncidents || 'No hay incidencias reportadas en este momento.'}</p>`;
                 return;
             }
 
@@ -520,7 +599,7 @@
                 const isActive = inc.status === 'active';
                 const cardClass = isActive ? 'active' : 'resolved';
                 const badgeClass = isActive ? 'badge-active' : 'badge-resolved';
-                const badgeText = isActive ? dict.incidentActive : dict.incidentResolved;
+                const badgeText = isActive ? (dict.incidentActive || 'Incidencia Activa') : (dict.incidentResolved || 'Resuelto');
 
                 const incidentHtml = `
                         <div class="incident-card ${cardClass}">
@@ -537,7 +616,7 @@
         }
 
         async function openChart(compIdx, regKey) {
-            if (!latestData || !latestData.components[compIdx]) return;
+            if (!latestData || !latestData.components || !latestData.components[compIdx]) return;
             const comp = latestData.components[compIdx];
 
             let history = [];
@@ -570,7 +649,7 @@
             });
 
             const avg = count > 0 ? Math.round(totalLatency / count) : 0;
-            const regionName = dict.regions[regKey] || regKey;
+            const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
 
             document.getElementById('modalCompTitle').innerText = `${comp.name} - ${regionName}`;
             document.getElementById('modalAvgLatency').innerText = `${avg} ${dict.ms || 'ms'}`;
@@ -614,8 +693,21 @@
                 if (resStatus.ok) {
                     latestData = await resStatus.json();
                     renderData(latestData);
+                } else {
+                    const container = document.getElementById('status-container');
+                    if (container && (!latestData || !latestData.components)) {
+                        container.innerHTML = `<div class="loader" style="color: var(--down-color);">${dict.error}</div>`;
+                    }
                 }
+            } catch (error) {
+                console.error("Error cargando data.json:", error);
+                const container = document.getElementById('status-container');
+                if (container && (!latestData || !latestData.components)) {
+                    container.innerHTML = `<div class="loader" style="color: var(--down-color);">${dict.error}</div>`;
+                }
+            }
 
+            try {
                 const resIncidents = await fetch(`incidents.json?t=${new Date().getTime()}`);
                 if (resIncidents.ok) {
                     latestIncidents = await resIncidents.json();
@@ -624,7 +716,7 @@
                     renderIncidents([]);
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                renderIncidents([]);
             }
         }
 
