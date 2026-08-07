@@ -1,5 +1,5 @@
 ﻿<div align="center">
-  <img src="src/images/logo.png" alt="UppWebLa Logo" width="120" />
+  <img src="src/images/logo.png" alt="UppWebLa Logo" width="720" />
   <h1>💻 UppWebLa</h1>
   <p><b>Monitor de estado web (Uptime) Open Source, Multirregión y 100% Serverless.</b></p>
 </div>
