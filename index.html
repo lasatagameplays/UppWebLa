@@ -57,6 +57,10 @@
         .header {
             text-align: center;
             margin-bottom: 2.5rem;
+            display: flex; /* Usamos Flexbox para alinear logo y texto */
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem; /* Espacio entre el logo y el texto */
         }
 
             .header h1 {
@@ -69,6 +73,19 @@
                 color: var(--text-muted);
                 font-size: 0.95rem;
             }
+
+        .brand-logo {
+            width: 64px; /* Tamaño del logo (ajustable) */
+            height: 64px;
+            object-fit: contain; /* Asegura que el logo no se deforme */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); /* Sombra suave */
+        }
+
+        .header-text-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
         .component {
             background: var(--card-bg);
@@ -168,9 +185,13 @@
 
     <div class="container">
         <div class="header">
-            <h1 id="ui-title">💻 Estado del Sistema</h1>
-            <p id="ui-subtitle">Monitorización en tiempo real de los servicios</p>
+            <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
+            <div class="header-text-group">
+                <h1 id="ui-title">💻 Estado del Sistema</h1>
+                <p id="ui-subtitle">Monitorización en tiempo real desde múltiples regiones</p>
+            </div>
         </div>
+
         <div id="status-container">
             <div class="loader" id="ui-loading">Comprobando satélites... 🛰️</div>
         </div>
@@ -244,25 +265,25 @@
                     const flag = regionFlags[regKey];
 
                     regionsHtml += `
-                            <div class="region-box">
-                                <span class="region-flag">${flag}</span>
-                                <span class="region-name">${regionName}</span>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                            </div>
-                        `;
+                                <div class="region-box">
+                                    <span class="region-flag">${flag}</span>
+                                    <span class="region-name">${regionName}</span>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            `;
                 });
 
                 const componentHtml = `
-                        <div class="component">
-                            <div class="component-header">
-                                <span class="component-name">${comp.name}</span>
-                                <span class="component-time">${dict[currentLang].lastCheck} ${formattedDate}</span>
+                            <div class="component">
+                                <div class="component-header">
+                                    <span class="component-name">${comp.name}</span>
+                                    <span class="component-time">${dict[currentLang].lastCheck} ${formattedDate}</span>
+                                </div>
+                                <div class="regions-grid">
+                                    ${regionsHtml}
+                                </div>
                             </div>
-                            <div class="regions-grid">
-                                ${regionsHtml}
-                            </div>
-                        </div>
-                    `;
+                        `;
                 container.insertAdjacentHTML('beforeend', componentHtml);
             });
         }
