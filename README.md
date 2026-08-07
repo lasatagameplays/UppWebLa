@@ -66,6 +66,39 @@ Puedes personalizar la apariencia superior del dashboard para adaptarlo a tu pro
 
 > **Aviso importante sobre los logos:** Tus logos personales deben tener un nombre diferente a los originales. **No modifiques ni elimines los archivos que contengan la palabra `NoChange` en su nombre** (ej: `logoNoChange.png`), ya que forman parte de los derechos de autor obligatorios del proyecto.
 
+## 📢 Gestión de Incidencias
+
+El sistema organiza las incidencias en la carpeta incidents/ separadas por subcarpetas de servicios o dominios. Para publicar un reporte de incidencia:
+
+### 1. Crear un reporte de incidencia
+Crea un archivo JSON dentro de la subcarpeta correspondiente (ejemplo: incidents/LASATA.EU/2026-08-07-001.json):
+
+{
+  "id": "2026-08-07-001",
+  "service": "Web Principal (LASATA)",
+  "title": "Mantenimiento programado en la base de datos",
+  "start_time": "2026-08-07T14:00:00Z",
+  "end_time": null,
+  "status": "active",
+  "description": "Estamos realizando una optimización de índices en el servidor de base de datos. Se esperan interrupciones intermitentes.",
+  "updates": [
+    {
+      "time": "2026-08-07T14:05:00Z",
+      "text": "Inicio del mantenimiento. Tareas de respaldo completadas."
+    }
+  ]
+}
+
+### 2. Actualizar o marcar como Resuelta
+* Para añadir comentarios en tiempo real a la cronología de la web, agrega elementos al array "updates".
+* Para cerrar la incidencia, asigna la fecha y hora final en "end_time" (ej. "2026-08-07T15:30:00Z") y cambia el campo "status" a uno de los valores permitidos:
+  * "active": Incidencia en curso.
+  * "resolved": Resuelta.
+  * "resolved_manual": Resuelta manualmente por el equipo técnico.
+  * "resolved_auto": Resuelta automáticamente tras la recuperación del servicio.
+
+Al subir los cambios, el motor indexará la incidencia y aparecerá al instante en el centro de control con su página de detalles completa.
+
 ## 🔄 Cómo actualizar tu clon de UppWebLa
 
 Este proyecto está en constante evolución. Para actualizarlo de forma 100% segura:
@@ -140,6 +173,39 @@ You can customize the top appearance of the dashboard to fit your own brand. Jus
 }
 
 > **Important notice about logos:** Your personal logos must have a different name. **Do not modify or delete files containing the word `NoChange` in their name** (e.g., `logoNoChange.png`), as they are part of the project's mandatory copyright attribution.
+
+## 📢 Incident Management
+
+The system organizes incidents in the incidents/ folder, separated by service or domain subfolders. To publish an incident report:
+
+### 1. Create an incident report
+Create a JSON file inside the corresponding subfolder (example: incidents/LASATA.EU/2026-08-07-001.json):
+
+{
+  "id": "2026-08-07-001",
+  "service": "Main Web (LASATA)",
+  "title": "Scheduled database maintenance",
+  "start_time": "2026-08-07T14:00:00Z",
+  "end_time": null,
+  "status": "active",
+  "description": "We are performing index optimization on the database server. Intermittent interruptions are expected.",
+  "updates": [
+    {
+      "time": "2026-08-07T14:05:00Z",
+      "text": "Maintenance started. Backup tasks completed."
+    }
+  ]
+}
+
+### 2. Update or mark as Resolved
+* To add real-time comments to the website's timeline, add elements to the "updates" array.
+* To close the incident, assign the final date and time to "end_time" (e.g., "2026-08-07T15:30:00Z") and change the "status" field to one of the allowed values:
+  * "active": Ongoing incident.
+  * "resolved": Resolved.
+  * "resolved_manual": Resolved manually by the technical team.
+  * "resolved_auto": Resolved automatically after service recovery.
+
+Once you push the changes, the engine will index the incident and it will instantly appear in the control center with its full details page.
 
 ## 🔄 How to update your UppWebLa clone
 

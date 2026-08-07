@@ -37,6 +37,7 @@ jobs:
             if [[ "$code" =~ ^(200|301|302|403|503)$ ]]; then
               status="UP"
             fi
+
             echo "{\"status\": \"$status\", \"latency\": $time_ms}"
           }
 
@@ -67,7 +68,7 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos y generar historial de 1 año (105120 registros)
+      - name: Unificar datos, generar historial e indexar incidencias automáticamente
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -77,6 +78,7 @@ jobs:
           S_US=$(cat US.json | jq '.s1'); S_EU=$(cat EU.json | jq '.s1'); S_AS=$(cat ASIA.json | jq '.s1')
 
           mkdir -p history
+          mkdir -p incidents/LASATA.EU
 
           update_history_file() {
             local filepath=$1
@@ -119,9 +121,16 @@ jobs:
               ]
             }' > data.json
 
+          # Auto-indexador de incidencias
+          if ls incidents/*/*.json 1> /dev/null 2>&1; then
+            jq -s 'sort_by(.start_time) | reverse' incidents/*/*.json > incidents-index.json
+          else
+            echo "[]" > incidents-index.json
+          fi
+
       - name: Subir cambios al repositorio
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add data.json history/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status [skip ci]" && git push)
+          git add data.json history/ incidents/ incidents-index.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & incidents [skip ci]" && git push)

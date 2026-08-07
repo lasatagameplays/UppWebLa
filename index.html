@@ -31,7 +31,7 @@
             min-height: 100vh;
         }
 
-        /* --- BARRA DE CLIENTE (WHITE LABEL) --- */
+        /* --- BARRA SUPERIOR MARCA BLANCA --- */
         .client-nav {
             width: 100%;
             background-color: #010409;
@@ -86,7 +86,7 @@
             box-sizing: border-box;
         }
 
-        /* BARRA SUPERIOR DE IDIOMAS */
+        /* SELECTOR DE IDIOMAS */
         .top-bar {
             width: 100%;
             display: flex;
@@ -170,7 +170,7 @@
                 line-height: 1.5;
             }
 
-        /* BANNER GLOBAL AUTOMÁTICA */
+        /* BANNER GLOBAL AUTOMÁTICO */
         .global-status-banner {
             border-radius: 8px;
             padding: 1rem 1.5rem;
@@ -202,7 +202,7 @@
                 border: 1px solid rgba(248, 81, 73, 0.4);
             }
 
-        /* COMPONENTES */
+        /* COMPONENTES DE SERVICIO */
         .component {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -319,6 +319,7 @@
             font-size: 1rem;
         }
 
+        /* SECCIÓN DE INCIDENCIAS */
         .incidents-section {
             margin-top: 3.5rem;
         }
@@ -336,7 +337,12 @@
             border-radius: 6px;
             padding: 1.2rem;
             margin-bottom: 1rem;
+            transition: transform 0.2s, border-color 0.2s;
         }
+
+            .incident-card:hover {
+                transform: translateY(-2px);
+            }
 
             .incident-card.active {
                 border-left-color: var(--warn-color);
@@ -398,7 +404,7 @@
             padding: 1rem;
         }
 
-        /* MODAL AVANZADO */
+        /* MODAL AVANZADO CON GRÁFICA */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -504,7 +510,7 @@
             width: 100%;
         }
 
-        /* FOOTER Protegido */
+        /* FOOTER PROTEGIDO */
         footer {
             margin-top: 3rem;
             text-align: center;
@@ -651,11 +657,13 @@
                 loading: "Comprobando satélites... 🛰️", error: "Error de lectura.",
                 up: "En línea", down: "Caído", lastCheck: "Última comprobación: ",
                 uptimeTitle: "Disponibilidad", avgLatency: "Latencia media",
-                incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias.", ms: "ms",
+                incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas en este momento.", ms: "ms",
                 footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.",
                 allOperational: "✅ Todos los sistemas operativos",
                 partialOutage: "⚠️ Interrupción parcial del servicio",
                 majorOutage: "🔴 Todos los sistemas fuera de servicio",
+                viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página",
+                incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)",
                 regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
             },
             en: {
@@ -663,11 +671,13 @@
                 loading: "Checking satellites... 🛰️", error: "Read error.",
                 up: "Online", down: "Offline", lastCheck: "Last check: ",
                 uptimeTitle: "Uptime", avgLatency: "Average latency",
-                incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", ms: "ms",
+                incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported at this time.", ms: "ms",
                 footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.",
                 allOperational: "✅ All systems operational",
                 partialOutage: "⚠️ Partial service outage",
                 majorOutage: "🔴 Major service outage",
+                viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page",
+                incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)",
                 regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
             }
         };
@@ -675,6 +685,8 @@
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let latestData = null, latestIncidents = null, myChart = null, activeHistoryFull = [], activeRegKey = '';
+        let currentIncidentPage = 1;
+        const incidentsPerPage = 5;
 
         async function loadConfig() {
             try {
@@ -742,7 +754,7 @@
             if (document.getElementById('ui-loading')) document.getElementById('ui-loading').innerText = dict.loading;
 
             if (latestData) renderData(latestData);
-            if (latestIncidents) renderIncidents(latestIncidents);
+            if (latestIncidents) renderIncidents();
 
             if (document.getElementById('chartModal').style.display === 'flex') {
                 const activeBtn = document.querySelector('.time-btn.active');
@@ -750,7 +762,6 @@
             }
         }
 
-        // EVALUACIÓN AUTOMÁTICA DEL ESTADO GLOBAL
         function updateGlobalBanner(components) {
             const banner = document.getElementById('globalStatusBanner');
             const text = document.getElementById('globalStatusText');
@@ -840,33 +851,60 @@
             });
         }
 
-        function renderIncidents(incidents) {
+        /* PAGINACIÓN DE INCIDENCIAS (5 POR PÁGINA) */
+        function renderIncidents() {
             const container = document.getElementById('incidents-container');
             if (!container) return;
             container.innerHTML = '';
 
-            if (!incidents || incidents.length === 0) {
+            if (!latestIncidents || latestIncidents.length === 0) {
                 container.innerHTML = `<p class="no-incidents">${dict.noIncidents}</p>`;
                 return;
             }
 
             const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-            incidents.forEach(inc => {
-                const date = new Date(inc.date);
+            const start = (currentIncidentPage - 1) * incidentsPerPage;
+            const end = start + incidentsPerPage;
+            const paginated = latestIncidents.slice(start, end);
+
+            paginated.forEach(inc => {
+                const date = new Date(inc.start_time);
                 const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date);
                 const isActive = inc.status === 'active';
 
+                let badgeText = dict.incidentResolved;
+                if (isActive) badgeText = dict.incidentActive;
+                if (inc.status === 'resolved_manual') badgeText = dict.statusResolvedManual;
+                if (inc.status === 'resolved_auto') badgeText = dict.statusResolvedAuto;
+
                 container.insertAdjacentHTML('beforeend', `
-                        <div class="incident-card ${isActive ? 'active' : 'resolved'}">
+                        <div class="incident-card ${isActive ? 'active' : 'resolved'}" onclick="window.location.href='incident.html?id=${inc.id}'" style="cursor:pointer;">
                             <div class="incident-header">
                                 <span class="incident-title-text">${inc.title}</span>
-                                <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${isActive ? (dict.incidentActive || 'Activo') : (dict.incidentResolved || 'Resuelto')}</span>
+                                <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${badgeText}</span>
                             </div>
-                            <div class="incident-date">🕒 ${formattedDate}</div>
-                            <p class="incident-desc">${inc.description}</p>
+                            <div class="incident-date">🕒 ${formattedDate} - ${inc.service}</div>
+                            <p class="incident-desc">${inc.description.substring(0, 140)}...</p>
+                            <div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div>
                         </div>
                     `);
             });
+
+            if (latestIncidents.length > incidentsPerPage) {
+                const totalPages = Math.ceil(latestIncidents.length / incidentsPerPage);
+                container.insertAdjacentHTML('beforeend', `
+                        <div style="display:flex; justify-content:center; gap: 1rem; margin-top: 1.5rem; align-items:center;">
+                            <button class="lang-btn" style="padding:0.4rem 0.8rem;" ${currentIncidentPage === 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="changeIncPage(-1)">◀ ${dict.prevPage}</button>
+                            <span style="font-size:0.9rem; color:var(--text-muted); font-weight:bold;">${dict.page} ${currentIncidentPage} / ${totalPages}</span>
+                            <button class="lang-btn" style="padding:0.4rem 0.8rem;" ${currentIncidentPage === totalPages ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="changeIncPage(1)">${dict.nextPage} ▶</button>
+                        </div>
+                    `);
+            }
+        }
+
+        function changeIncPage(dir) {
+            currentIncidentPage += dir;
+            renderIncidents();
         }
 
         async function openChart(compIdx, regKey) {
@@ -958,11 +996,12 @@
                 const resStatus = await fetch(`data.json?t=${new Date().getTime()}`);
                 if (resStatus.ok) { latestData = await resStatus.json(); renderData(latestData); }
             } catch (error) { }
+
             try {
-                const resIncidents = await fetch(`incidents.json?t=${new Date().getTime()}`);
-                if (resIncidents.ok) { latestIncidents = await resIncidents.json(); renderIncidents(latestIncidents); }
-                else { renderIncidents([]); }
-            } catch (error) { renderIncidents([]); }
+                const resIncidents = await fetch(`incidents-index.json?t=${new Date().getTime()}`);
+                if (resIncidents.ok) { latestIncidents = await resIncidents.json(); renderIncidents(); }
+                else { renderIncidents(); }
+            } catch (error) { renderIncidents(); }
         }
 
         async function init() {
