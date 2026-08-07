@@ -1,5 +1,5 @@
 ﻿<div align="center">
-  <img src="src/images/logo.png" alt="UppWebLa Logo" width="720" />
+  <img src="logo.png" alt="UppWebLa Logo" width="720" />
   <h1>💻 UppWebLa</h1>
   
   <p>
@@ -12,28 +12,29 @@
 
 # 🇪🇸 Español
 
-<p><b>Monitor de estado web (Uptime) Open Source, Multirregión y 100% Serverless.</b></p>
+<p><b>Monitor de estado web (Uptime) Open Source, Multirregión, con Gráficas de Latencia y 100% Serverless.</b></p>
 
 ## 🚀 ¿Qué es UppWebLa?
 
-**UppWebLa** es un clon ultra ligero y estático de *Upptime*. Está diseñado para monitorizar el estado de tus páginas web y APIs de forma ininterrumpida utilizando la infraestructura gratuita de **GitHub Actions** y **GitHub Pages**.
+**UppWebLa** es un clon ultra ligero, moderno y estático de *Upptime*. Está diseñado para monitorizar el estado de tus páginas web y APIs de forma ininterrumpida utilizando la infraestructura gratuita de **GitHub Actions** y **GitHub Pages**.
 
-A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni frameworks pesados**. Toda su arquitectura está construida con scripts puros de `Bash`, manipulación JSON con `jq` y una interfaz de usuario desarrollada en `HTML`, `CSS` y `Vanilla JS`. Esto garantiza que el proyecto jamás quedará obsoleto por dependencias desactualizadas.
+A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni frameworks pesados**. Toda su arquitectura está construida con scripts puros de `Bash`, manipulación JSON con `jq`, gráficas interactivas con `Chart.js` y una interfaz de usuario desarrollada en `HTML`, `CSS` y `Vanilla JS`. Esto garantiza que el proyecto jamás quedará obsoleto por dependencias desactualizadas.
 
 ## ✨ Características Principales
 
-* 🌍 **Monitorización Multirregión:** Realiza pings simultáneos utilizando los servidores de GitHub distribuidos globalmente (América, Europa y Asia) a través de *Ubuntu*, *Windows* y *macOS*.
-* 🌐 **Interfaz Multilenguaje Nativa:** El dashboard detecta automáticamente el idioma del navegador del usuario (Español o Inglés) y traduce todos los textos y formatos de fecha al instante.
-* ⚡ **Ultra Ligero (Zero Dependencies):** Sin pesadas carpetas `node_modules` ni configuraciones complejas. Solo código nativo.
+* 🌍 **Monitorización Multirregión:** Realiza pings simultáneos desde los servidores de GitHub distribuidos globalmente (**América, Europa y Asia**) utilizando *Ubuntu*, *Windows* y *macOS*.
+* ⚡ **Medición de Latencia y Gráficas:** Cada ping registra el tiempo de respuesta exacto en milisegundos (`ms`). Al hacer clic en cualquier región, se abre una ventana modal con una gráfica de rendimiento interactiva.
+* 📢 **Sistema de Incidencias Nativo:** Panel integrado para reportar mantenimientos o incidencias en curso (`incidents.json`) con soporte de estados (*Activo / Resuelto*).
+* 🌐 **Interfaz Multilenguaje Dinámica:** Detecta automáticamente el idioma del navegador y carga los diccionarios desde archivos JSON independientes (`lang/es.json`, `lang/en.json`, etc.), permitiendo añadir nuevos idiomas fácilmente.
 * 🛡️ **Anti-Caché Integrado:** Sistema inteligente en el frontend que rompe la caché de GitHub Pages para mostrar siempre el estado real en el segundo exacto.
 * 💸 **100% Gratuito:** Sin costes de servidores, bases de datos o servicios de terceros. Todo se ejecuta y se aloja dentro de GitHub.
 
 ## 🛠️ ¿Cómo funciona la arquitectura?
 
 1. **El Cron Job:** Un flujo de trabajo (`uptime.yml`) se ejecuta cada 5 minutos mediante GitHub Actions.
-2. **Pings Geográficos:** Los *runners* de GitHub ejecutan peticiones `curl` a los servicios configurados desde 3 continentes distintos.
-3. **Unificación:** Un trabajo final recolecta los resultados, los formatea y actualiza un archivo `data.json`.
-4. **Despliegue Automático:** Un bot hace un `git push` silencioso al repositorio. GitHub Pages sirve el `index.html` estático que lee este JSON en tiempo real.
+2. **Pings Geográficos y Latencia:** Los *runners* ejecutan peticiones `curl` avanzadas para medir códigos HTTP y milisegundos de respuesta desde 3 continentes.
+3. **Historial Incremental:** Un trabajo final recolecta los datos, actualiza las gráficas de rendimiento y guarda el archivo `data.json`.
+4. **Despliegue Automático:** Un bot hace un `git push` silencioso al repositorio. GitHub Pages sirve el dashboard estático en `status.lasata.eu`.
 
 ## 🚀 Cómo usar UppWebLa en tu propio proyecto
 
@@ -43,23 +44,16 @@ Eres libre de clonar este repositorio para monitorizar tus propias páginas web.
 2. **Permisos del Bot:** * Ve a `Settings` > `Actions` > `General` en tu nuevo repositorio.
    * En "Workflow permissions", selecciona **Read and write permissions** y guarda.
 3. **Configurar URLs:**
-   * Edita el archivo `.github/workflows/uptime.yml`.
-   * Cambia las URLs `https://lasata.eu` por las páginas web o APIs que quieras monitorizar.
+   * Edita el archivo `.github/workflows/uptime.yml` y añade o modifica las URLs de tus servicios.
 4. **Activar GitHub Pages:**
    * Ve a `Settings` > `Pages`.
-   * En "Source", selecciona **Deploy from a branch**.
-   * Elige la rama `main` y la carpeta `/ (root)`, luego pulsa guardar.
-
-Una vez configurado, ve a la pestaña **Actions** y ejecuta el flujo de trabajo manualmente por primera vez. ¡A partir de ahí, funcionará solo!
+   * En "Source", selecciona **Deploy from a branch** (rama `main`, carpeta `/`).
 
 ## 🔄 Cómo actualizar tu clon de UppWebLa
 
-Este proyecto está en constante evolución. Si en el futuro lanzamos nuevas versiones de la interfaz gráfica (`index.html`) o del motor de pings (`uptime.yml`), actualizar tu monitorización es extremadamente sencillo y 100% seguro:
-
 1. Ve a la página principal de tu repositorio en GitHub.
-2. Si hay actualizaciones disponibles, verás un mensaje debajo del botón de código verde que dice *"This branch is X commits behind lasatagameplays/UppWebLa"*.
-3. Haz clic en el botón **"Sync fork"** y luego en **"Update branch"**.
-4. ¡Listo! Tu código se actualizará automáticamente con nuestras últimas mejoras manteniendo intactos tus datos históricos de estado (`data.json`).
+2. Si hay actualizaciones, verás el mensaje *"This branch is X commits behind lasatagameplays/UppWebLa"*.
+3. Haz clic en **"Sync fork"** y luego en **"Update branch"**. ¡Listo!
 
 ## 📄 Licencia y Copyright
 
@@ -67,7 +61,7 @@ Este proyecto es de código abierto y está disponible gratuitamente bajo los t�
 
 Creado, diseñado y mantenido con ❤️ por **[Rubén Castañeda Matute](https://github.com/lasatagameplays) (LASATA.EU)**. 
 
-> **Nota para desarrolladores:** Eres libre de clonar, bifurcar (fork) y utilizar este sistema de monitorización para tus propias páginas web o proyectos comerciales. El único requisito legal es que **debes mantener el aviso de copyright original** y los créditos al autor en tu repositorio.
+> **Nota para desarrolladores:** Eres libre de clonar y utilizar este sistema de monitorización. El único requisito legal es que **debes mantener el aviso de copyright original** y los créditos al autor en tu repositorio.
 
 <br>
 
@@ -75,59 +69,46 @@ Creado, diseñado y mantenido con ❤️ por **[Rubén Castañeda Matute](https:
 
 # 🇬🇧 English
 
-<p><b>Open Source, Multi-Region, and 100% Serverless Web Status Monitor (Uptime).</b></p>
+<p><b>Open Source, Multi-Region, Latency-Charting, and 100% Serverless Web Status Monitor (Uptime).</b></p>
 
 ## 🚀 What is UppWebLa?
 
-**UppWebLa** is an ultra-lightweight, static clone of *Upptime*. It is designed to continuously monitor the status of your websites and APIs using the free infrastructure of **GitHub Actions** and **GitHub Pages**.
+**UppWebLa** is an ultra-lightweight, modern, static clone of *Upptime*. It continuously monitors your websites and APIs using the free infrastructure of **GitHub Actions** and **GitHub Pages**.
 
-Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks**. Its entire architecture is built with pure `Bash` scripts, JSON manipulation using `jq`, and a UI developed in `HTML`, `CSS`, and `Vanilla JS`. This ensures the project will never become obsolete due to outdated dependencies.
+Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks**. Its architecture relies entirely on pure `Bash` scripts, JSON manipulation via `jq`, interactive charts using `Chart.js`, and a clean frontend built with `HTML`, `CSS`, and `Vanilla JS`.
 
 ## ✨ Main Features
 
-* 🌍 **Multi-Region Monitoring:** Performs simultaneous pings using globally distributed GitHub servers (America, Europe, and Asia) via *Ubuntu*, *Windows*, and *macOS*.
-* 🌐 **Native Multilingual Interface:** The dashboard automatically detects the user's browser language (Spanish or English) and translates all texts and date formats instantly.
-* ⚡ **Ultra Lightweight (Zero Dependencies):** No heavy `node_modules` folders or complex configurations. Pure native code only.
-* 🛡️ **Built-in Cache-Busting:** Smart frontend system that breaks the GitHub Pages cache to always display real-time status to the exact second.
-* 💸 **100% Free:** No server, database, or third-party service costs. Everything runs and is hosted entirely inside GitHub.
+* 🌍 **Multi-Region Monitoring:** Simultaneous pings from globally distributed GitHub servers (**America, Europe, and Asia**) via *Ubuntu*, *Windows*, and *macOS*.
+* ⚡ **Latency Tracking & Interactive Charts:** Measures response time in milliseconds (`ms`). Clicking any region opens a modal with a detailed performance chart.
+* 📢 **Native Incident Management:** Built-in panel to report ongoing maintenance or incidents (`incidents.json`) with *Active / Resolved* states.
+* 100% Extensible Multilingual UI: Automatically detects browser language and fetches dictionaries from independent JSON files (`lang/es.json`, `lang/en.json`, etc.).
+* 🛡️ **Built-in Cache-Busting:** Smart frontend mechanism bypassing GitHub Pages caching for real-time accuracy.
+* 💸 **100% Free:** Zero server or database costs. Fully hosted and executed within GitHub.
 
 ## 🛠️ How does the architecture work?
 
 1. **The Cron Job:** A workflow (`uptime.yml`) runs every 5 minutes via GitHub Actions.
-2. **Geographical Pings:** GitHub *runners* execute `curl` requests to the configured services from 3 different continents.
-3. **Unification:** A final job collects the results, formats them, and updates a `data.json` file.
-4. **Automated Deployment:** A bot performs a silent `git push` to the repository. GitHub Pages serves the static `index.html` which reads this JSON in real time.
+2. **Geo-Pings & Latency:** GitHub runners execute advanced `curl` commands to measure HTTP status and response times from 3 continents.
+3. **Incremental History:** A final job collects data, updates performance history, and pushes to `data.json`.
+4. **Automated Deployment:** GitHub Pages serves the static dashboard instantly.
 
 ## 🚀 How to use UppWebLa in your own project
 
-You are free to clone this repository to monitor your own websites. Just follow these simple steps:
-
-1. **Fork:** Fork this repository to your own GitHub account.
-2. **Bot Permissions:** * Go to `Settings` > `Actions` > `General` in your new repository.
-   * Under "Workflow permissions", select **Read and write permissions** and save.
-3. **Configure URLs:**
-   * Edit the `.github/workflows/uptime.yml` file.
-   * Change the `https://lasata.eu` URLs to the websites or APIs you want to monitor.
-4. **Enable GitHub Pages:**
-   * Go to `Settings` > `Pages`.
-   * Under "Source", select **Deploy from a branch**.
-   * Choose the `main` branch and the `/ (root)` folder, then hit save.
-
-Once configured, go to the **Actions** tab and manually run the workflow for the first time. From then on, it will run on its own!
+1. **Fork:** Fork this repository to your GitHub account.
+2. **Bot Permissions:** Go to `Settings` > `Actions` > `General`, select **Read and write permissions**, and save.
+3. **Configure URLs:** Edit `.github/workflows/uptime.yml` to target your own services.
+4. **Enable GitHub Pages:** Go to `Settings` > `Pages`, choose **Deploy from a branch** (`main`, root folder).
 
 ## 🔄 How to update your UppWebLa clone
 
-This project is constantly evolving. If we release new versions of the UI (`index.html`) or the ping engine (`uptime.yml`) in the future, updating your monitor is extremely simple and 100% safe:
-
-1. Go to your repository's main page on GitHub.
-2. If updates are available, you will see a message below the green code button saying *"This branch is X commits behind lasatagameplays/UppWebLa"*.
-3. Click the **"Sync fork"** button and then **"Update branch"**.
-4. Done! Your code will automatically update with our latest improvements while keeping your historical status data (`data.json`) intact.
+1. Go to your repository's main page.
+2. Click **"Sync fork"** and then **"Update branch"** when updates are available.
 
 ## 📄 License and Copyright
 
-This project is open-source and freely available under the terms of the [MIT License](LICENSE).
+This project is open-source and freely available under the [MIT License](LICENSE).
 
 Created, designed, and maintained with ❤️ by **[Rubén Castañeda Matute](https://github.com/lasatagameplays) (LASATA.EU)**. 
 
-> **Note for developers:** You are free to clone, fork, and use this monitoring system for your own websites or commercial projects. The only legal requirement is that **you must keep the original copyright notice** and author credits in your repository.
+> **Note for developers:** You are free to clone and use this monitoring system. The only legal requirement is that **you must keep the original copyright notice** and author credits in your repository.

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estado del Sistema | LASATA.EU</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -12,7 +13,9 @@
             --text-muted: #8b949e;
             --up-color: #2ea043;
             --down-color: #f85149;
+            --warn-color: #d29922;
             --border-color: #30363d;
+            --accent-blue: #58a6ff;
         }
 
         body {
@@ -24,24 +27,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
-        /* --- BARRA SUPERIOR ALINEADA --- */
+        /* BARRA SUPERIOR */
         .top-bar {
             width: 100%;
-            max-width: 1280px;
+            max-width: 700px;
             display: flex;
-            justify-content: space-between; /* Alinea logo a la izq y botón a la der */
-            align-items: center; /* Los centra verticalmente */
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
         }
 
         .brand-logo {
-            width: 1080px;
+            width: 720px;
             height: 120px;
-            max-width: 75%; /* Seguridad responsive para que no aplaste el botón en móviles */
+            max-width: 70%;
             object-fit: contain;
-            object-position: left; /* Alinea la imagen a la izquierda de su contenedor */
+            object-position: left;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
@@ -54,7 +58,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.2s;
-            white-space: nowrap; /* Evita que el texto del botón se rompa en dos líneas */
+            white-space: nowrap;
         }
 
             .lang-btn:hover {
@@ -64,15 +68,12 @@
         .container {
             max-width: 700px;
             width: 100%;
+            flex: 1;
         }
 
         .header {
             text-align: center;
             margin-bottom: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
         }
 
             .header h1 {
@@ -86,6 +87,7 @@
                 font-size: 0.95rem;
             }
 
+        /* TARJETAS DE COMPONENTES */
         .component {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -129,8 +131,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
         }
+
+            .region-box:hover {
+                transform: translateY(-2px);
+                border-color: var(--accent-blue);
+            }
 
         .region-flag {
             font-size: 1.2rem;
@@ -142,13 +151,17 @@
             font-weight: 600;
         }
 
+        .region-latency {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
         .status-badge {
-            padding: 0.3rem 0.8rem;
+            padding: 0.25rem 0.7rem;
             border-radius: 999px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
             text-transform: uppercase;
-            width: fit-content;
         }
 
         .status-up {
@@ -169,9 +182,183 @@
             padding: 2rem;
         }
 
+        /* --- NUEVO: SECCIÓN DE INCIDENCIAS --- */
+        .incidents-section {
+            margin-top: 3.5rem;
+        }
+
+        .incidents-title {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.8rem;
+        }
+
+        .incident-card {
+            background: var(--card-bg);
+            border-left: 4px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+            .incident-card.active {
+                border-left-color: var(--warn-color);
+            }
+
+            .incident-card.resolved {
+                border-left-color: var(--up-color);
+            }
+
+        .incident-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .incident-title-text {
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .incident-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warn-color);
+            border: 1px solid rgba(210, 153, 34, 0.4);
+        }
+
+        .badge-resolved {
+            background: rgba(46, 160, 67, 0.15);
+            color: var(--up-color);
+            border: 1px solid rgba(46, 160, 67, 0.4);
+        }
+
+        .incident-date {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+        }
+
+        .incident-desc {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .no-incidents {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 1rem;
+        }
+
+        /* VENTANA MODAL PARA LAS GRÁFICAS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.8rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+            .close-btn:hover {
+                color: var(--text-main);
+            }
+
+        .modal-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        /* FOOTER ESTILO UPPTIME */
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            width: 100%;
+            max-width: 700px;
+        }
+
+            footer a {
+                color: var(--accent-blue);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
+
         @media (max-width: 500px) {
             .regions-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .incident-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -179,73 +366,95 @@
 <body>
 
     <div class="top-bar">
-        <a href="https://github.com/lasatagameplays/UppWebLa"><img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo"></a>
+        <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
         <button id="langToggle" class="lang-btn" onclick="toggleLang()">🌐 EN</button>
     </div>
 
     <div class="container">
         <div class="header">
-            <div class="header-text-group">
-                <h1 id="ui-title">💻 Estado del Sistema</h1>
-                <p id="ui-subtitle">Monitorización en tiempo real desde múltiples regiones</p>
-            </div>
+            <h1 id="ui-title">💻 Estado del Sistema</h1>
+            <p id="ui-subtitle">Monitorización en tiempo real desde múltiples regiones</p>
         </div>
 
         <div id="status-container">
             <div class="loader" id="ui-loading">Comprobando satélites... 🛰️</div>
         </div>
+
+        <div class="incidents-section">
+            <h2 id="ui-incidents-title" class="incidents-title">📢 Reportes e Incidencias</h2>
+            <div id="incidents-container">
+            </div>
+        </div>
     </div>
 
+    <div id="chartModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modalCompTitle" class="modal-title">Detalles de Rendimiento</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-stats">
+                <div><span id="ui-avg-latency">Latencia media</span>: <span id="modalAvgLatency" class="stat-value">0 ms</span></div>
+            </div>
+            <canvas id="latencyChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <span id="ui-footer-opensource">Esta página es de código abierto, impulsada por</span>
+            <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">UppWebLa</a>
+        </p>
+        <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank" rel="noopener">LASATA.EU</a>)</p>
+    </footer>
+
     <script>
-        // Variables globales
         let currentLang = navigator.language.startsWith('es') ? 'es' : 'en';
         let latestData = null;
-        let dict = {}; // Se llenará con el JSON descargado
+        let latestIncidents = null;
+        let dict = {};
+        let myChart = null;
 
-        // Función para cargar el archivo JSON de idioma
         async function loadLanguage(lang) {
             try {
-                // El parámetro de tiempo evita que GitHub Pages cachee el archivo de idioma
                 const response = await fetch(`lang/${lang}.json?t=${new Date().getTime()}`);
                 if (!response.ok) throw new Error('Archivo de idioma no encontrado');
-
                 dict = await response.json();
                 updateStaticUI();
-
-                // Si ya teníamos los datos de estado cargados, volvemos a renderizarlos traducidos
                 if (latestData) renderData(latestData);
+                if (latestIncidents) renderIncidents(latestIncidents);
             } catch (error) {
-                console.error("Error cargando el idioma:", error);
+                console.error("Error cargando idioma:", error);
             }
         }
 
-        // Actualiza los textos fijos de la interfaz
         function updateStaticUI() {
-            if (!dict.title) return; // Seguridad si aún no ha cargado
-
+            if (!dict.title) return;
             document.documentElement.lang = currentLang;
             document.getElementById('ui-title').innerText = dict.title;
             document.getElementById('ui-subtitle').innerText = dict.subtitle;
             document.getElementById('langToggle').innerText = dict.btnToggle;
+            document.getElementById('ui-footer-opensource').innerText = dict.footerOpenSource;
+            document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
+            document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
 
             const loader = document.getElementById('ui-loading');
             if (loader) loader.innerText = dict.loading;
         }
 
-        // Alterna entre español e inglés
         function toggleLang() {
             currentLang = currentLang === 'es' ? 'en' : 'es';
             loadLanguage(currentLang);
         }
 
-        // Dibuja los componentes y sus estados
+        // --- RENDERIZAR SERVIDORES ---
         function renderData(data) {
-            if (!dict.regions) return; // Espera a que el diccionario cargue
+            if (!dict.regions) return;
 
             const container = document.getElementById('status-container');
             container.innerHTML = '';
 
-            data.components.forEach(comp => {
+            data.components.forEach((comp, compIdx) => {
                 const date = new Date(comp.last_check);
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
                 const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'medium' }).format(date);
@@ -253,18 +462,21 @@
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
 
-                Object.entries(comp.regions).forEach(([regKey, regStatus]) => {
-                    const isUp = regStatus === 'UP';
+                Object.entries(comp.regions).forEach(([regKey, regData]) => {
+                    const status = typeof regData === 'string' ? regData : regData.status;
+                    const latency = typeof regData === 'object' && regData.latency !== undefined ? regData.latency : 0;
+                    const isUp = status === 'UP';
                     const statusClass = isUp ? 'status-up' : 'status-down';
                     const statusText = isUp ? dict.up : dict.down;
-                    const regionName = dict.regions[regKey];
-                    const flag = regionFlags[regKey];
+                    const regionName = dict.regions[regKey] || regKey;
+                    const flag = regionFlags[regKey] || '🌐';
 
                     regionsHtml += `
-                            <div class="region-box">
+                            <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
                                 <span class="region-flag">${flag}</span>
                                 <span class="region-name">${regionName}</span>
                                 <span class="status-badge ${statusClass}">${statusText}</span>
+                                <span class="region-latency">⚡ ${latency} ${dict.ms || 'ms'}</span>
                             </div>
                         `;
                 });
@@ -284,26 +496,128 @@
             });
         }
 
-        // Obtiene el estado de los servidores (data.json de GitHub Actions)
-        async function fetchStatus() {
-            try {
-                const response = await fetch(`data.json?t=${new Date().getTime()}`);
-                if (!response.ok) throw new Error('No data');
-                latestData = await response.json();
-                renderData(latestData);
-            } catch (error) {
-                if (dict.error) {
-                    document.getElementById('status-container').innerHTML =
-                        `<div class="loader" style="color: var(--down-color);">${dict.error}</div>`;
+        // --- RENDERIZAR INCIDENCIAS ---
+        function renderIncidents(incidents) {
+            const container = document.getElementById('incidents-container');
+            container.innerHTML = '';
+
+            if (!incidents || incidents.length === 0) {
+                container.innerHTML = `<p class="no-incidents">${dict.noIncidents}</p>`;
+                return;
+            }
+
+            const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
+
+            incidents.forEach(inc => {
+                const date = new Date(inc.date);
+                const formattedDate = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date);
+
+                const isActive = inc.status === 'active';
+                const cardClass = isActive ? 'active' : 'resolved';
+                const badgeClass = isActive ? 'badge-active' : 'badge-resolved';
+                const badgeText = isActive ? dict.incidentActive : dict.incidentResolved;
+
+                const incidentHtml = `
+                        <div class="incident-card ${cardClass}">
+                            <div class="incident-header">
+                                <span class="incident-title-text">${inc.title}</span>
+                                <span class="incident-badge ${badgeClass}">${badgeText}</span>
+                            </div>
+                            <div class="incident-date">🕒 ${formattedDate}</div>
+                            <p class="incident-desc">${inc.description}</p>
+                        </div>
+                    `;
+                container.insertAdjacentHTML('beforeend', incidentHtml);
+            });
+        }
+
+        function openChart(compIdx, regKey) {
+            if (!latestData || !latestData.components[compIdx]) return;
+            const comp = latestData.components[compIdx];
+            const history = comp.history || [];
+
+            const labels = [];
+            const latencies = [];
+            let totalLatency = 0;
+            let count = 0;
+
+            history.forEach(entry => {
+                const date = new Date(entry.timestamp);
+                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                labels.push(timeStr);
+
+                const regData = entry[regKey];
+                const lat = regData && regData.latency ? regData.latency : 0;
+                latencies.push(lat);
+                if (lat > 0) { totalLatency += lat; count++; }
+            });
+
+            const avg = count > 0 ? Math.round(totalLatency / count) : 0;
+            const regionName = dict.regions[regKey] || regKey;
+
+            document.getElementById('modalCompTitle').innerText = `${comp.name} - ${regionName}`;
+            document.getElementById('modalAvgLatency').innerText = `${avg} ${dict.ms || 'ms'}`;
+
+            const ctx = document.getElementById('latencyChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${dict.chartTitle || 'Latencia'} (${dict.ms || 'ms'})`,
+                        data: latencies,
+                        borderColor: '#58a6ff',
+                        backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#58a6ff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#c9d1d9' } } },
+                    scales: {
+                        x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                        y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true }
+                    }
                 }
+            });
+
+            document.getElementById('chartModal').style.display = 'flex';
+        }
+
+        function closeModal(e) { document.getElementById('chartModal').style.display = 'none'; }
+
+        async function fetchAllData() {
+            try {
+                // Fetch Estado de servidores
+                const resStatus = await fetch(`data.json?t=${new Date().getTime()}`);
+                if (resStatus.ok) {
+                    latestData = await resStatus.json();
+                    renderData(latestData);
+                }
+
+                // Fetch Incidencias
+                const resIncidents = await fetch(`incidents.json?t=${new Date().getTime()}`);
+                if (resIncidents.ok) {
+                    latestIncidents = await resIncidents.json();
+                    renderIncidents(latestIncidents);
+                } else {
+                    // Si el archivo no existe aún, mostramos vacío
+                    renderIncidents([]);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
         }
 
-        // SECUENCIA DE ARRANQUE INICIAL
         async function init() {
-            await loadLanguage(currentLang); // 1º Carga el idioma
-            await fetchStatus();             // 2º Carga el estado de los servidores
-            setInterval(fetchStatus, 60000); // 3º Empieza el auto-refresco
+            await loadLanguage(currentLang);
+            await fetchAllData();
+            setInterval(fetchAllData, 60000); // Refresco general cada 60s
         }
 
         init();

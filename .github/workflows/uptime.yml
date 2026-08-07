@@ -24,29 +24,33 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: Ping a los servicios
+      - name: Ping a los servicios y medir latencia
         run: |
-          # Banderas avanzadas de curl
-          CURL_CMD="curl -L -k -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -o /dev/null -s -w %{http_code}"
+          # Función para hacer ping y medir tiempo de respuesta en milisegundos
+          check_service() {
+            local url=$1
+            # curl retorna HTTP_CODE TIME_TOTAL (segundos)
+            local res=$(curl -L -k -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -o /dev/null -s -w "%{http_code} %{time_total}" "$url" || echo "000 0")
+            local code=$(echo "$res" | awk '{print $1}')
+            local time_sec=$(echo "$res" | awk '{print $2}')
+            
+            # Convertir segundos a milisegundos enteros
+            local time_ms=$(jq -n --arg t "$time_sec" '($t | tonumber * 1000) | round')
 
-          # 1. Chequeo Web Principal (Aceptando códigos de Firewall como 403 y 503)
-          STATUS_WEB=$(eval $CURL_CMD "https://lasata.eu" || echo "000")
-          if [[ "$STATUS_WEB" =~ ^(200|301|302|403|503)$ ]]; then WEB="UP"; else WEB="DOWN"; fi
-          
-          # 2. Chequeo Nube Privada (FileBrowser)
-          STATUS_CLOUD=$(eval $CURL_CMD "https://archivos.lasata.eu" || echo "000")
-          if [[ "$STATUS_CLOUD" =~ ^(200|301|302|403|503)$ ]]; then CLOUD="UP"; else CLOUD="DOWN"; fi
-          
-          # 3. Chequeo Webmail (HestiaCP)
-          STATUS_MAIL=$(eval $CURL_CMD "https://webmail.lasata.eu" || echo "000")
-          if [[ "$STATUS_MAIL" =~ ^(200|301|302|403|503)$ ]]; then MAIL="UP"; else MAIL="DOWN"; fi
+            local status="DOWN"
+            if [[ "$code" =~ ^(200|301|302|403|503)$ ]]; then
+              status="UP"
+            fi
 
-          # 4. Chequeo Server S1 (HestiaCP)
-          STATUS_S1=$(eval $CURL_CMD "https://s1.lasata.eu:8083" || echo "000")
-          if [[ "$STATUS_S1" =~ ^(200|301|302|403|503)$ ]]; then S1="UP"; else S1="DOWN"; fi
-          
-          # Guardar resultado regional
-          echo "{\"region\": \"${{ matrix.region }}\", \"web\": \"$WEB\", \"cloud\": \"$CLOUD\", \"mail\": \"$MAIL\", \"s1\": \"$S1\"}" > ${{ matrix.region }}.json
+            echo "{\"status\": \"$status\", \"latency\": $time_ms}"
+          }
+
+          WEB_RES=$(check_service "https://lasata.eu")
+          CLOUD_RES=$(check_service "https://archivos.lasata.eu")
+          MAIL_RES=$(check_service "https://webmail.lasata.eu")
+          S1_RES=$(check_service "https://s1.lasata.eu:8083")
+
+          echo "{\"region\": \"${{ matrix.region }}\", \"web\": $WEB_RES, \"cloud\": $CLOUD_RES, \"mail\": $MAIL_RES, \"s1\": $S1_RES}" > ${{ matrix.region }}.json
 
       - name: Subir artefacto temporal
         uses: actions/upload-artifact@v5
@@ -68,44 +72,66 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos y actualizar JSON
+      - name: Unificar datos, historial y actualizar JSON
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          # Extraer los datos de cada región para cada servicio
-          W_US=$(jq -r '.web' US.json); W_EU=$(jq -r '.web' EU.json); W_AS=$(jq -r '.web' ASIA.json)
-          C_US=$(jq -r '.cloud' US.json); C_EU=$(jq -r '.cloud' EU.json); C_AS=$(jq -r '.cloud' ASIA.json)
-          M_US=$(jq -r '.mail' US.json); M_EU=$(jq -r '.mail' EU.json); M_AS=$(jq -r '.mail' ASIA.json)
-          S_US=$(jq -r '.s1' US.json); S_EU=$(jq -r '.s1' EU.json); S_AS=$(jq -r '.s1' ASIA.json)
 
-          # Reconstruir data.json con los 4 componentes
+          # Extraer datos por región
+          W_US=$(jq -c '.web' US.json); W_EU=$(jq -c '.web' EU.json); W_AS=$(jq -c '.web' ASIA.json)
+          C_US=$(jq -c '.cloud' US.json); C_EU=$(jq -c '.cloud' EU.json); C_AS=$(jq -c '.cloud' ASIA.json)
+          M_US=$(jq -c '.mail' US.json); M_EU=$(jq -c '.mail' EU.json); M_AS=$(jq -c '.mail' ASIA.json)
+          S_US=$(jq -c '.s1' US.json); S_EU=$(jq -c '.s1' EU.json); S_AS=$(jq -c '.s1' ASIA.json)
+
+          # Si no existe data.json inicial, crearlo
+          if [ ! -f data.json ]; then
+            echo '{"components": []}' > data.json
+          fi
+
+          # Script JQ para agregar entrada al historial (manteniendo los últimos 30 registros)
           jq -n \
             --arg ts "$TIMESTAMP" \
-            --arg wu "$W_US" --arg we "$W_EU" --arg wa "$W_AS" \
-            --arg cu "$C_US" --arg ce "$C_EU" --arg ca "$C_AS" \
-            --arg mu "$M_US" --arg me "$M_EU" --arg ma "$M_AS" \
-            --arg su "$S_US" --arg se "$S_EU" --arg sa "$S_AS" \
-            '{
+            --argjson wu "$W_US" --argjson we "$W_EU" --argjson wa "$W_AS" \
+            --argjson cu "$C_US" --argjson ce "$C_EU" --argjson ca "$C_AS" \
+            --argjson mu "$M_US" --argjson me "$M_EU" --argjson ma "$M_AS" \
+            --argjson su "$S_US" --argjson se "$S_EU" --argjson sa "$S_AS" \
+            --argjson old_data "$([ -f data.json ] && cat data.json || echo '{"components":[]}')" \
+            '
+            def get_history(comp_name):
+              ($old_data.components[]? | select(.name == comp_name).history // []);
+
+            def add_history_entry(comp_name; us; eu; as):
+              ((get_history(comp_name) + [{timestamp: $ts, US: us, EU: eu, ASIA: as}]) | .[-30:]);
+
+            {
+              last_check: $ts,
               components: [
-                { 
-                  name: "Web Principal (LASATA)", url: "https://lasata.eu", 
-                  regions: { US: $wu, EU: $we, ASIA: $wa }, 
-                  last_check: $ts 
+                {
+                  name: "Web Principal (LASATA)",
+                  url: "https://lasata.eu",
+                  regions: { US: $wu, EU: $we, ASIA: $wa },
+                  last_check: $ts,
+                  history: add_history_entry("Web Principal (LASATA)"; $wu; $we; $wa)
                 },
-                { 
-                  name: "Nube Privada (FileBrowser)", url: "https://archivos.lasata.eu", 
-                  regions: { US: $cu, EU: $ce, ASIA: $ca }, 
-                  last_check: $ts 
+                {
+                  name: "Nube Privada (FileBrowser)",
+                  url: "https://archivos.lasata.eu",
+                  regions: { US: $cu, EU: $ce, ASIA: $ca },
+                  last_check: $ts,
+                  history: add_history_entry("Nube Privada (FileBrowser)"; $cu; $ce; $ca)
                 },
-                { 
-                  name: "Webmail (Roundcube Webmail)", url: "https://webmail.lasata.eu", 
-                  regions: { US: $mu, EU: $me, ASIA: $ma }, 
-                  last_check: $ts 
+                {
+                  name: "Webmail (Roundcube Webmail)",
+                  url: "https://webmail.lasata.eu",
+                  regions: { US: $mu, EU: $me, ASIA: $ma },
+                  last_check: $ts,
+                  history: add_history_entry("Webmail (Roundcube Webmail)"; $mu; $me; $ma)
                 },
-                { 
-                  name: "Server S1 (HestiaCP)", url: "https://s1.lasata.eu:8083", 
-                  regions: { US: $su, EU: $se, ASIA: $sa }, 
-                  last_check: $ts 
+                {
+                  name: "Server S1 (HestiaCP)",
+                  url: "https://s1.lasata.eu:8083",
+                  regions: { US: $su, EU: $se, ASIA: $sa },
+                  last_check: $ts,
+                  history: add_history_entry("Server S1 (HestiaCP)"; $su; $se; $sa)
                 }
               ]
             }' > data.json
@@ -115,4 +141,4 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & latency [skip ci]" && git push)
