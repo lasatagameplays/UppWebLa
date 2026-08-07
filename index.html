@@ -44,7 +44,7 @@
 
         .client-nav-inner {
             width: 100%;
-            max-width: 700px;
+            max-width: 850px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -79,7 +79,7 @@
             }
 
         .container {
-            max-width: 700px;
+            max-width: 850px;
             width: 100%;
             flex: 1;
             padding: 2rem;
@@ -91,7 +91,7 @@
             width: 100%;
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .lang-dropdown {
@@ -155,7 +155,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
         }
 
             .header h1 {
@@ -167,6 +167,39 @@
                 margin: 0;
                 color: var(--text-muted);
                 font-size: 0.95rem;
+                line-height: 1.5;
+            }
+
+        /* BANNER GLOBAL AUTOMÁTICA */
+        .global-status-banner {
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+            .global-status-banner.all-up {
+                background-color: rgba(46, 160, 67, 0.12);
+                color: var(--up-color);
+                border: 1px solid rgba(46, 160, 67, 0.4);
+            }
+
+            .global-status-banner.partial {
+                background-color: rgba(210, 153, 34, 0.12);
+                color: var(--warn-color);
+                border: 1px solid rgba(210, 153, 34, 0.4);
+            }
+
+            .global-status-banner.all-down {
+                background-color: rgba(248, 81, 73, 0.12);
+                color: var(--down-color);
+                border: 1px solid rgba(248, 81, 73, 0.4);
             }
 
         /* COMPONENTES */
@@ -186,9 +219,10 @@
             margin-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.8rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
-        /* ENLACE CLICABLE DE COMPONENTE */
         .component-name {
             font-weight: 600;
             font-size: 1.1rem;
@@ -198,6 +232,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
 
             .component-name:hover {
@@ -469,7 +504,7 @@
             width: 100%;
         }
 
-        /* FOOTER (Protegido) */
+        /* FOOTER Protegido */
         footer {
             margin-top: 3rem;
             text-align: center;
@@ -478,7 +513,7 @@
             border-top: 1px solid var(--border-color);
             padding-top: 1.5rem;
             width: 100%;
-            max-width: 700px;
+            max-width: 850px;
             padding-bottom: 2rem;
         }
 
@@ -500,7 +535,7 @@
                 text-decoration: underline;
             }
 
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
             .regions-grid {
                 grid-template-columns: 1fr;
             }
@@ -512,6 +547,10 @@
             .client-nav-inner {
                 flex-direction: column;
                 gap: 10px;
+            }
+
+            .component-name {
+                white-space: normal;
             }
         }
     </style>
@@ -544,8 +583,12 @@
         </div>
 
         <div class="header">
-            <h1 id="ui-title">💻 Estado del Sistema</h1>
-            <p id="ui-subtitle">Monitorización en tiempo real desde múltiples regiones</p>
+            <h1 id="ui-global-title">Monitorización Global de LASATA.EU</h1>
+            <p id="ui-global-desc">Bienvenido al centro de control. Supervisión en tiempo real de la infraestructura en la nube, servidores físicos y bases de datos. Actualizado cada 5 minutos.</p>
+        </div>
+
+        <div id="globalStatusBanner" class="global-status-banner all-up">
+            <span id="globalStatusText">Comprobando satélites... 🛰️</span>
         </div>
 
         <div id="status-container">
@@ -588,27 +631,51 @@
     <div id="secure-footer-container"></div>
 
     <script>
-        // SVG Icon para link externo
         const externalLinkIcon = `<svg viewBox="0 0 24 24"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg>`;
 
         let userConfig = {
-            companyName: "UppWebLa",
+            companyName: "LASATA",
             companyLogo: "",
-            returnLinkTextES: "Volver a la web",
-            returnLinkTextEN: "Return to website",
-            returnLinkUrl: "#"
+            returnLinkTextES: "Volver a la web principal",
+            returnLinkTextEN: "Return to main website",
+            returnLinkUrl: "https://lasata.eu",
+            globalTitleES: "Monitorización Global de LASATA.EU",
+            globalTitleEN: "Global Monitoring of LASATA.EU",
+            globalDescES: "Bienvenido al centro de control. Supervisión en tiempo real de la infraestructura en la nube, servidores físicos y bases de datos. Actualizado cada 5 minutos.",
+            globalDescEN: "Welcome to the control center. Real-time supervision of cloud infrastructure, physical servers, and databases. Updated every 5 minutes."
         };
 
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", subtitle: "Monitorización en tiempo real desde múltiples regiones", loading: "Comprobando satélites... 🛰️", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias.", ms: "ms", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" } },
-            en: { title: "💻 System Status", subtitle: "Real-time multi-region monitoring", loading: "Checking satellites... 🛰️", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", ms: "ms", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" } }
+            es: {
+                title: "💻 Estado del Sistema", subtitle: "Monitorización en tiempo real desde múltiples regiones",
+                loading: "Comprobando satélites... 🛰️", error: "Error de lectura.",
+                up: "En línea", down: "Caído", lastCheck: "Última comprobación: ",
+                uptimeTitle: "Disponibilidad", avgLatency: "Latencia media",
+                incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias.", ms: "ms",
+                footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.",
+                allOperational: "✅ Todos los sistemas operativos",
+                partialOutage: "⚠️ Interrupción parcial del servicio",
+                majorOutage: "🔴 Todos los sistemas fuera de servicio",
+                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
+            },
+            en: {
+                title: "💻 System Status", subtitle: "Real-time multi-region monitoring",
+                loading: "Checking satellites... 🛰️", error: "Read error.",
+                up: "Online", down: "Offline", lastCheck: "Last check: ",
+                uptimeTitle: "Uptime", avgLatency: "Average latency",
+                incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", ms: "ms",
+                footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.",
+                allOperational: "✅ All systems operational",
+                partialOutage: "⚠️ Partial service outage",
+                majorOutage: "🔴 Major service outage",
+                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
+            }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let latestData = null, latestIncidents = null, myChart = null, activeHistoryFull = [], activeRegKey = '';
 
-        // CARGA DE CONFIGURACIÓN DEL CLIENTE
         async function loadConfig() {
             try {
                 const res = await fetch(`config.json?t=${new Date().getTime()}`);
@@ -617,7 +684,9 @@
         }
 
         function applyClientConfig() {
-            document.title = `${userConfig.companyName} | ${dict.title} (UppWebLa open-source software)`;
+            const isEs = currentLang === 'es';
+            const pageTitle = isEs ? (userConfig.globalTitleES || dict.title) : (userConfig.globalTitleEN || dict.title);
+            document.title = `${userConfig.companyName} | ${pageTitle} (UppWebLa open-source software)`;
 
             document.getElementById('clientName').innerText = userConfig.companyName;
             if (userConfig.companyLogo) {
@@ -627,10 +696,12 @@
 
             const clientLink = document.getElementById('clientLink');
             clientLink.href = userConfig.returnLinkUrl;
-            clientLink.innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
+            clientLink.innerText = isEs ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
+
+            document.getElementById('ui-global-title').innerText = isEs ? userConfig.globalTitleES : userConfig.globalTitleEN;
+            document.getElementById('ui-global-desc').innerText = isEs ? userConfig.globalDescES : userConfig.globalDescEN;
         }
 
-        // FOOTER PROTEGIDO GENERADO POR JS (CON ENLACE EN LASATA.EU)
         function renderProtectedFooter() {
             const footerHtml = `
                     <footer>
@@ -644,7 +715,6 @@
             document.getElementById('secure-footer-container').innerHTML = footerHtml;
         }
 
-        // GESTIÓN DEL IDIOMA
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
         document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
 
@@ -665,8 +735,6 @@
             renderProtectedFooter();
 
             document.documentElement.lang = currentLang;
-            document.getElementById('ui-title').innerText = dict.title;
-            document.getElementById('ui-subtitle').innerText = dict.subtitle;
             document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
             document.getElementById('ui-uptime').innerText = dict.uptimeTitle || "Disponibilidad";
             document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
@@ -682,7 +750,37 @@
             }
         }
 
-        // RENDERIZADO PRINCIPAL
+        // EVALUACIÓN AUTOMÁTICA DEL ESTADO GLOBAL
+        function updateGlobalBanner(components) {
+            const banner = document.getElementById('globalStatusBanner');
+            const text = document.getElementById('globalStatusText');
+            if (!banner || !text) return;
+
+            let totalChecks = 0;
+            let upChecks = 0;
+
+            components.forEach(comp => {
+                Object.values(comp.regions || {}).forEach(regData => {
+                    const status = typeof regData === 'string' ? regData : (regData.status || 'UP');
+                    totalChecks++;
+                    if (status === 'UP') upChecks++;
+                });
+            });
+
+            banner.classList.remove('all-up', 'partial', 'all-down');
+
+            if (totalChecks === 0 || upChecks === totalChecks) {
+                banner.classList.add('all-up');
+                text.innerText = dict.allOperational || "✅ Todos los sistemas operativos";
+            } else if (upChecks === 0) {
+                banner.classList.add('all-down');
+                text.innerText = dict.majorOutage || "🔴 Todos los sistemas fuera de servicio";
+            } else {
+                banner.classList.add('partial');
+                text.innerText = dict.partialOutage || "⚠️ Interrupción parcial del servicio";
+            }
+        }
+
         function renderData(data) {
             const container = document.getElementById('status-container');
             if (!container) return;
@@ -701,6 +799,8 @@
                     uniqueComponents.push(comp);
                 }
             });
+
+            updateGlobalBanner(uniqueComponents);
 
             uniqueComponents.forEach((comp, compIdx) => {
                 const checkTime = comp.last_check || data.last_check;
@@ -769,7 +869,6 @@
             });
         }
 
-        // SISTEMA ANALÍTICO
         async function openChart(compIdx, regKey) {
             if (!latestData || !latestData.components[compIdx]) return;
             const comp = latestData.components[compIdx];
