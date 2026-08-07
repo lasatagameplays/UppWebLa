@@ -617,7 +617,6 @@
         }
 
         function applyClientConfig() {
-            // Título dinámico
             document.title = `${userConfig.companyName} | ${dict.title} (UppWebLa open-source software)`;
 
             document.getElementById('clientName').innerText = userConfig.companyName;
@@ -631,12 +630,12 @@
             clientLink.innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
         }
 
-        // FOOTER PROTEGIDO GENERADO POR JS
+        // FOOTER PROTEGIDO GENERADO POR JS (CON ENLACE EN LASATA.EU)
         function renderProtectedFooter() {
             const footerHtml = `
                     <footer>
                         <p><span id="ui-footer-opensource">${dict.footerOpenSource}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">UppWebLa</a></p>
-                        <p>© 2026 Rubén Castañeda Matute (LASATA.EU) - <span id="ui-footer-rights">${dict.rights}</span></p>
+                        <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank" rel="noopener">LASATA.EU</a>) - <span id="ui-footer-rights">${dict.rights}</span></p>
                         <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">
                             <img src="src/images/logoNoChange.png" alt="UppWebLa Autor" class="footer-logo">
                         </a>
@@ -683,7 +682,7 @@
             }
         }
 
-        // RENDERIZADO PRINCIPAL (AHORA CON TÍTULOS CLICABLES)
+        // RENDERIZADO PRINCIPAL
         function renderData(data) {
             const container = document.getElementById('status-container');
             if (!container) return;
