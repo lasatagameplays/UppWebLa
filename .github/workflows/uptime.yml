@@ -90,15 +90,7 @@ jobs:
             --argjson mu "$M_US" --argjson me "$M_EU" --argjson ma "$M_AS" \
             --argjson su "$S_US" --argjson se "$S_EU" --argjson sa "$S_AS" \
             --argjson old "$OLD_DATA" \
-            '
-            # Función auxiliar para extraer historial anterior y añadir el nuevo elemento (máx 30)
-            def update_hist(name; us; eu; as):
-              (
-                ($old.components[]? | select(.name == name).history // []) 
-                + [{timestamp: $ts, US: us, EU: eu, ASIA: as}]
-              )[-30:];
-
-            {
+            '{
               last_check: $ts,
               components: [
                 {
@@ -106,28 +98,28 @@ jobs:
                   url: "https://lasata.eu",
                   regions: { US: $wu, EU: $we, ASIA: $wa },
                   last_check: $ts,
-                  history: update_hist("Web Principal (LASATA)"; $wu; $we; $wa)
+                  history: (($old.components[]? | select(.name == "Web Principal (LASATA)").history // []) + [{timestamp: $ts, US: $wu, EU: $we, ASIA: $wa}])[-30:]
                 },
                 {
                   name: "Nube Privada (FileBrowser)",
                   url: "https://archivos.lasata.eu",
                   regions: { US: $cu, EU: $ce, ASIA: $ca },
                   last_check: $ts,
-                  history: update_hist("Nube Privada (FileBrowser)"; $cu; $ce; $ca)
+                  history: (($old.components[]? | select(.name == "Nube Privada (FileBrowser)").history // []) + [{timestamp: $ts, US: $cu, EU: $ce, ASIA: $ca}])[-30:]
                 },
                 {
                   name: "Webmail (Roundcube Webmail)",
                   url: "https://webmail.lasata.eu",
                   regions: { US: $mu, EU: $me, ASIA: $ma },
                   last_check: $ts,
-                  history: update_hist("Webmail (Roundcube Webmail)"; $mu; $me; $ma)
+                  history: (($old.components[]? | select(.name == "Webmail (Roundcube Webmail)").history // []) + [{timestamp: $ts, US: $mu, EU: $me, ASIA: $ma}])[-30:]
                 },
                 {
                   name: "Server S1 (HestiaCP)",
                   url: "https://s1.lasata.eu:8083",
                   regions: { US: $su, EU: $se, ASIA: $sa },
                   last_check: $ts,
-                  history: update_hist("Server S1 (HestiaCP)"; $su; $se; $sa)
+                  history: (($old.components[]? | select(.name == "Server S1 (HestiaCP)").history // []) + [{timestamp: $ts, US: $su, EU: $se, ASIA: $sa}])[-30:]
                 }
               ]
             }' > data.json
