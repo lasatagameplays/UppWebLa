@@ -3,14 +3,42 @@
     {
       "name": "Web Principal (LASATA)",
       "url": "https://lasata.eu",
-      "status": "DOWN",
-      "last_check": "2026-08-07T01:21:17Z"
+      "regions": {
+        "US": "DOWN",
+        "EU": "DOWN",
+        "ASIA": "DOWN"
+      },
+      "last_check": "2026-08-07T02:18:31Z"
     },
     {
-      "name": "API (LASATA)",
-      "url": "https://lasata.eu",
-      "status": "DOWN",
-      "last_check": "2026-08-07T01:21:17Z"
+      "name": "Nube Privada (FileBrowser)",
+      "url": "https://archivos.lasata.eu",
+      "regions": {
+        "US": "UP",
+        "EU": "UP",
+        "ASIA": "UP"
+      },
+      "last_check": "2026-08-07T02:18:31Z"
+    },
+    {
+      "name": "Webmail (HestiaCP)",
+      "url": "https://webmail.lasata.eu",
+      "regions": {
+        "US": "UP",
+        "EU": "UP",
+        "ASIA": "UP"
+      },
+      "last_check": "2026-08-07T02:18:31Z"
+    },
+    {
+      "name": "Server S1 (HestiaCP)",
+      "url": "https://s1.lasata.eu:8083",
+      "regions": {
+        "US": "DOWN",
+        "EU": "DOWN",
+        "ASIA": "DOWN"
+      },
+      "last_check": "2026-08-07T02:18:31Z"
     }
   ]
 }
