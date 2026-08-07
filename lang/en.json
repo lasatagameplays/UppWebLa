@@ -1,0 +1,15 @@
+﻿{
+    "title": "💻 System Status",
+    "subtitle": "Real-time multi-region monitoring",
+    "loading": "Checking satellites... 🛰️",
+    "error": "Read error. Waiting for the first GitHub Actions bot run...",
+    "up": "Online",
+    "down": "Offline",
+    "lastCheck": "Last check: ",
+    "btnToggle": "🌐 ES",
+    "regions": {
+        "US": "America",
+        "EU": "Europe",
+        "ASIA": "Asia"
+    }
+}

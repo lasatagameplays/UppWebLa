@@ -26,12 +26,23 @@
             align-items: center;
         }
 
+        /* --- BARRA SUPERIOR ALINEADA --- */
         .top-bar {
             width: 100%;
-            max-width: 700px;
+            max-width: 1280px;
             display: flex;
-            justify-content: flex-end;
-            margin-bottom: 1rem;
+            justify-content: space-between; /* Alinea logo a la izq y botón a la der */
+            align-items: center; /* Los centra verticalmente */
+            margin-bottom: 2rem;
+        }
+
+        .brand-logo {
+            width: 1080px;
+            height: 120px;
+            max-width: 75%; /* Seguridad responsive para que no aplaste el botón en móviles */
+            object-fit: contain;
+            object-position: left; /* Alinea la imagen a la izquierda de su contenedor */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
         .lang-btn {
@@ -43,6 +54,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.2s;
+            white-space: nowrap; /* Evita que el texto del botón se rompa en dos líneas */
         }
 
             .lang-btn:hover {
@@ -57,10 +69,10 @@
         .header {
             text-align: center;
             margin-bottom: 2.5rem;
-            display: flex; /* Usamos Flexbox para alinear logo y texto */
+            display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem; /* Espacio entre el logo y el texto */
+            gap: 1rem;
         }
 
             .header h1 {
@@ -73,19 +85,6 @@
                 color: var(--text-muted);
                 font-size: 0.95rem;
             }
-
-        .brand-logo {
-            width: 64px; /* Tamaño del logo (ajustable) */
-            height: 64px;
-            object-fit: contain; /* Asegura que el logo no se deforme */
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); /* Sombra suave */
-        }
-
-        .header-text-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
 
         .component {
             background: var(--card-bg);
@@ -180,12 +179,12 @@
 <body>
 
     <div class="top-bar">
+        <a href="https://github.com/lasatagameplays/UppWebLa"><img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo"></a>
         <button id="langToggle" class="lang-btn" onclick="toggleLang()">🌐 EN</button>
     </div>
 
     <div class="container">
         <div class="header">
-            <img src="src/images/logo.png" alt="UppWebLa Logo" class="brand-logo">
             <div class="header-text-group">
                 <h1 id="ui-title">💻 Estado del Sistema</h1>
                 <p id="ui-subtitle">Monitorización en tiempo real desde múltiples regiones</p>
@@ -198,53 +197,51 @@
     </div>
 
     <script>
-        // Diccionario de Traducciones
-        const dict = {
-            es: {
-                title: "💻 Estado del Sistema",
-                subtitle: "Monitorización en tiempo real desde múltiples regiones",
-                loading: "Comprobando satélites... 🛰️",
-                error: "Error de lectura. Esperando a la primera ejecución del bot...",
-                up: "En línea",
-                down: "Caído",
-                lastCheck: "Última comprobación: ",
-                btnToggle: "🌐 EN",
-                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
-            },
-            en: {
-                title: "💻 System Status",
-                subtitle: "Real-time multi-region monitoring",
-                loading: "Checking satellites... 🛰️",
-                error: "Read error. Waiting for the first GitHub Actions bot run...",
-                up: "Online",
-                down: "Offline",
-                lastCheck: "Last check: ",
-                btnToggle: "🌐 ES",
-                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
-            }
-        };
-
-        // Detección automática del idioma del navegador
+        // Variables globales
         let currentLang = navigator.language.startsWith('es') ? 'es' : 'en';
-        let latestData = null; // Almacenamos el JSON para no volver a descargarlo al cambiar idioma
+        let latestData = null;
+        let dict = {}; // Se llenará con el JSON descargado
 
+        // Función para cargar el archivo JSON de idioma
+        async function loadLanguage(lang) {
+            try {
+                // El parámetro de tiempo evita que GitHub Pages cachee el archivo de idioma
+                const response = await fetch(`lang/${lang}.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('Archivo de idioma no encontrado');
+
+                dict = await response.json();
+                updateStaticUI();
+
+                // Si ya teníamos los datos de estado cargados, volvemos a renderizarlos traducidos
+                if (latestData) renderData(latestData);
+            } catch (error) {
+                console.error("Error cargando el idioma:", error);
+            }
+        }
+
+        // Actualiza los textos fijos de la interfaz
         function updateStaticUI() {
+            if (!dict.title) return; // Seguridad si aún no ha cargado
+
             document.documentElement.lang = currentLang;
-            document.getElementById('ui-title').innerText = dict[currentLang].title;
-            document.getElementById('ui-subtitle').innerText = dict[currentLang].subtitle;
-            document.getElementById('langToggle').innerText = dict[currentLang].btnToggle;
+            document.getElementById('ui-title').innerText = dict.title;
+            document.getElementById('ui-subtitle').innerText = dict.subtitle;
+            document.getElementById('langToggle').innerText = dict.btnToggle;
 
             const loader = document.getElementById('ui-loading');
-            if (loader) loader.innerText = dict[currentLang].loading;
+            if (loader) loader.innerText = dict.loading;
         }
 
+        // Alterna entre español e inglés
         function toggleLang() {
             currentLang = currentLang === 'es' ? 'en' : 'es';
-            updateStaticUI();
-            if (latestData) renderData(latestData);
+            loadLanguage(currentLang);
         }
 
+        // Dibuja los componentes y sus estados
         function renderData(data) {
+            if (!dict.regions) return; // Espera a que el diccionario cargue
+
             const container = document.getElementById('status-container');
             container.innerHTML = '';
 
@@ -256,38 +253,38 @@
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
 
-                // Generar los 3 bloques regionales
                 Object.entries(comp.regions).forEach(([regKey, regStatus]) => {
                     const isUp = regStatus === 'UP';
                     const statusClass = isUp ? 'status-up' : 'status-down';
-                    const statusText = isUp ? dict[currentLang].up : dict[currentLang].down;
-                    const regionName = dict[currentLang].regions[regKey];
+                    const statusText = isUp ? dict.up : dict.down;
+                    const regionName = dict.regions[regKey];
                     const flag = regionFlags[regKey];
 
                     regionsHtml += `
-                                <div class="region-box">
-                                    <span class="region-flag">${flag}</span>
-                                    <span class="region-name">${regionName}</span>
-                                    <span class="status-badge ${statusClass}">${statusText}</span>
-                                </div>
-                            `;
+                            <div class="region-box">
+                                <span class="region-flag">${flag}</span>
+                                <span class="region-name">${regionName}</span>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                        `;
                 });
 
                 const componentHtml = `
-                            <div class="component">
-                                <div class="component-header">
-                                    <span class="component-name">${comp.name}</span>
-                                    <span class="component-time">${dict[currentLang].lastCheck} ${formattedDate}</span>
-                                </div>
-                                <div class="regions-grid">
-                                    ${regionsHtml}
-                                </div>
+                        <div class="component">
+                            <div class="component-header">
+                                <span class="component-name">${comp.name}</span>
+                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
                             </div>
-                        `;
+                            <div class="regions-grid">
+                                ${regionsHtml}
+                            </div>
+                        </div>
+                    `;
                 container.insertAdjacentHTML('beforeend', componentHtml);
             });
         }
 
+        // Obtiene el estado de los servidores (data.json de GitHub Actions)
         async function fetchStatus() {
             try {
                 const response = await fetch(`data.json?t=${new Date().getTime()}`);
@@ -295,15 +292,21 @@
                 latestData = await response.json();
                 renderData(latestData);
             } catch (error) {
-                document.getElementById('status-container').innerHTML =
-                    `<div class="loader" style="color: var(--down-color);">${dict[currentLang].error}</div>`;
+                if (dict.error) {
+                    document.getElementById('status-container').innerHTML =
+                        `<div class="loader" style="color: var(--down-color);">${dict.error}</div>`;
+                }
             }
         }
 
-        // Inicialización
-        updateStaticUI();
-        fetchStatus();
-        setInterval(fetchStatus, 60000);
+        // SECUENCIA DE ARRANQUE INICIAL
+        async function init() {
+            await loadLanguage(currentLang); // 1º Carga el idioma
+            await fetchStatus();             // 2º Carga el estado de los servidores
+            setInterval(fetchStatus, 60000); // 3º Empieza el auto-refresco
+        }
+
+        init();
     </script>
 </body>
 </html>
