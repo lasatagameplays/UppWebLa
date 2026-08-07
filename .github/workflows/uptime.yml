@@ -26,16 +26,24 @@ jobs:
     steps:
       - name: Ping a los servicios
         run: |
-          # Chequeo Web
+          # 1. Chequeo Web Principal
           STATUS_WEB=$(curl -o /dev/null -s -w "%{http_code}" "https://lasata.eu" || echo "000")
           if [ "$STATUS_WEB" -eq 200 ]; then WEB="UP"; else WEB="DOWN"; fi
           
-          # Chequeo API
-          STATUS_API=$(curl -o /dev/null -s -w "%{http_code}" "https://lasata.eu" || echo "000")
-          if [ "$STATUS_API" -eq 200 ]; then API="UP"; else API="DOWN"; fi
+          # 2. Chequeo Nube Privada (FileBrowser)
+          STATUS_CLOUD=$(curl -o /dev/null -s -w "%{http_code}" "https://archivos.lasata.eu" || echo "000")
+          if [ "$STATUS_CLOUD" -eq 200 ]; then CLOUD="UP"; else CLOUD="DOWN"; fi
+          
+          # 3. Chequeo Webmail (HestiaCP)
+          STATUS_MAIL=$(curl -o /dev/null -s -w "%{http_code}" "https://webmail.lasata.eu" || echo "000")
+          if [ "$STATUS_MAIL" -eq 200 ]; then MAIL="UP"; else MAIL="DOWN"; fi
+
+          # 4. Chequeo Server S1 (HestiaCP)
+          STATUS_S1=$(curl -o /dev/null -s -w "%{http_code}" "https://s1.lasata.eu:8083" || echo "000")
+          if [ "$STATUS_S1" -eq 200 ]; then S1="UP"; else S1="DOWN"; fi
           
           # Guardar resultado regional
-          echo "{\"region\": \"${{ matrix.region }}\", \"web\": \"$WEB\", \"api\": \"$API\"}" > ${{ matrix.region }}.json
+          echo "{\"region\": \"${{ matrix.region }}\", \"web\": \"$WEB\", \"cloud\": \"$CLOUD\", \"mail\": \"$MAIL\", \"s1\": \"$S1\"}" > ${{ matrix.region }}.json
 
       - name: Subir artefacto temporal
         uses: actions/upload-artifact@v4
@@ -61,19 +69,19 @@ jobs:
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
-          # Extraer los datos de cada región
-          W_US=$(jq -r '.web' US.json)
-          W_EU=$(jq -r '.web' EU.json)
-          W_AS=$(jq -r '.web' ASIA.json)
-          A_US=$(jq -r '.api' US.json)
-          A_EU=$(jq -r '.api' EU.json)
-          A_AS=$(jq -r '.api' ASIA.json)
+          # Extraer los datos de cada región para cada servicio
+          W_US=$(jq -r '.web' US.json); W_EU=$(jq -r '.web' EU.json); W_AS=$(jq -r '.web' ASIA.json)
+          C_US=$(jq -r '.cloud' US.json); C_EU=$(jq -r '.cloud' EU.json); C_AS=$(jq -r '.cloud' ASIA.json)
+          M_US=$(jq -r '.mail' US.json); M_EU=$(jq -r '.mail' EU.json); M_AS=$(jq -r '.mail' ASIA.json)
+          S_US=$(jq -r '.s1' US.json); S_EU=$(jq -r '.s1' EU.json); S_AS=$(jq -r '.s1' ASIA.json)
 
-          # Reconstruir data.json
+          # Reconstruir data.json con los 4 componentes
           jq -n \
             --arg ts "$TIMESTAMP" \
             --arg wu "$W_US" --arg we "$W_EU" --arg wa "$W_AS" \
-            --arg au "$A_US" --arg ae "$A_EU" --arg aa "$A_AS" \
+            --arg cu "$C_US" --arg ce "$C_EU" --arg ca "$C_AS" \
+            --arg mu "$M_US" --arg me "$M_EU" --arg ma "$M_AS" \
+            --arg su "$S_US" --arg se "$S_EU" --arg sa "$S_AS" \
             '{
               components: [
                 { 
@@ -82,8 +90,18 @@ jobs:
                   last_check: $ts 
                 },
                 { 
-                  name: "API (LASATA)", url: "https://lasata.eu", 
-                  regions: { US: $au, EU: $ae, ASIA: $aa }, 
+                  name: "Nube Privada (FileBrowser)", url: "https://archivos.lasata.eu", 
+                  regions: { US: $cu, EU: $ce, ASIA: $ca }, 
+                  last_check: $ts 
+                },
+                { 
+                  name: "Webmail (HestiaCP)", url: "https://webmail.lasata.eu", 
+                  regions: { US: $mu, EU: $me, ASIA: $ma }, 
+                  last_check: $ts 
+                },
+                { 
+                  name: "Server S1 (HestiaCP)", url: "https://s1.lasata.eu:8083", 
+                  regions: { US: $su, EU: $se, ASIA: $sa }, 
                   last_check: $ts 
                 }
               ]
