@@ -26,24 +26,24 @@ jobs:
     steps:
       - name: Ping a los servicios
         run: |
-          # Variable con los "poderes" de curl (Follow Redirects, Insecure SSL, Fake User-Agent, Timeout 10s)
+          # Banderas avanzadas de curl
           CURL_CMD="curl -L -k -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -o /dev/null -s -w %{http_code}"
 
-          # 1. Chequeo Web Principal
+          # 1. Chequeo Web Principal (Aceptando códigos de Firewall como 403 y 503)
           STATUS_WEB=$(eval $CURL_CMD "https://lasata.eu" || echo "000")
-          if [ "$STATUS_WEB" -eq 200 ]; then WEB="UP"; else WEB="DOWN"; fi
+          if [[ "$STATUS_WEB" =~ ^(200|301|302|403|503)$ ]]; then WEB="UP"; else WEB="DOWN"; fi
           
           # 2. Chequeo Nube Privada (FileBrowser)
           STATUS_CLOUD=$(eval $CURL_CMD "https://archivos.lasata.eu" || echo "000")
-          if [ "$STATUS_CLOUD" -eq 200 ]; then CLOUD="UP"; else CLOUD="DOWN"; fi
+          if [[ "$STATUS_CLOUD" =~ ^(200|301|302|403|503)$ ]]; then CLOUD="UP"; else CLOUD="DOWN"; fi
           
           # 3. Chequeo Webmail (HestiaCP)
           STATUS_MAIL=$(eval $CURL_CMD "https://webmail.lasata.eu" || echo "000")
-          if [ "$STATUS_MAIL" -eq 200 ]; then MAIL="UP"; else MAIL="DOWN"; fi
+          if [[ "$STATUS_MAIL" =~ ^(200|301|302|403|503)$ ]]; then MAIL="UP"; else MAIL="DOWN"; fi
 
           # 4. Chequeo Server S1 (HestiaCP)
           STATUS_S1=$(eval $CURL_CMD "https://s1.lasata.eu:8083" || echo "000")
-          if [ "$STATUS_S1" -eq 200 ]; then S1="UP"; else S1="DOWN"; fi
+          if [[ "$STATUS_S1" =~ ^(200|301|302|403|503)$ ]]; then S1="UP"; else S1="DOWN"; fi
           
           # Guardar resultado regional
           echo "{\"region\": \"${{ matrix.region }}\", \"web\": \"$WEB\", \"cloud\": \"$CLOUD\", \"mail\": \"$MAIL\", \"s1\": \"$S1\"}" > ${{ matrix.region }}.json
@@ -98,7 +98,7 @@ jobs:
                   last_check: $ts 
                 },
                 { 
-                  name: "Webmail (HestiaCP)", url: "https://webmail.lasata.eu", 
+                  name: "Webmail (Roundcube Webmail)", url: "https://webmail.lasata.eu", 
                   regions: { US: $mu, EU: $me, ASIA: $ma }, 
                   last_check: $ts 
                 },
