@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado del Sistema | LASATA.EU</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --up-color: #2ea043;
+            --down-color: #f85149;
+            --border-color: #30363d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 650px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+            .header h1 {
+                margin: 0 0 0.5rem 0;
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                margin: 0;
+                color: var(--text-muted);
+                font-size: 0.95rem;
+            }
+
+        .component {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .component-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .component-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .component-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-up {
+            background-color: rgba(46, 160, 67, 0.15);
+            color: var(--up-color);
+            border: 1px solid rgba(46, 160, 67, 0.4);
+        }
+
+        .status-down {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--down-color);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+        }
+
+        .loader {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💻 Estado del Sistema</h1>
+            <p>Monitorización en tiempo real de los servicios de LASATA.EU</p>
+        </div>
+        <div id="status-container">
+            <div class="loader">Comprobando satélites... 🛰️</div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            const container = document.getElementById('status-container');
+            try {
+                // El parámetro '?t=' rompe la caché de GitHub Pages
+                const response = await fetch(`data.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('No se pudo encontrar el archivo de datos.');
+
+                const data = await response.json();
+                container.innerHTML = ''; // Limpiar el loader
+
+                data.components.forEach(comp => {
+                    const isUp = comp.status === 'UP';
+                    const statusClass = isUp ? 'status-up' : 'status-down';
+                    const statusText = isUp ? 'En línea' : 'Caído';
+
+                    // Convertir UTC a la zona horaria local del navegador del usuario
+                    const date = new Date(comp.last_check);
+                    const formattedDate = new Intl.DateTimeFormat('es-ES', {
+                        dateStyle: 'long',
+                        timeStyle: 'medium'
+                    }).format(date);
+
+                    const html = `
+                        <div class="component">
+                            <div class="component-info">
+                                <span class="component-name">${comp.name}</span>
+                                <span class="component-time">Última comprobación: ${formattedDate}</span>
+                            </div>
+                            <div class="status-badge ${statusClass}">
+                                ${statusText}
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            } catch (error) {
+                container.innerHTML = `<div class="loader" style="color: var(--down-color);">Error de lectura. Esperando a la primera ejecución del bot de GitHub Actions... ⚙️</div>`;
+                console.error(error);
+            }
+        }
+
+        // Carga inicial
+        fetchStatus();
+
+        // Refresco automático del dashboard cada 60 segundos
+        setInterval(fetchStatus, 60000);
+    </script>
+</body>
+</html>

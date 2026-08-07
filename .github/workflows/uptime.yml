@@ -1,0 +1,59 @@
+﻿name: Monitor de Estado (Uptime)
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Comprobar URLs y actualizar JSON
+        run: |
+          # Inicializar data.json si es la primera vez que se ejecuta
+          if [ ! -f data.json ]; then
+            echo '{"components": []}' > data.json
+          fi
+
+          # Capturar timestamp actual en formato UTC ISO 8601
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Función para hacer ping con curl
+          check_url() {
+            local name=$1
+            local url=$2
+            local status_code=$(curl -o /dev/null -s -w "%{http_code}\n" "$url")
+            local status="DOWN"
+            
+            # Si devuelve 200, está OK
+            if [ "$status_code" -eq 200 ]; then
+              status="UP"
+            fi
+            
+            # Devolver el bloque JSON del componente
+            echo "{\"name\": \"$name\", \"url\": \"$url\", \"status\": \"$status\", \"last_check\": \"$TIMESTAMP\"}"
+          }
+
+          # Comprobar los componentes
+          WEB_JSON=$(check_url "Web Principal (LASATA)" "https://lasata.eu")
+          API_JSON=$(check_url "API (LASATA)" "https://lasata.eu")
+
+          # Sobrescribir data.json con la nueva información usando jq
+          jq --argjson web "$WEB_JSON" --argjson api "$API_JSON" \
+             '.components = [$web, $api]' data.json > tmp.json && mv tmp.json data.json
+
+      - name: Subir cambios al repositorio
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data.json
+          
+          # Solo hacer commit si el estado o la fecha han cambiado
+          git diff --quiet && git diff --staged --quiet || (git commit -m "⚙️ Auto-update status [skip ci]" && git push)
