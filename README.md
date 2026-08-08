@@ -26,45 +26,41 @@ A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni framework
 
 * 🌍 **Monitorización Multirregión:** Realiza pings simultáneos desde los servidores de GitHub distribuidos globalmente (**América, Europa y Asia**) utilizando *Ubuntu*, *Windows* y *macOS*.
 * ⚡ **Medición de Latencia y Disponibilidad:** Cada ping registra el tiempo de respuesta en milisegundos (`ms`). Calcula tu % de Uptime exacto analizando hasta 1 año de registros ininterrumpidos.
-* 🎨 **Marca Blanca (White Label):** Permite a las empresas personalizar la barra superior con su propio logotipo, nombre y enlaces modificando un simple archivo `config.json`.
-* 📢 **Sistema de Incidencias Nativo:** Panel integrado para reportar mantenimientos o incidencias en curso (`incidents.json`) con soporte de estados (*Activo / Resuelto*).
-* 🌐 **Interfaz Multilenguaje Dinámica:** Detecta automáticamente el idioma del navegador y carga los diccionarios (Ej: `es.json`, `en.json`).
+* 🤖 **Auto-Incidencias:** Si el sistema detecta una caída total en todas las regiones, el bot abrirá un reporte de forma automática y lo cerrará por sí solo cuando el servicio se recupere.
+* 🎨 **Marca Blanca (White Label):** Permite a las empresas personalizar el diseño, logotipo, enlaces e idiomas modificando un simple archivo `config.json`.
+* 📢 **Sistema de Incidencias Nativo:** Panel integrado y paginado para reportar caídas, mantenimientos o incidencias en curso con soporte de cronograma interactivo.
+* 🌐 **Interfaz Multilenguaje 100% Dinámica:** Cambia de idioma al instante. Detecta el idioma del navegador y extrae automáticamente los textos en Español, Inglés (o cualquier otro que añadas).
 * 💸 **100% Gratuito:** Sin costes de servidores, bases de datos o servicios de terceros. Todo se ejecuta y se aloja dentro de GitHub.
 
 ## 🛠️ ¿Cómo funciona la arquitectura?
 
 1. **El Cron Job:** Un flujo de trabajo (`uptime.yml`) se ejecuta cada 5 minutos mediante GitHub Actions.
-2. **Geo-Pings:** Los *runners* ejecutan peticiones `curl` avanzadas para medir códigos HTTP y tiempos de respuesta desde 3 continentes.
-3. **Historial Modular:** Un trabajo final unifica los datos y guarda el historial de cada servicio de manera independiente en la carpeta `/history`.
-4. **Despliegue Automático:** Un bot hace un `git push` silencioso y GitHub Pages sirve el dashboard estático al instante.
+2. **Geo-Pings:** Los runners ejecutan peticiones avanzadas para medir códigos HTTP y tiempos de respuesta desde 3 continentes en base a los servicios definidos en `targets.json`.
+3. **Historial Modular e Incidencias:** Un trabajo final unifica los datos, guarda el historial de cada servicio y empaqueta las carpetas de incidencias y mantenimientos de forma automática.
+4. **Despliegue Automático:** Un bot hace un push silencioso y GitHub Pages sirve el dashboard estático al instante.
 
 ## 🚀 Cómo usar UppWebLa en tu propio proyecto
 
 Eres libre de clonar este repositorio para monitorizar tus propias páginas web. Solo tienes que seguir estos pasos:
 
-1. **Bifurcar (Fork):** Haz un *Fork* de este repositorio a tu propia cuenta de GitHub.
-2. **Permisos del Bot:** * Ve a `Settings` > `Actions` > `General` en tu nuevo repositorio.
-   * En "Workflow permissions", selecciona **Read and write permissions** y guarda.
-3. **Configurar Servicios:**
-   * Edita el archivo `targets.json` en la raíz del repositorio para añadir las webs o APIs que quieras monitorizar (Soporta nombres en Español e Inglés).
-4. **Activar GitHub Pages:**
-   * Ve a `Settings` > `Pages`.
-   * En "Source", selecciona **Deploy from a branch**.
-   * Elige la rama `main` y la carpeta `/ (root)`, luego pulsa guardar.
+1. **Bifurcar (Fork):** Haz un Fork de este repositorio a tu propia cuenta de GitHub.
+2. **Permisos del Bot:** Ve a Settings > Actions > General en tu nuevo repositorio. En "Workflow permissions", selecciona **Read and write permissions** y guarda.
+3. **Configurar Servicios:** Edita el archivo `targets.json` en la raíz del repositorio para añadir las webs o APIs que quieras monitorizar (soporta nombres en Español e Inglés).
+4. **Activar GitHub Pages:** Ve a Settings > Pages. En "Source", selecciona **Deploy from a branch**. Elige la rama `main` y la carpeta `/ (root)`, luego pulsa guardar.
 
-Una vez configurado, ve a la pestaña **Actions** y ejecuta el flujo de trabajo manualmente por primera vez. ¡A partir de ahí, funcionará solo!
+Una vez configurado, ve a la pestaña Actions y ejecuta el flujo de trabajo manualmente por primera vez. ¡A partir de ahí, funcionará solo!
 
 ## 🎨 Personalización de la Interfaz (White Label)
 
-Puedes personalizar la apariencia superior del dashboard para adaptarlo a tu propia marca. Solo tienes que crear un archivo llamado `config.json` en la raíz de tu repositorio con este formato:
+Puedes personalizar la apariencia y los idiomas del dashboard editando el archivo `config.json`. En la sección `languages`, puedes añadir o quitar idiomas (se recomienda mantener al menos 2 para una mejor accesibilidad). Solo asegúrate de tener el diccionario `.json` correspondiente en la raíz (ej. `fr.json` si añades francés).
 
 ```json
 {
   "companyName": "Mi Empresa",
-  "companyLogo": "https://midominio.com/logo.png",
+  "companyLogo": "[https://midominio.com/logo.png](https://midominio.com/logo.png)",
   "returnLinkTextES": "Volver a la web principal",
   "returnLinkTextEN": "Return to main website",
-  "returnLinkUrl": "https://midominio.com",
+  "returnLinkUrl": "[https://midominio.com](https://midominio.com)",
   "globalTitleES": "Monitorización Global",
   "globalTitleEN": "Global Monitoring",
   "globalDescES": "Supervisión en tiempo real. Actualizado cada 5 minutos.",
@@ -76,40 +72,42 @@ Puedes personalizar la apariencia superior del dashboard para adaptarlo a tu pro
 }
 ```
 
-Puedes personalizar la apariencia y los idiomas del dashboard editando el archivo `config.json`. En la sección `languages`, puedes añadir o quitar idiomas (se recomienda mantener al menos 2 para una mejor accesibilidad). Solo asegúrate de tener el archivo `.json` correspondiente en la raíz (ej. `fr.json` si añades francés).
-
 > **Aviso importante sobre los logos:** Tus logos personales deben tener un nombre diferente a los originales. **No modifiques ni elimines los archivos que contengan la palabra `NoChange` en su nombre** (ej: `logoNoChange.png`), ya que forman parte de los derechos de autor obligatorios del proyecto.
 
 ## 📢 Gestión de Incidencias
 
-El sistema organiza las incidencias en la carpeta incidents/ separadas por subcarpetas de servicios o dominios. Para publicar un reporte de incidencia:
+El sistema organiza las incidencias en la carpeta `incidents/` separadas por subcarpetas de servicios. El sistema creará las subcarpetas automáticamente basado en los ID que configures en `targets.json`.
 
-### 1. Crear un reporte de incidencia
-Crea un archivo JSON dentro de la subcarpeta correspondiente (ejemplo: incidents/LASATA.EU/2026-08-07-001.json):
+## 🤖 Auto-Incidencias (Automático)
+
+**No necesitas crear reportes manualmente si el servidor se cae por completo.** El bot de UppWebLa detectará si las 3 regiones (US, EU, ASIA) fallan simultáneamente y generará un reporte automático (`status: active`). Cuando el servicio vuelva a estar online, el bot lo actualizará y cerrará automáticamente (`status: resolved_auto`).
+
+### 1. Crear un reporte de incidencia (Manual)
+Si quieres reportar un problema menor o dar explicaciones a tus usuarios, crea un archivo JSON dentro de la subcarpeta del ID (ejemplo: `incidents/web-principal/2026-08-07-001.json`):
 
 ```json
 {
   "id": "2026-08-07-001",
   "service": "Web Principal (LASATA)",
-  "title_es": "Mantenimiento programado en la base de datos",
-  "title_en": "Scheduled database maintenance",
+  "title_es": "🔴 Problema de acceso detectado",
+  "title_en": "🔴 Access issue detected",
   "start_time": "2026-08-07T14:00:00Z",
   "end_time": null,
   "status": "active",
-  "description_es": "Estamos realizando una optimización de índices en el servidor de base de datos. Se esperan interrupciones intermitentes.",
-  "description_en": "We are performing index optimization on the database server. Intermittent interruptions are expected.",
+  "description_es": "Algunos usuarios están experimentando lentitud al iniciar sesión.",
+  "description_en": "Some users are experiencing slow login times.",
   "updates": [
     {
       "time": "2026-08-07T14:05:00Z",
-      "text_es": "Inicio del mantenimiento. Tareas de respaldo completadas.",
-      "text_en": "Maintenance started. Backup tasks completed."
+      "text_es": "El equipo técnico está investigando el origen del problema.",
+      "text_en": "The technical team is investigating the root cause."
     }
   ]
 }
 ```
 
 ### 2. Actualizar o marcar como Resuelta
-* Para añadir comentarios en tiempo real a la cronología de la web, agrega elementos al array "updates".
+* Para añadir comentarios en tiempo real al timeline, agrega elementos al array "updates".
 * Para cerrar la incidencia, asigna la fecha y hora final en "end_time" (ej. "2026-08-07T15:30:00Z") y cambia el campo "status" a uno de los valores permitidos:
   * "active": Incidencia en curso.
   * "resolved": Resuelta.
@@ -184,28 +182,27 @@ Creado, diseñado y mantenido con ❤️ por **[Rubén Castañeda Matute](https:
 
 > 🌐 **Want to see it in action?** Check out the live demo at [uppwebla.lasata.eu](https://uppwebla.lasata.eu/).
 
-## 🚀 ¿Qué es UppWebLa?
-
 ## 🚀 What is UppWebLa?
 
 **UppWebLa** is an ultra-lightweight, modern, static clone of *Upptime*. It continuously monitors your websites and APIs using the free infrastructure of **GitHub Actions** and **GitHub Pages**.
 
-Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks**. Its architecture relies entirely on pure `Bash` scripts, JSON manipulation via `jq`, interactive charts using `Chart.js`, and a clean frontend built with `HTML`, `CSS`, and `Vanilla JS`.
+Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks**. Its architecture relies entirely on pure `Bash` scripts, JSON manipulation via `jq`, interactive charts using `Chart.js`, and a dynamic multilingual UI built with `HTML`, `CSS`, and `Vanilla JS`.
 
 ## ✨ Main Features
 
 * 🌍 **Multi-Region Monitoring:** Simultaneous pings from globally distributed GitHub servers (**America, Europe, and Asia**) via *Ubuntu*, *Windows*, and *macOS*.
 * ⚡ **Latency & Uptime Tracking:** Measures response time in milliseconds (`ms`). Accurately calculates Uptime % by analyzing up to 1 year of continuous records.
-* 🎨 **White Label Ready:** Allows companies to customize the top navbar with their own logo, name, and links by simply editing a `config.json` file.
-* 📢 **Native Incident Management:** Built-in panel to report ongoing maintenance or incidents (`incidents.json`) with *Active / Resolved* states.
-* 🌐 **Dynamic Multilingual UI:** Automatically detects browser language and fetches dictionaries (`es.json`, `en.json`).
+* 🤖 **Automatic Incidents:** If the system detects a total outage across all regions, the bot will automatically open an incident report and close it when the service recovers.
+* 🎨 **White Label Ready:** Allows companies to customize the layout, logo, links, and languages by simply editing a `config.json` file.
+* 📢 **Native Incident Management:** Built-in paginated panel to report ongoing outages, maintenance, or incidents with an interactive timeline support.
+* 🌐 **100% Dynamic Multilingual UI:** Switch languages instantly. Automatically extracts texts in Spanish, English (or any other you add).
 * 💸 **100% Free:** Zero server or database costs. Fully hosted and executed within GitHub.
 
 ## 🛠️ How does the architecture work?
 
 1. **The Cron Job:** A workflow (`uptime.yml`) runs every 5 minutes via GitHub Actions.
-2. **Geo-Pings:** GitHub runners execute advanced `curl` commands to measure HTTP status and response times from 3 continents.
-3. **Modular History:** A final job collects data and saves independent history files for each service in the `/history` folder.
+2. **Geo-Pings:** GitHub runners execute advanced requests to measure HTTP status and response times based on the services defined in `targets.json`.
+3. **Modular History & Incidents:** A final job collects data, saves independent history files, and automatically packages incident and maintenance folders.
 4. **Automated Deployment:** A bot silently pushes the updates, and GitHub Pages serves the static dashboard instantly.
 
 ## 🚀 How to use UppWebLa in your own project
@@ -219,21 +216,21 @@ You are free to clone this repository to monitor your own websites. Just follow 
    * Edit `targets.json` file in the root of the repository to add the websites or APIs you want to monitor (Supports Spanish and English names).
 4. **Enable GitHub Pages:**
    * Go to `Settings` > `Pages`.
-   * Under "Source", choose **Deploy from a branch** (`main`, `/ root` folder), and save.
+   * Under "Source", choose **Deploy from a branch**. Select `main` and `/ root` folder, and save.
 
 Go to the **Actions** tab and manually run the workflow for the first time. From then on, it will run automatically!
 
 ## 🎨 UI Customization (White Label)
 
-You can customize the top appearance of the dashboard to fit your own brand. Just create a file named `config.json` in the root of your repository with this format:
+You can customize the dashboard's appearance and languages by editing the `config.json` In the `languages` section, you can add or remove languages (We recommend keeping at least 2 for better accessibility). Just make sure you have the corresponding `.json` dictionary in the root folder (e.g., `fr.json` if you add French).
 
 ```json
 {
   "companyName": "My Company",
-  "companyLogo": "https://mydomain.com/logo.png",
+  "companyLogo": "[https://mydomain.com/logo.png](https://mydomain.com/logo.png)",
   "returnLinkTextES": "Volver a la web principal",
   "returnLinkTextEN": "Return to main website",
-  "returnLinkUrl": "https://mydomain.com",
+  "returnLinkUrl": "[https://mydomain.com](https://mydomain.com)",
   "globalTitleES": "Monitorización Global",
   "globalTitleEN": "Global Monitoring",
   "globalDescES": "Supervisión en tiempo real. Actualizado cada 5 minutos.",
@@ -245,33 +242,35 @@ You can customize the top appearance of the dashboard to fit your own brand. Jus
 }
 ```
 
-You can customize the dashboard's appearance and languages by editing the `config.json` file. In the `languages` section, you can add or remove languages (we recommend keeping at least 2 for better accessibility). Just make sure you have the corresponding `.json` dictionary in the root folder (e.g., `fr.json` if you add French).
-
 > **Important notice about logos:** Your personal logos must have a different name. **Do not modify or delete files containing the word `NoChange` in their name** (e.g., `logoNoChange.png`), as they are part of the project's mandatory copyright attribution.
 
 ## 📢 Incident Management
 
-The system organizes incidents in the incidents/ folder, separated by service or domain subfolders. To publish an incident report:
+The system organizes incidents in the `incidents/` folder, separated by service subfolders. The system will automatically create the subfolders based on the IDs configured in `targets.json`.
 
-### 1. Create an incident report
-Create a JSON file inside the corresponding subfolder (example: incidents/LASATA.EU/2026-08-07-001.json):
+## 🤖 Auto-Incidents (Automatic)
+
+You don't need to manually create reports if the server goes down completely. The UppWebLa bot will detect if all 3 regions (US, EU, ASIA) fail simultaneously and automatically generate a report (`status: active`). When the service comes back online, the bot will auto-update and close it (`status: resolved_auto`).
+
+### 1. Create an incident report (Manual)
+If you want to report a minor issue or provide updates to your users, create a JSON file inside the corresponding ID subfolder (example: `incidents/web-principal/2026-08-07-001.json`):
 
 ```json
 {
   "id": "2026-08-07-001",
   "service": "Main Web (LASATA)",
-  "title_es": "Mantenimiento programado en la base de datos",
-  "title_en": "Scheduled database maintenance",
+  "title_es": "🔴 Problema de acceso detectado",
+  "title_en": "🔴 Access issue detected",
   "start_time": "2026-08-07T14:00:00Z",
   "end_time": null,
   "status": "active",
-  "description_es": "Estamos realizando una optimización de índices en el servidor de base de datos. Se esperan interrupciones intermitentes.",
-  "description_en": "We are performing index optimization on the database server. Intermittent interruptions are expected.",
+  "description_es": "Algunos usuarios están experimentando lentitud al iniciar sesión.",
+  "description_en": "Some users are experiencing slow login times.",
   "updates": [
     {
       "time": "2026-08-07T14:05:00Z",
-      "text_es": "Inicio del mantenimiento. Tareas de respaldo completadas.",
-      "text_en": "Maintenance started. Backup tasks completed."
+      "text_es": "El equipo técnico está investigando el origen del problema.",
+      "text_en": "The technical team is investigating the root cause."
     }
   ]
 }

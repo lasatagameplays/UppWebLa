@@ -663,8 +663,8 @@
         };
 
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado" },
-            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance" }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Esperando a los servidores de GitHub...", delayText: "Retraso en cola:" },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Waiting for GitHub servers...", delayText: "Queue delay:" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
@@ -673,6 +673,9 @@
         let myChart = null, activeHistoryFull = [], activeRegKey = '';
         let currentIncidentPage = 1, currentMaintenancePage = 1;
         const itemsPerPage = 5;
+
+        let nextCheckTime = 0;
+        let isFetching = false;
 
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
@@ -704,7 +707,11 @@
             document.getElementById('ui-global-desc').innerText = isEs ? userConfig.globalDescES : userConfig.globalDescEN;
         }
 
-        function renderProtectedFooter() { document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa</a></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`; }
+        function renderProtectedFooter() {
+            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
+            const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.6</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+        }
 
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
         document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
@@ -770,11 +777,9 @@
                     regionsHtml += `<div class="region-box" onclick="openChart('${safeId}', '${regKey}')" title="${dict.clickForGraph}"><span class="region-flag">${regionFlags[regKey] || '🌐'}</span><span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span><span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span><span class="region-latency">⚡ ${latency} ${dict.ms}</span></div>`;
                 });
 
-                // 🔥 CEREBRO INTELIGENTE: ETIQUETAS AUTOMÁTICAS
                 let tagHtml = '';
                 let isMaint = false;
 
-                // 1. Prioridad Absoluta: Comprobar Mantenimientos
                 if (latestMaintenances) {
                     const activeMaint = latestMaintenances.find(m =>
                         (m.service && (m.service.includes(comp.name_es) || m.service.includes(comp.name_en) || m.service.includes(comp.id))) &&
@@ -783,25 +788,34 @@
                     if (activeMaint) {
                         isMaint = true;
                         if (activeMaint.status === 'in_progress') {
-                            tagHtml = `<span class="status-badge" style="background: var(--maint-bg); color: var(--maint-blue); border: 1px solid rgba(31, 111, 235, 0.4); margin-left: 10px;">⚙️ ${dict.maintInProgressTag}</span>`;
+                            tagHtml = `<span class="status-badge" style="background: var(--maint-bg); color: var(--maint-blue); border: 1px solid rgba(31, 111, 235, 0.4); margin-left: 10px; cursor: default;">⚙️ ${dict.maintInProgressTag}</span>`;
                         } else {
-                            tagHtml = `<span class="status-badge" style="background: rgba(139, 148, 158, 0.15); color: var(--text-muted); border: 1px solid var(--border-color); margin-left: 10px;">📅 ${dict.maintScheduledTag}</span>`;
+                            tagHtml = `<span class="status-badge" style="background: rgba(139, 148, 158, 0.15); color: var(--text-muted); border: 1px solid var(--border-color); margin-left: 10px; cursor: default;">📅 ${dict.maintScheduledTag}</span>`;
                         }
                     }
                 }
 
-                // 2. Si no hay mantenimiento, analizar los Pings de las regiones
                 if (!isMaint) {
                     if (totalChecks > 0 && upChecks === 0) {
-                        tagHtml = `<span class="status-badge" style="background: rgba(248, 81, 73, 0.15); color: var(--down-color); border: 1px solid rgba(248, 81, 73, 0.4); margin-left: 10px;">🔴 ${dict.majorOutageTag}</span>`;
+                        tagHtml = `<span class="status-badge" style="background: rgba(248, 81, 73, 0.15); color: var(--down-color); border: 1px solid rgba(248, 81, 73, 0.4); margin-left: 10px; cursor: default;">🔴 ${dict.majorOutageTag}</span>`;
                     } else if (totalChecks > 0 && upChecks < totalChecks) {
-                        tagHtml = `<span class="status-badge" style="background: rgba(210, 153, 34, 0.15); color: var(--warn-color); border: 1px solid rgba(210, 153, 34, 0.4); margin-left: 10px;">⚠️ ${dict.partialOutageTag}</span>`;
+                        tagHtml = `<span class="status-badge" style="background: rgba(210, 153, 34, 0.15); color: var(--warn-color); border: 1px solid rgba(210, 153, 34, 0.4); margin-left: 10px; cursor: default;">⚠️ ${dict.partialOutageTag}</span>`;
                     } else {
-                        tagHtml = `<span class="status-badge" style="background: rgba(46, 160, 67, 0.15); color: var(--up-color); border: 1px solid rgba(46, 160, 67, 0.4); margin-left: 10px;">✅ ${dict.operationalTag}</span>`;
+                        tagHtml = `<span class="status-badge" style="background: rgba(46, 160, 67, 0.15); color: var(--up-color); border: 1px solid rgba(46, 160, 67, 0.4); margin-left: 10px; cursor: default;">✅ ${dict.operationalTag}</span>`;
                     }
                 }
 
-                container.insertAdjacentHTML('beforeend', `<div class="component"><div class="component-header"><a href="${comp.url}" target="_blank" class="component-name">${compName} ${tagHtml} ${externalLinkIcon}</a><span class="component-time">${dict.lastCheck} ${formattedDate}</span></div><div class="regions-grid">${regionsHtml}</div></div>`);
+                container.insertAdjacentHTML('beforeend', `
+                        <div class="component">
+                            <div class="component-header">
+                                <div style="display:flex; align-items:center; flex-wrap:wrap;">
+                                    <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
+                                    ${tagHtml}
+                                </div>
+                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                            </div>
+                            <div class="regions-grid">${regionsHtml}</div>
+                        </div>`);
             });
         }
 
@@ -894,19 +908,68 @@
 
         function closeModal(e) { document.getElementById('chartModal').style.display = 'none'; }
 
+        // ⏱️ LÓGICA DEL CONTADOR REGRESIVO Y ESPERA ACTIVA
+        function updateTimer() {
+            if (!nextCheckTime) return;
+            const timerEl = document.getElementById('ui-timer');
+            if (!timerEl) return;
+
+            const now = new Date().getTime();
+            const diff = nextCheckTime - now;
+
+            if (diff > 0) {
+                // Cuenta atrás estándar
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                timerEl.innerHTML = `⏳ ${dict.nextUpdate} <b>${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}</b>`;
+            } else {
+                // Cuenta PROGRESIVA de retraso (cuando GitHub tarda en procesar la cola)
+                const overdue = Math.abs(diff);
+                const m = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((overdue % (1000 * 60)) / 1000);
+                timerEl.innerHTML = `🔄 <b>${dict.updating}</b> <span style="font-size: 0.85em; opacity: 0.8;">(${dict.delayText || 'Retraso:'} +${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')})</span>`;
+
+                // Consulta a GitHub silenciosamente cada 15 segundos para ver si los datos han llegado
+                if (overdue % 15000 < 1000 && !isFetching) {
+                    fetchAllData();
+                }
+            }
+        }
+
         async function fetchAllData() {
-            // Descargamos y procesamos de forma síncrona para que todo se pinte perfecto
+            if (isFetching) return;
+            isFetching = true;
             try { const resStatus = await fetch(`data.json?t=${new Date().getTime()}`); if (resStatus.ok) latestData = await resStatus.json(); } catch (e) { }
             try { const resInc = await fetch(`incidents-index.json?t=${new Date().getTime()}`); if (resInc.ok) latestIncidents = await resInc.json(); } catch (e) { }
             try { const resMaint = await fetch(`maintenances-index.json?t=${new Date().getTime()}`); if (resMaint.ok) latestMaintenances = await resMaint.json(); } catch (e) { }
 
-            // Ahora renderizamos con los datos cargados en memoria
-            if (latestData) renderData(latestData);
+            if (latestData) {
+                renderData(latestData);
+                if (latestData.last_check) {
+                    // Establecer el próximo escaneo a los 5 minutos del último guardado
+                    nextCheckTime = new Date(latestData.last_check).getTime() + (5 * 60 * 1000);
+                }
+            }
             renderIncidents();
             renderMaintenances();
+            isFetching = false;
         }
 
-        async function init() { await loadConfig(); await changeLang(currentLang); await fetchAllData(); setInterval(fetchAllData, 60000); }
+        async function init() {
+            await loadConfig();
+            await changeLang(currentLang);
+
+            // Inyectamos el diseño del contador debajo del título principal
+            if (!document.getElementById('ui-timer')) {
+                const header = document.querySelector('.header-container');
+                if (header) {
+                    header.insertAdjacentHTML('beforeend', '<div id="ui-timer" style="margin-top: 15px; font-size: 0.95rem; color: var(--accent-blue); font-weight: 400; background: rgba(88, 166, 255, 0.1); padding: 6px 16px; border-radius: 20px; display: inline-block; border: 1px solid rgba(88, 166, 255, 0.3);"></div>');
+                }
+            }
+
+            await fetchAllData();
+            setInterval(updateTimer, 1000);
+        }
         init();
     </script>
 </body>
