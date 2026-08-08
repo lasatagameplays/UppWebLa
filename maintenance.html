@@ -44,7 +44,7 @@
 
         .client-nav-inner {
             width: 100%;
-            max-width: 850px;
+            max-width: 1050px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -74,7 +74,7 @@
         }
 
         .container {
-            max-width: 850px;
+            max-width: 1050px;
             width: 100%;
             flex: 1;
             padding: 2rem;
@@ -404,7 +404,7 @@
             const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
             const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
 
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span id="ui-footer-opensource">${dict.footerOpenSource || 'Esta página es de código abierto, impulsada por'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.6</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span id="ui-footer-opensource">${dict.footerOpenSource || 'Esta página es de código abierto, impulsada por'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.7</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
         }
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
         document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });

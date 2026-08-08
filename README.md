@@ -27,6 +27,7 @@ A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni framework
 * 🌍 **Monitorización Multirregión:** Realiza pings simultáneos desde los servidores de GitHub distribuidos globalmente (**América, Europa y Asia**) utilizando *Ubuntu*, *Windows* y *macOS*.
 * ⚡ **Medición de Latencia y Disponibilidad:** Cada ping registra el tiempo de respuesta en milisegundos (`ms`). Calcula tu % de Uptime exacto analizando hasta 1 año de registros ininterrumpidos.
 * 🤖 **Auto-Incidencias:** Si el sistema detecta una caída total en todas las regiones, el bot abrirá un reporte de forma automática y lo cerrará por sí solo cuando el servicio se recupere.
+* ⏱️ **Auto-Recarga en Tiempo Real:** Dashboard inteligente con temporizador regresivo que consulta silenciosamente a GitHub y actualiza los gráficos sin recargar la página.
 * 🎨 **Marca Blanca (White Label):** Permite a las empresas personalizar el diseño, logotipo, enlaces e idiomas modificando un simple archivo `config.json`.
 * 📢 **Sistema de Incidencias Nativo:** Panel integrado y paginado para reportar caídas, mantenimientos o incidencias en curso con soporte de cronograma interactivo.
 * 🌐 **Interfaz Multilenguaje 100% Dinámica:** Cambia de idioma al instante. Detecta el idioma del navegador y extrae automáticamente los textos en Español, Inglés (o cualquier otro que añadas).
@@ -49,6 +50,26 @@ Eres libre de clonar este repositorio para monitorizar tus propias páginas web.
 4. **Activar GitHub Pages:** Ve a Settings > Pages. En "Source", selecciona **Deploy from a branch**. Elige la rama `main` y la carpeta `/ (root)`, luego pulsa guardar.
 
 Una vez configurado, ve a la pestaña Actions y ejecuta el flujo de trabajo manualmente por primera vez. ¡A partir de ahí, funcionará solo!
+
+## ⏱️ Forzar Pings Exactos (CronJob Externo)
+
+Por defecto, los servidores gratuitos de GitHub Actions ejecutan las tareas programadas con prioridad baja, lo que puede provocar retrasos en la medición. Para evitar esto y forzar que el bot trabaje **exactamente cada 5 minutos**, recomendamos usar un disparador externo:
+
+1. Ve a GitHub y entra en **Settings > Developer settings > Personal access tokens > Tokens (classic)**.
+2. Genera un nuevo token sin caducidad marcando **solamente la casilla `repo`**, y cópialo.
+3. Crea una cuenta gratuita en [cron-job.org](https://cron-job.org/).
+4. Crea un nuevo Cronjob con los siguientes datos:
+   * **URL:** `https://api.github.com/repos/TU_USUARIO/TU_REPOSITORIO/dispatches`
+   * **Ejecución (Schedule):** Cada 5 minutos.
+5. En la pestaña **Avanzado** (Advanced):
+   * **Método:** `POST`
+   * Activa **Requiere autenticación HTTP** y pon tu **Usuario** de GitHub y tu **Token** como contraseña.
+   * En **Headers**, añade:
+     * `Accept` : `application/vnd.github.v3+json`
+     * `Content-Type` : `application/json`
+   * En el **Body**, elige formato raw y escribe: `{"event_type": "trigger-uptime"}`
+
+¡Con esto tu panel se actualizará de forma profesional sin sufrir los retrasos de la cola de GitHub!
 
 ## 🎨 Personalización de la Interfaz (White Label)
 
@@ -193,6 +214,7 @@ Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks*
 * 🌍 **Multi-Region Monitoring:** Simultaneous pings from globally distributed GitHub servers (**America, Europe, and Asia**) via *Ubuntu*, *Windows*, and *macOS*.
 * ⚡ **Latency & Uptime Tracking:** Measures response time in milliseconds (`ms`). Accurately calculates Uptime % by analyzing up to 1 year of continuous records.
 * 🤖 **Automatic Incidents:** If the system detects a total outage across all regions, the bot will automatically open an incident report and close it when the service recovers.
+* ⏱️ **Real-Time Auto-Refresh:** Smart dashboard with a countdown timer that silently queries GitHub and updates charts without reloading the page.
 * 🎨 **White Label Ready:** Allows companies to customize the layout, logo, links, and languages by simply editing a `config.json` file.
 * 📢 **Native Incident Management:** Built-in paginated panel to report ongoing outages, maintenance, or incidents with an interactive timeline support.
 * 🌐 **100% Dynamic Multilingual UI:** Switch languages instantly. Automatically extracts texts in Spanish, English (or any other you add).
@@ -219,6 +241,27 @@ You are free to clone this repository to monitor your own websites. Just follow 
    * Under "Source", choose **Deploy from a branch**. Select `main` and `/ root` folder, and save.
 
 Go to the **Actions** tab and manually run the workflow for the first time. From then on, it will run automatically!
+
+## ⏱️ Force Exact Pings (External CronJob)
+
+By default, GitHub Actions' free servers run scheduled tasks with low priority, which can cause measurement delays. To bypass this and force the bot to run exactly every 5 minutes, we recommend using an external trigger:
+
+1. Go to GitHub and open **Settings > Developer settings > Personal access tokens > Tokens (classic)**.
+2. Generate a new token with no expiration, checking **only the `repo` box**, and copy it.
+3. Create a free account at [cron-job.org](https://cron-job.org/).
+4. Create a new Cronjob with the following data:
+   * **URL:** `https://api.github.com/repos/TU_USUARIO/TU_REPOSITORIO/dispatches`
+   * **Schedule:** Every 5 minutes.
+5. In the **Advanced** tab:
+   * **Method:** `POST`
+   * Enable **Requires HTTP authentication** , enter your GitHub **Username** , and paste your **Token** as the password.
+   * In **Headers**, add:
+     * `Accept` : `application/vnd.github.v3+json`
+     * `Content-Type` : `application/json`
+   * In the **Body**, select raw format and write: `{"event_type": "trigger-uptime"}`
+
+With this setup, your dashboard will update professionally without suffering from GitHub's queue delays! The UI includes a smart countdown timer that will automatically fetch and refresh data on the screen without reloading the page.
+
 
 ## 🎨 UI Customization (White Label)
 

@@ -46,7 +46,7 @@
 
         .client-nav-inner {
             width: 100%;
-            max-width: 850px;
+            max-width: 1050px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -81,7 +81,7 @@
             }
 
         .container {
-            max-width: 850px;
+            max-width: 1050px;
             width: 100%;
             flex: 1;
             padding: 2rem;
@@ -443,138 +443,109 @@
             padding: 1.8rem;
             width: 90%;
             max-width: 650px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             position: relative;
         }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 18px;
             font-size: 1.5rem;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-            .close-btn:hover {
-                color: var(--text-main);
-            }
-
-        .time-filters {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .time-btn {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
             color: var(--text-muted);
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: bold;
-            transition: 0.2s;
         }
 
-            .time-btn:hover {
+            .modal-close:hover {
                 color: var(--text-main);
-                border-color: var(--text-main);
-            }
-
-            .time-btn.active {
-                background: var(--accent-blue);
-                color: #fff;
-                border-color: var(--accent-blue);
             }
 
         .modal-stats {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 1.2rem;
-            font-size: 0.95rem;
-            color: var(--text-muted);
+            gap: 2rem;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 1rem;
         }
 
-        .stat-value {
-            color: var(--accent-blue);
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-left: 5px;
+        .stat-box h4 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: normal;
         }
 
-        .chart-wrapper {
-            position: relative;
+        .stat-box p {
+            margin: 5px 0 0 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--up-color);
+        }
+
+        .time-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .time-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+            .time-btn:hover {
+                border-color: var(--text-main);
+                color: var(--text-main);
+            }
+
+            .time-btn.active {
+                background: rgba(88, 166, 255, 0.15);
+                border-color: var(--accent-blue);
+                color: var(--accent-blue);
+            }
+
+        .chart-container {
             height: 250px;
             width: 100%;
         }
 
         footer {
             margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
             text-align: center;
             font-size: 0.85rem;
             color: var(--text-muted);
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
-            width: 100%;
-            max-width: 850px;
             padding-bottom: 2rem;
         }
 
+            footer a {
+                color: var(--text-main);
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                footer a:hover {
+                    color: var(--accent-blue);
+                    text-decoration: underline;
+                }
+
         .footer-logo {
-            width: 400px;
-            max-width: 80%;
-            margin: 15px auto;
-            display: block;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            height: 24px;
+            margin-top: 10px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
 
-        footer a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-            footer a:hover {
-                text-decoration: underline;
+            .footer-logo:hover {
+                opacity: 1;
             }
-
-        @media (max-width: 600px) {
-            .regions-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .time-filters {
-                justify-content: center;
-            }
-
-            .client-nav-inner {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .component-name {
-                white-space: normal;
-            }
-        }
     </style>
 </head>
 <body>
@@ -590,6 +561,7 @@
     </div>
 
     <div class="container">
+
         <div class="top-bar">
             <div class="lang-dropdown" id="langDropdown">
                 <div class="lang-btn" onclick="toggleLangMenu()">
@@ -626,33 +598,39 @@
             <h2 id="ui-incidents-title" class="incidents-title">📢 Reportes e Incidencias</h2>
             <div id="incidents-container"></div>
         </div>
+
+        <div id="secure-footer-container"></div>
     </div>
 
-    <div id="chartModal" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h3 id="modalCompTitle" class="modal-title">Detalles</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="time-filters">
-                <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24H</button>
-                <button class="time-btn" id="btn-7d" onclick="filterChart('7d', this)">7D</button>
-                <button class="time-btn" id="btn-1m" onclick="filterChart('1m', this)">1M</button>
-                <button class="time-btn" id="btn-6m" onclick="filterChart('6m', this)">6M</button>
-                <button class="time-btn" id="btn-1y" onclick="filterChart('1y', this)">1A</button>
-                <button class="time-btn" id="btn-all" onclick="filterChart('all', this)">ALL</button>
-            </div>
+    <div class="modal-overlay" id="chartModal" onclick="if(event.target===this) closeModal()">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <h2 id="modalCompTitle" style="margin-top:0;">--</h2>
+
             <div class="modal-stats">
-                <div><span id="ui-uptime">Disponibilidad</span>: <span id="modalUptime" class="stat-value">--%</span></div>
-                <div><span id="ui-avg-latency">Latencia media</span>: <span id="modalAvgLatency" class="stat-value">-- ms</span></div>
+                <div class="stat-box">
+                    <h4 id="ui-uptime">Disponibilidad</h4>
+                    <p id="modalUptime">--%</p>
+                </div>
+                <div class="stat-box">
+                    <h4 id="ui-avg-latency">Latencia media</h4>
+                    <p id="modalAvgLatency">--</p>
+                </div>
             </div>
-            <div class="chart-wrapper">
+
+            <div class="time-filters">
+                <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24h</button>
+                <button class="time-btn" onclick="filterChart('7d', this)">7d</button>
+                <button class="time-btn" onclick="filterChart('1m', this)">1m</button>
+                <button class="time-btn" onclick="filterChart('6m', this)">6m</button>
+                <button class="time-btn" onclick="filterChart('1y', this)">1y</button>
+            </div>
+
+            <div class="chart-container">
                 <canvas id="latencyChart"></canvas>
             </div>
         </div>
     </div>
-
-    <div id="secure-footer-container"></div>
 
     <script>
         const externalLinkIcon = `<svg viewBox="0 0 24 24"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg>`;
@@ -710,7 +688,7 @@
         function renderProtectedFooter() {
             const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
             const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.6</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.7</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
         }
 
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
@@ -918,18 +896,15 @@
             const diff = nextCheckTime - now;
 
             if (diff > 0) {
-                // Cuenta atrás estándar
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
                 timerEl.innerHTML = `⏳ ${dict.nextUpdate} <b>${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}</b>`;
             } else {
-                // Cuenta PROGRESIVA de retraso (cuando GitHub tarda en procesar la cola)
                 const overdue = Math.abs(diff);
                 const m = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((overdue % (1000 * 60)) / 1000);
                 timerEl.innerHTML = `🔄 <b>${dict.updating}</b> <span style="font-size: 0.85em; opacity: 0.8;">(${dict.delayText || 'Retraso:'} +${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')})</span>`;
 
-                // Consulta a GitHub silenciosamente cada 15 segundos para ver si los datos han llegado
                 if (overdue % 15000 < 1000 && !isFetching) {
                     fetchAllData();
                 }
@@ -946,7 +921,6 @@
             if (latestData) {
                 renderData(latestData);
                 if (latestData.last_check) {
-                    // Establecer el próximo escaneo a los 5 minutos del último guardado
                     nextCheckTime = new Date(latestData.last_check).getTime() + (5 * 60 * 1000);
                 }
             }
@@ -959,9 +933,9 @@
             await loadConfig();
             await changeLang(currentLang);
 
-            // Inyectamos el diseño del contador debajo del título principal
+            // LA MAGIA ARREGLADA ESTÁ AQUÍ (Buscamos '.header', no '.header-container')
             if (!document.getElementById('ui-timer')) {
-                const header = document.querySelector('.header-container');
+                const header = document.querySelector('.header');
                 if (header) {
                     header.insertAdjacentHTML('beforeend', '<div id="ui-timer" style="margin-top: 15px; font-size: 0.95rem; color: var(--accent-blue); font-weight: 400; background: rgba(88, 166, 255, 0.1); padding: 6px 16px; border-radius: 20px; display: inline-block; border: 1px solid rgba(88, 166, 255, 0.3);"></div>');
                 }
