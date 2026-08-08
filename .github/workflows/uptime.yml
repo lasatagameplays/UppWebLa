@@ -74,18 +74,18 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos, validar JSONs e indexar incidencias
+      - name: Unificar datos, gestionar auto-incidencias e indexar
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          DATE_STAMP=$(date -u +"%Y-%m-%d")
           mkdir -p history
           
           echo "{\"last_check\": \"$TIMESTAMP\", \"components\": []}" > data.json
           
           jq -c '.[]' targets.json | while read i; do
             ID=$(echo "$i" | jq -r '.id')
-            NAME_ES=$(echo "$i" | jq -r '.name_es')
-            NAME_EN=$(echo "$i" | jq -r '.name_en')
-            URL=$(echo "$i" | jq -r '.url')
+            NAME_ES=$(echo "$i" | jq -r '.name_es // .name // $id' --arg id "$ID")
+            NAME_EN=$(echo "$i" | jq -r '.name_en // .name // $id' --arg id "$ID")
             
             ST_US=$(jq -c --arg id "$ID" '.[$id]' US.json)
             if [ "$ST_US" == "null" ] || [ -z "$ST_US" ]; then ST_US='{"status":"DOWN","latency":0}'; fi
@@ -96,81 +96,127 @@ jobs:
             ST_AS=$(jq -c --arg id "$ID" '.[$id]' ASIA.json)
             if [ "$ST_AS" == "null" ] || [ -z "$ST_AS" ]; then ST_AS='{"status":"DOWN","latency":0}'; fi
             
+            # Guardar historial
             HFILE="history/$ID.json"
             OLD_HIST="[]"
             if [ -f "$HFILE" ]; then 
-              # Validar que el historial no esté corrupto
               if jq empty "$HFILE" >/dev/null 2>&1; then
                 OLD_HIST=$(cat "$HFILE")
-              else
-                echo "⚠️ AVISO: Historial corrupto en $HFILE. Se reiniciará."
               fi
             fi
             
             jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson old "$OLD_HIST" \
               '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-105120:]' > "$HFILE"
               
-            jq --arg id "$ID" --arg name_es "$NAME_ES" --arg name_en "$NAME_EN" --arg url "$URL" --arg hfile "$HFILE" \
+            jq --argjson comp "$i" --arg hfile "$HFILE" \
                --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
-               '.components += [{id: $id, name_es: $name_es, name_en: $name_en, url: $url, regions: {US: $us, EU: $eu, ASIA: $as}, history_file: $hfile}]' data.json > tmp.json && mv tmp.json data.json
+               '.components += [($comp + {regions: {US: $us, EU: $eu, ASIA: $as}, history_file: $hfile})]' data.json > tmp.json && mv tmp.json data.json
                
             mkdir -p "incidents/$ID"
             touch "incidents/$ID/.gitkeep"
-            
             mkdir -p "maintenances/$ID"
             touch "maintenances/$ID/.gitkeep"
+
+            # 🤖 MOTOR DE AUTO-INCIDENCIAS
+            US_STATUS=$(echo "$ST_US" | jq -r '.status')
+            EU_STATUS=$(echo "$ST_EU" | jq -r '.status')
+            AS_STATUS=$(echo "$ST_AS" | jq -r '.status')
+
+            # 1. Si los 3 continentes están caídos -> CAÍDA TOTAL DETECTADA
+            if [ "$US_STATUS" == "DOWN" ] && [ "$EU_STATUS" == "DOWN" ] && [ "$AS_STATUS" == "DOWN" ]; then
+              
+              # Buscar si ya hay un reporte automático activo
+              ACTIVE_AUTO_INC=""
+              shopt -s nullglob
+              for inc_file in incidents/$ID/*-auto-*.json; do
+                if [ -f "$inc_file" ]; then
+                  ST=$(jq -r '.status // ""' "$inc_file")
+                  if [ "$ST" == "active" ]; then
+                    ACTIVE_AUTO_INC="$inc_file"
+                    break
+                  fi
+                fi
+              done
+              shopt -u nullglob
+
+              # Si no hay ninguna auto-incidencia activa, la creamos
+              if [ -z "$ACTIVE_AUTO_INC" ]; then
+                AUTO_ID="${DATE_STAMP}-auto-${ID}"
+                FILE_PATH="incidents/${ID}/${AUTO_ID}.json"
+                echo "🔴 Generando Auto-Incidencia en $FILE_PATH"
+                
+                jq -n --arg id "$AUTO_ID" --arg service "$NAME_ES" --arg ts "$TIMESTAMP" \
+                      --arg name_es "$NAME_ES" --arg name_en "$NAME_EN" '
+                {
+                  id: $id,
+                  service: $service,
+                  title_es: ("🔴 Caída automática detectada en " + $name_es),
+                  title_en: ("🔴 Automatic outage detected on " + $name_en),
+                  start_time: $ts,
+                  end_time: null,
+                  status: "active",
+                  description_es: "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
+                  description_en: "The monitoring system has detected a complete service outage across all regions.",
+                  updates: [
+                    {
+                      time: $ts,
+                      text_es: "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
+                      text_en: "🔴 Service outage detected, automatic report opened."
+                    }
+                  ]
+                }' > "$FILE_PATH"
+              fi
+
+            # 2. Si el servicio vuelve a estar UP en al menos 1 continente -> RECUPERACIÓN DETECTADA
+            else
+              shopt -s nullglob
+              for inc_file in incidents/$ID/*-auto-*.json; do
+                if [ -f "$inc_file" ]; then
+                  ST=$(jq -r '.status // ""' "$inc_file")
+                  if [ "$ST" == "active" ]; then
+                    echo "🟩 Cerrando Auto-Incidencia en $inc_file"
+                    jq --arg ts "$TIMESTAMP" '
+                      .status = "resolved_auto" |
+                      .end_time = $ts |
+                      .updates += [{
+                        time: $ts,
+                        text_es: "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
+                        text_en: "⚡ The service has automatically recovered and the incident has been closed."
+                      }]
+                    ' "$inc_file" > tmp_inc.json && mv tmp_inc.json "$inc_file"
+                  fi
+                fi
+              done
+              shopt -u nullglob
+            fi
           done
 
-          # 🛡️ Procesar INCIDENCIAS con Validador
+          # 🛡️ INDEXAR INCIDENCIAS
           shopt -s nullglob
           inc_files=(incidents/*/*.json)
           valid_inc=()
-
           for file in "${inc_files[@]}"; do
             if [ -f "$file" ]; then
-              sed -i '1s/^\xEF\xBB\xBF//' "$file" # Limpiar BOM si existe
-              if ! iconv -f UTF-8 -t UTF-8 "$file" >/dev/null 2>&1; then
-                iconv -f WINDOWS-1252 -t UTF-8 "$file" > "$file.utf8" && mv "$file.utf8" "$file"
-              fi
-              # Solo añadir si es un JSON perfecto
-              if jq empty "$file" >/dev/null 2>&1; then
-                valid_inc+=("$file")
-              else
-                echo "❌ ERROR IGNORADO: El archivo '$file' NO es un JSON válido (Revisa comas y textos sueltos)."
-              fi
+              sed -i '1s/^\xEF\xBB\xBF//' "$file"
+              if jq empty "$file" >/dev/null 2>&1; then valid_inc+=("$file"); fi
             fi
           done
-
           if [ ${#valid_inc[@]} -gt 0 ]; then
             jq -s 'sort_by(.start_time) | reverse' "${valid_inc[@]}" > incidents-index.json
-          else
-            echo "[]" > incidents-index.json
-          fi
+          else echo "[]" > incidents-index.json; fi
 
-          # 🛡️ Procesar MANTENIMIENTOS con Validador
+          # 🛡️ INDEXAR MANTENIMIENTOS
           maint_files=(maintenances/*/*.json)
           valid_maint=()
-
           for file in "${maint_files[@]}"; do
             if [ -f "$file" ]; then
-              sed -i '1s/^\xEF\xBB\xBF//' "$file" # Limpiar BOM si existe
-              if ! iconv -f UTF-8 -t UTF-8 "$file" >/dev/null 2>&1; then
-                iconv -f WINDOWS-1252 -t UTF-8 "$file" > "$file.utf8" && mv "$file.utf8" "$file"
-              fi
-              # Solo añadir si es un JSON perfecto
-              if jq empty "$file" >/dev/null 2>&1; then
-                valid_maint+=("$file")
-              else
-                echo "❌ ERROR IGNORADO: El archivo '$file' NO es un JSON válido (Revisa comas y textos sueltos)."
-              fi
+              sed -i '1s/^\xEF\xBB\xBF//' "$file"
+              if jq empty "$file" >/dev/null 2>&1; then valid_maint+=("$file"); fi
             fi
           done
-
           if [ ${#valid_maint[@]} -gt 0 ]; then
             jq -s 'sort_by(.start_time) | reverse' "${valid_maint[@]}" > maintenances-index.json
-          else
-            echo "[]" > maintenances-index.json
-          fi
+          else echo "[]" > maintenances-index.json; fi
           shopt -u nullglob
 
       - name: Subir cambios al repositorio
@@ -178,4 +224,4 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json history/ incidents/ incidents-index.json maintenances/ maintenances-index.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & incidents [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & auto-incidents [skip ci]" && git push)

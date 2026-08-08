@@ -663,8 +663,8 @@
         };
 
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" } },
-            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" } }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado" },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
@@ -674,7 +674,6 @@
         let currentIncidentPage = 1, currentMaintenancePage = 1;
         const itemsPerPage = 5;
 
-        // 🔮 FUNCIÓN MÁGICA: Extrae el texto en el idioma actual o busca el de por defecto (Español)
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
             return (obj[loc] && obj[loc] !== 'null') ? obj[loc] : (obj[key + '_es'] || obj[key] || '--');
@@ -682,7 +681,6 @@
 
         async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) { } }
 
-        // 🎨 Genera el menú de banderas automáticamente leyendo config.json
         function renderLangMenu() {
             const langs = userConfig.languages || [{ code: "es", name: "Español", flag: "es" }, { code: "en", name: "English", flag: "gb" }];
             let menuHtml = ''; let currentIcon = 'https://flagcdn.com/w20/es.png', currentName = 'Español';
@@ -713,9 +711,7 @@
 
         async function changeLang(lang) {
             currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
-            renderLangMenu();
-            document.getElementById('langMenu').classList.remove('show');
-
+            renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
             dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
             try { const response = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (response.ok) dict = { ...dict, ...(await response.json()) }; } catch (e) { }
 
@@ -759,14 +755,53 @@
 
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
+
+                let upChecks = 0;
+                let totalChecks = 0;
+
                 Object.entries(comp.regions || {}).forEach(([regKey, regData]) => {
                     const status = typeof regData === 'string' ? regData : (regData.status || 'UP');
                     const latency = typeof regData === 'object' && regData.latency !== undefined ? regData.latency : 0;
                     const isUp = status === 'UP';
+
+                    totalChecks++;
+                    if (isUp) upChecks++;
+
                     regionsHtml += `<div class="region-box" onclick="openChart('${safeId}', '${regKey}')" title="${dict.clickForGraph}"><span class="region-flag">${regionFlags[regKey] || '🌐'}</span><span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span><span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span><span class="region-latency">⚡ ${latency} ${dict.ms}</span></div>`;
                 });
 
-                container.insertAdjacentHTML('beforeend', `<div class="component"><div class="component-header"><a href="${comp.url}" target="_blank" class="component-name">${compName} ${externalLinkIcon}</a><span class="component-time">${dict.lastCheck} ${formattedDate}</span></div><div class="regions-grid">${regionsHtml}</div></div>`);
+                // 🔥 CEREBRO INTELIGENTE: ETIQUETAS AUTOMÁTICAS
+                let tagHtml = '';
+                let isMaint = false;
+
+                // 1. Prioridad Absoluta: Comprobar Mantenimientos
+                if (latestMaintenances) {
+                    const activeMaint = latestMaintenances.find(m =>
+                        (m.service && (m.service.includes(comp.name_es) || m.service.includes(comp.name_en) || m.service.includes(comp.id))) &&
+                        (m.status === 'in_progress' || m.status === 'scheduled')
+                    );
+                    if (activeMaint) {
+                        isMaint = true;
+                        if (activeMaint.status === 'in_progress') {
+                            tagHtml = `<span class="status-badge" style="background: var(--maint-bg); color: var(--maint-blue); border: 1px solid rgba(31, 111, 235, 0.4); margin-left: 10px;">⚙️ ${dict.maintInProgressTag}</span>`;
+                        } else {
+                            tagHtml = `<span class="status-badge" style="background: rgba(139, 148, 158, 0.15); color: var(--text-muted); border: 1px solid var(--border-color); margin-left: 10px;">📅 ${dict.maintScheduledTag}</span>`;
+                        }
+                    }
+                }
+
+                // 2. Si no hay mantenimiento, analizar los Pings de las regiones
+                if (!isMaint) {
+                    if (totalChecks > 0 && upChecks === 0) {
+                        tagHtml = `<span class="status-badge" style="background: rgba(248, 81, 73, 0.15); color: var(--down-color); border: 1px solid rgba(248, 81, 73, 0.4); margin-left: 10px;">🔴 ${dict.majorOutageTag}</span>`;
+                    } else if (totalChecks > 0 && upChecks < totalChecks) {
+                        tagHtml = `<span class="status-badge" style="background: rgba(210, 153, 34, 0.15); color: var(--warn-color); border: 1px solid rgba(210, 153, 34, 0.4); margin-left: 10px;">⚠️ ${dict.partialOutageTag}</span>`;
+                    } else {
+                        tagHtml = `<span class="status-badge" style="background: rgba(46, 160, 67, 0.15); color: var(--up-color); border: 1px solid rgba(46, 160, 67, 0.4); margin-left: 10px;">✅ ${dict.operationalTag}</span>`;
+                    }
+                }
+
+                container.insertAdjacentHTML('beforeend', `<div class="component"><div class="component-header"><a href="${comp.url}" target="_blank" class="component-name">${compName} ${tagHtml} ${externalLinkIcon}</a><span class="component-time">${dict.lastCheck} ${formattedDate}</span></div><div class="regions-grid">${regionsHtml}</div></div>`);
             });
         }
 
@@ -860,9 +895,15 @@
         function closeModal(e) { document.getElementById('chartModal').style.display = 'none'; }
 
         async function fetchAllData() {
-            try { const resStatus = await fetch(`data.json?t=${new Date().getTime()}`); if (resStatus.ok) { latestData = await resStatus.json(); renderData(latestData); } } catch (e) { }
-            try { const resInc = await fetch(`incidents-index.json?t=${new Date().getTime()}`); if (resInc.ok) { latestIncidents = await resInc.json(); renderIncidents(); } else renderIncidents(); } catch (e) { renderIncidents(); }
-            try { const resMaint = await fetch(`maintenances-index.json?t=${new Date().getTime()}`); if (resMaint.ok) { latestMaintenances = await resMaint.json(); renderMaintenances(); } else renderMaintenances(); } catch (e) { renderMaintenances(); }
+            // Descargamos y procesamos de forma síncrona para que todo se pinte perfecto
+            try { const resStatus = await fetch(`data.json?t=${new Date().getTime()}`); if (resStatus.ok) latestData = await resStatus.json(); } catch (e) { }
+            try { const resInc = await fetch(`incidents-index.json?t=${new Date().getTime()}`); if (resInc.ok) latestIncidents = await resInc.json(); } catch (e) { }
+            try { const resMaint = await fetch(`maintenances-index.json?t=${new Date().getTime()}`); if (resMaint.ok) latestMaintenances = await resMaint.json(); } catch (e) { }
+
+            // Ahora renderizamos con los datos cargados en memoria
+            if (latestData) renderData(latestData);
+            renderIncidents();
+            renderMaintenances();
         }
 
         async function init() { await loadConfig(); await changeLang(currentLang); await fetchAllData(); setInterval(fetchAllData, 60000); }
