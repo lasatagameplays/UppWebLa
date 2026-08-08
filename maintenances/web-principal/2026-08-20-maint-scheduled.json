@@ -1,0 +1,17 @@
+﻿{
+    "_comentario": "ESTADO 'scheduled': Usar días antes para avisar a los clientes.",
+    "_comment": "STATUS 'scheduled': Use days in advance to notify clients.",
+    "id": "2026-08-20-maint-scheduled",
+    "service": "Webmail (Roundcube Webmail)",
+    "title": "📅 Actualización de servidores de correo | Mail server upgrade",
+    "start_time": "2026-08-20T22:00:00Z",
+    "end_time": null,
+    "status": "scheduled",
+    "description": "🇪🇸 El próximo día 20 realizaremos una migración de servidores. El correo web no estará disponible durante 4 horas.\n🇬🇧 On the 20th we will perform a server migration. Webmail will be unavailable for 4 hours.",
+    "updates": [
+        {
+            "time": "2026-08-15T09:00:00Z",
+            "text": "🇪🇸 Mantenimiento programado y anunciado con 5 días de antelación.\n🇬🇧 Maintenance scheduled and announced 5 days in advance."
+        }
+    ]
+}

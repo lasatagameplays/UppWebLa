@@ -137,6 +137,11 @@ Este proyecto está en constante evolución. Para actualizarlo de forma 100% seg
 2. Si hay actualizaciones, verás el mensaje *"This branch is X commits behind lasatagameplays/UppWebLa"*.
 3. Haz clic en **"Sync fork"** y luego en **"Update branch"**. ¡Listo! Tu código se actualizará sin borrar tu historial de estado.
 
+### 💡 Plantillas de Ejemplo incluidas
+
+Para facilitarte la tarea, este repositorio incluye **6 archivos JSON de ejemplo** (3 de incidencias y 3 de mantenimientos). Estos archivos abarcan todos los estados posibles (`active`, `resolved_manual`, `resolved_auto`, `scheduled`, `in_progress`, `completed`). 
+Puedes encontrarlos en las carpetas `incidents/web-principal/` y `maintenances/web-principal/`. ¡Úsalos como plantilla copiando y pegando su estructura para tus propios reportes!
+
 ## 📄 Licencia y Copyright
 
 Este proyecto es de código abierto y está disponible gratuitamente bajo los términos de la [Licencia MIT](LICENSE).
@@ -271,6 +276,11 @@ To announce a maintenance window, create a JSON file inside the corresponding ID
 
 1. Go to your repository's main page.
 2. Click **"Sync fork"** and then **"Update branch"** when updates are available. Your historical data will remain safe.
+
+### 💡 Included Example Templates
+
+To make things easier for you, this repository includes **6 example JSON files** (3 for incidents and 3 for maintenance). These files cover all possible states (`active`, `resolved_manual`, `resolved_auto`, `scheduled`, `in_progress`, `completed`). 
+You can find them in the `incidents/web-principal/` and `maintenances/web-principal/` folders. Feel free to use them as templates by copying and pasting their structure for your own reports!
 
 ## 📄 License and Copyright
 

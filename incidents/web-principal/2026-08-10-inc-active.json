@@ -1,0 +1,17 @@
+﻿{
+    "_comentario": "ESTADO 'active': Usar cuando el servicio está caído y aún no hay solución.",
+    "_comment": "STATUS 'active': Use when the service is down and there is no fix yet.",
+    "id": "2026-08-10-inc-active",
+    "service": "Web Principal (LASATA)",
+    "title": "🔴 Caída general del sistema | Major system outage",
+    "start_time": "2026-08-10T08:00:00Z",
+    "end_time": null,
+    "status": "active",
+    "description": "🇪🇸 Estamos experimentando una caída total en los servidores principales. El equipo ya está investigando.\n🇬🇧 We are experiencing a total outage on the main servers. The team is already investigating.",
+    "updates": [
+        {
+            "time": "2026-08-10T08:15:00Z",
+            "text": "🇪🇸 Hemos detectado un fallo en el centro de datos europeo. \n🇬🇧 We have detected a failure in the European data center."
+        }
+    ]
+}
