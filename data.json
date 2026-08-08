@@ -1,78 +1,86 @@
 {
-  "last_check": "2026-08-08T03:54:00Z",
+  "last_check": "2026-08-08T04:50:40Z",
   "components": [
     {
-      "name": "Web Principal (LASATA)",
+      "id": "web-principal",
+      "name_es": "Web Principal (LASATA)",
+      "name_en": "Main Web (LASATA)",
       "url": "https://lasata.eu",
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 53
+          "latency": 85
         },
         "EU": {
           "status": "UP",
-          "latency": 986
+          "latency": 876
         },
         "ASIA": {
           "status": "UP",
-          "latency": 67
+          "latency": 78
         }
       },
       "history_file": "history/web-principal.json"
     },
     {
-      "name": "Nube Privada (FileBrowser)",
+      "id": "nube-privada",
+      "name_es": "Nube Privada (FileBrowser)",
+      "name_en": "Private Cloud (FileBrowser)",
       "url": "https://archivos.lasata.eu",
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 526
+          "latency": 502
         },
         "EU": {
           "status": "UP",
-          "latency": 578
+          "latency": 574
         },
         "ASIA": {
           "status": "UP",
-          "latency": 354
+          "latency": 521
         }
       },
       "history_file": "history/nube-privada.json"
     },
     {
-      "name": "Webmail (Roundcube Webmail)",
+      "id": "webmail",
+      "name_es": "Webmail (Roundcube Webmail)",
+      "name_en": "Webmail (Roundcube Webmail)",
       "url": "https://webmail.lasata.eu",
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 368
+          "latency": 543
         },
         "EU": {
           "status": "UP",
-          "latency": 351
+          "latency": 568
         },
         "ASIA": {
           "status": "UP",
-          "latency": 356
+          "latency": 571
         }
       },
       "history_file": "history/webmail.json"
     },
     {
-      "name": "Server S1 (HestiaCP)",
+      "id": "server-s1",
+      "name_es": "Server S1 (HestiaCP)",
+      "name_en": "Server S1 (HestiaCP)",
       "url": "https://s1.lasata.eu:8083",
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 1205
+          "latency": 1078
         },
         "EU": {
           "status": "UP",
-          "latency": 831
+          "latency": 1097
         },
         "ASIA": {
           "status": "UP",
-          "latency": 846
+          "latency": 1038
         }
       },
       "history_file": "history/server-s1.json"
