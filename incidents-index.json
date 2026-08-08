@@ -1,20 +1,56 @@
 [
   {
-    "id": "2026-08-07-001",
-    "service": "Web Principal (LASATA)",
-    "title": "Latencia alta detectada",
-    "start_time": "2026-08-07T12:00:00Z",
-    "end_time": "2026-08-07T15:30:00Z",
-    "status": "resolved_manual",
-    "description": "Estamos investigando un pico de latencia anormal. Nuestro equipo de red está en ello.",
+    "_comentario": "ESTADO 'resolved_auto': Usar cuando hubo un corte, pero el sistema se reinició o recuperó por sí mismo sin intervención humana.",
+    "_comment": "STATUS 'resolved_auto': Use when there was an outage, but the system rebooted or recovered on its own without human intervention.",
+    "id": "2026-08-12-inc-auto",
+    "service": "Server S1 (HestiaCP)",
+    "title": "⚡ [Auto-Resuelto] Pico de red mitigado | [Auto-Resolved] Network spike mitigated",
+    "start_time": "2026-08-12T04:00:00Z",
+    "end_time": "2026-08-12T04:05:00Z",
+    "status": "resolved_auto",
+    "description": "🇪🇸 Se registró una desconexión de 5 minutos por un micro-corte de red.\n🇬🇧 A 5-minute disconnection was recorded due to a network micro-outage.",
     "updates": [
       {
-        "time": "2026-08-07T12:45:00Z",
-        "text": "Se ha identificado un ataque muy fuerte de tipo DDoS. Aplicando filtros."
+        "time": "2026-08-12T04:05:00Z",
+        "text": "🇪🇸 El firewall bloqueó el tráfico anómalo automáticamente y el servicio volvió a la normalidad.\n🇬🇧 The firewall automatically blocked anomalous traffic and service returned to normal."
+      }
+    ]
+  },
+  {
+    "_comentario": "ESTADO 'resolved_manual': Usar cuando el equipo técnico ha intervenido para solucionar la caída. Se debe añadir la fecha en 'end_time'.",
+    "_comment": "STATUS 'resolved_manual': Use when the technical team intervened to fix the outage. You must add the date in 'end_time'.",
+    "id": "2026-08-11-inc-manual",
+    "service": "Nube Privada (FileBrowser)",
+    "title": "✅ [Resuelto] Error de acceso a base de datos | [Resolved] Database access error",
+    "start_time": "2026-08-11T10:00:00Z",
+    "end_time": "2026-08-11T11:45:00Z",
+    "status": "resolved_manual",
+    "description": "🇪🇸 Los usuarios no podían iniciar sesión debido a un bloqueo en la base de datos.\n🇬🇧 Users were unable to log in due to a database deadlock.",
+    "updates": [
+      {
+        "time": "2026-08-11T10:30:00Z",
+        "text": "🇪🇸 Nuestros ingenieros están reiniciando el servicio de autenticación.\n🇬🇧 Our engineers are restarting the authentication service."
       },
       {
-        "time": "2026-08-07T15:30:00Z",
-        "text": "Filtros aplicados con éxito. Tráfico restablecido a la normalidad."
+        "time": "2026-08-11T11:45:00Z",
+        "text": "🇪🇸 El servicio ha sido restaurado manualmente. Todos los accesos funcionan.\n🇬🇧 Service manually restored. All logins are fully operational."
+      }
+    ]
+  },
+  {
+    "_comentario": "ESTADO 'active': Usar cuando el servicio está caído y aún no hay solución.",
+    "_comment": "STATUS 'active': Use when the service is down and there is no fix yet.",
+    "id": "2026-08-10-inc-active",
+    "service": "Web Principal (LASATA)",
+    "title": "🔴 Caída general del sistema | Major system outage",
+    "start_time": "2026-08-10T08:00:00Z",
+    "end_time": null,
+    "status": "active",
+    "description": "🇪🇸 Estamos experimentando una caída total en los servidores principales. El equipo ya está investigando.\n🇬🇧 We are experiencing a total outage on the main servers. The team is already investigating.",
+    "updates": [
+      {
+        "time": "2026-08-10T08:15:00Z",
+        "text": "🇪🇸 Hemos detectado un fallo en el centro de datos europeo. \n🇬🇧 We have detected a failure in the European data center."
       }
     ]
   }
