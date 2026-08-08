@@ -1,0 +1,442 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UppWebLa | Detalles de Mantenimiento</title>
+    <link rel="icon" type="image/png" href="src/images/iconoNoChange.png">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --up-color: #2ea043;
+            --warn-color: #d29922;
+            --border-color: #30363d;
+            --accent-blue: #58a6ff;
+            --maint-blue: #1f6feb;
+            --maint-bg: rgba(31, 111, 235, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .client-nav {
+            width: 100%;
+            background-color: #010409;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            box-sizing: border-box;
+        }
+
+        .client-nav-inner {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .client-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .client-logo {
+            height: 28px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .client-return-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            flex: 1;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+            .back-btn:hover {
+                background: #21262d;
+                border-color: var(--text-main);
+            }
+
+        .lang-dropdown {
+            position: relative;
+            display: inline-block;
+            user-select: none;
+        }
+
+        .lang-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .lang-btn img {
+                width: 20px;
+                border-radius: 2px;
+            }
+
+        .lang-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: none;
+            flex-direction: column;
+            min-width: 140px;
+            z-index: 10;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+            .lang-menu.show {
+                display: flex;
+            }
+
+        .lang-option {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+            .lang-option:hover {
+                background: #21262d;
+                color: var(--accent-blue);
+            }
+
+        .incident-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .incident-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        .incident-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            color: #fff;
+        }
+
+        .incident-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-scheduled {
+            background: var(--maint-bg);
+            color: var(--maint-blue);
+            border: 1px solid rgba(31, 111, 235, 0.4);
+        }
+
+        .badge-active {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warn-color);
+            border: 1px solid rgba(210, 153, 34, 0.4);
+        }
+
+        .badge-resolved {
+            background: rgba(46, 160, 67, 0.15);
+            color: var(--up-color);
+            border: 1px solid rgba(46, 160, 67, 0.4);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-block {
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .desc-box {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .timeline {
+            border-left: 2px solid var(--border-color);
+            padding-left: 1.5rem;
+            margin-left: 0.5rem;
+            position: relative;
+        }
+
+        .timeline-item {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -1.95rem;
+                top: 0.3rem;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: var(--maint-blue);
+                box-shadow: 0 0 0 4px var(--card-bg);
+            }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            background: #0d1117;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .footer-logo {
+            width: 400px;
+            max-width: 80%;
+            margin: 15px auto;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .client-nav-inner {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="client-nav">
+        <div class="client-nav-inner">
+            <div class="client-brand">
+                <img id="clientLogo" class="client-logo" src="" alt="Logo">
+                <span id="clientName">Empresa</span>
+            </div>
+            <a id="clientLink" href="#" target="_blank" class="client-return-link">Volver a la web</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="top-bar">
+            <a href="index.html" class="back-btn" id="ui-back-btn">← Volver al Dashboard</a>
+            <div class="lang-dropdown" id="langDropdown">
+                <div class="lang-btn" onclick="toggleLangMenu()">
+                    <img id="currentLangIcon" src="https://flagcdn.com/w20/es.png" alt="ES">
+                    <span id="currentLangText">Español</span> <span style="font-size: 0.7rem;">▼</span>
+                </div>
+                <div class="lang-menu" id="langMenu">
+                    <div class="lang-option" onclick="changeLang('es')"><img src="https://flagcdn.com/w20/es.png" alt="ES"> Español</div>
+                    <div class="lang-option" onclick="changeLang('en')"><img src="https://flagcdn.com/w20/gb.png" alt="EN"> English</div>
+                </div>
+            </div>
+        </div>
+        <div id="maint-content" style="text-align: center; padding: 2rem; color: var(--text-muted);">Cargando detalles de mantenimiento...</div>
+    </div>
+    <div id="secure-footer-container"></div>
+    <script>
+        let userConfig = { companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#" };
+        const fallbackDicts = {
+            es: { title: "💻 Estado del Sistema", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", startedAt: "Inicio programado:", endedAt: "Fin estimado:", serviceAffected: "Servicio afectado:", timelineTitle: "Cronología de actualizaciones", backToHome: "← Volver al Dashboard", noUpdates: "No hay actualizaciones registradas.", error: "Mantenimiento no encontrado." },
+            en: { title: "💻 System Status", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", startedAt: "Scheduled Start:", endedAt: "Estimated End:", serviceAffected: "Affected service:", timelineTitle: "Update timeline", backToHome: "← Back to Dashboard", noUpdates: "No updates recorded.", error: "Maintenance not found." }
+        };
+
+        let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
+        let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+        let currentMaint = null;
+
+        async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) {} }
+
+        function applyClientConfig() {
+            document.title = `${userConfig.companyName} | ${dict.title}`;
+            document.getElementById('clientName').innerText = userConfig.companyName;
+            if(userConfig.companyLogo) { document.getElementById('clientLogo').src = userConfig.companyLogo; document.getElementById('clientLogo').style.display = 'block'; }
+            document.getElementById('clientLink').href = userConfig.returnLinkUrl;
+            document.getElementById('clientLink').innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
+            document.getElementById('ui-back-btn').innerText = dict.backToHome;
+        }
+
+        function renderProtectedFooter() { document.getElementById('secure-footer-container').innerHTML = `<footer><p><span id="ui-footer-opensource">${dict.footerOpenSource}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa</a></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`; }
+        function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
+        document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
+
+        async function changeLang(lang) {
+            currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
+            document.getElementById('currentLangIcon').src = lang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
+            document.getElementById('currentLangText').innerText = lang === 'es' ? "Español" : "English";
+            document.getElementById('langMenu').classList.remove('show');
+            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
+            try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) {}
+            applyClientConfig(); renderProtectedFooter(); document.documentElement.lang = currentLang;
+            if(currentMaint) renderMaint(currentMaint);
+        }
+
+        function renderMaint(maint) {
+            const container = document.getElementById('maint-content');
+            const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
+
+            let badgeClass = 'badge-resolved'; let badgeLabel = dict.maintCompleted;
+            if (maint.status === 'scheduled') { badgeClass = 'badge-scheduled'; badgeLabel = dict.maintScheduled; }
+            else if (maint.status === 'in_progress') { badgeClass = 'badge-active'; badgeLabel = dict.maintInProgress; }
+
+            const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : '--';
+
+            let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${maint.title}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
+                        <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceAffected}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
+                        <div class="info-block"><div class="info-label">ID de Mantenimiento</div><div class="info-value">#${maint.id}</div></div>
+                        <div class="info-block"><div class="info-label">${dict.startedAt}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
+                        <div class="info-block"><div class="info-label">${dict.endedAt}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
+                        <div class="desc-box">${maint.description}</div><h2 class="timeline-title">${dict.timelineTitle}</h2><div class="timeline">`;
+
+            if (maint.updates && maint.updates.length > 0) {
+                const sortedUpdates = [...maint.updates].sort((a,b) => new Date(b.time) - new Date(a.time));
+                sortedUpdates.forEach(upd => { html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${upd.text}</div></div>`; });
+            } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates}</div></div>`; }
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        async function init() {
+            await loadConfig(); await changeLang(currentLang);
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; return; }
+            try {
+                const res = await fetch(`maintenances-index.json?t=${new Date().getTime()}`);
+                if (res.ok) {
+                    const maints = await res.json();
+                    currentMaint = maints.find(i => i.id === id);
+                    if (currentMaint) renderMaint(currentMaint); else document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`;
+                }
+            } catch (err) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; }
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -99,6 +99,36 @@ Crea un archivo JSON dentro de la subcarpeta correspondiente (ejemplo: incidents
 
 Al subir los cambios, el motor indexará la incidencia y aparecerá al instante en el centro de control con su página de detalles completa.
 
+## 🔧 Mantenimientos Programados
+
+El sistema organiza los mantenimientos programados en la carpeta `maintenances/` separadas por subcarpetas de servicios. El sistema creará las subcarpetas automáticamente basado en los ID que configures en `targets.json`.
+
+### 1. Crear un reporte de mantenimiento
+Para anunciar un mantenimiento, crea un archivo JSON dentro de la subcarpeta del ID correspondiente (ejemplo: `maintenances/web-principal/2026-08-15-maint.json`):
+
+{
+  "id": "2026-08-15-maint",
+  "service": "Web Principal (LASATA)",
+  "title": "Actualización del sistema operativo",
+  "start_time": "2026-08-15T02:00:00Z",
+  "end_time": null,
+  "status": "scheduled",
+  "description": "Se realizará una actualización del sistema operativo del servidor. Se esperan breves cortes de conexión durante la madrugada.",
+  "updates": [
+    {
+      "time": "2026-08-10T12:00:00Z",
+      "text": "Mantenimiento programado y notificado con 5 días de antelación."
+    }
+  ]
+}
+
+### 2. Actualizar o marcar como Completado
+* Para añadir comentarios sobre el progreso, agrega elementos al array `"updates"`.
+* Para finalizar el mantenimiento, asigna la fecha y hora en `"end_time"` y cambia el campo `"status"` a uno de los valores permitidos:
+  * `"scheduled"`: Mantenimiento programado (aún no ha empezado).
+  * `"in_progress"`: Mantenimiento en proceso.
+  * `"completed"`: Mantenimiento completado y servicio restablecido.
+
 ## 🔄 Cómo actualizar tu clon de UppWebLa
 
 Este proyecto está en constante evolución. Para actualizarlo de forma 100% segura:
@@ -206,6 +236,36 @@ Create a JSON file inside the corresponding subfolder (example: incidents/LASATA
   * "resolved_auto": Resolved automatically after service recovery.
 
 Once you push the changes, the engine will index the incident and it will instantly appear in the control center with its full details page.
+
+## 🔧 Scheduled Maintenances
+
+The system organizes scheduled maintenance in the `maintenances/` folder, separated by service subfolders. The system will automatically create the subfolders based on the IDs configured in `targets.json`.
+
+### 1. Create a maintenance report
+To announce a maintenance window, create a JSON file inside the corresponding ID subfolder (example: `maintenances/web-principal/2026-08-15-maint.json`):
+
+{
+  "id": "2026-08-15-maint",
+  "service": "Main Web (LASATA)",
+  "title": "Operating system update",
+  "start_time": "2026-08-15T02:00:00Z",
+  "end_time": null,
+  "status": "scheduled",
+  "description": "An operating system update will be performed on the server. Brief connection outages are expected during the early morning hours.",
+  "updates": [
+    {
+      "time": "2026-08-10T12:00:00Z",
+      "text": "Maintenance scheduled and notified 5 days in advance."
+    }
+  ]
+}
+
+### 2. Update or mark as Completed
+* To add progress comments, add elements to the `"updates"` array.
+* To finish the maintenance, assign the date and time in `"end_time"` and change the `"status"` field to one of the allowed values:
+  * `"scheduled"`: Maintenance is scheduled (has not started yet).
+  * `"in_progress"`: Maintenance is in progress.
+  * `"completed"`: Maintenance completed and service restored.
 
 ## 🔄 How to update your UppWebLa clone
 
