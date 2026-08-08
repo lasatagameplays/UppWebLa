@@ -3,19 +3,23 @@
     "_comment": "STATUS 'completed': Use when maintenance finishes successfully.",
     "id": "2026-08-22-maint-completed",
     "service": "Web Principal (LASATA)",
-    "title": "✅ [Completado] Optimización de Base de Datos | [Completed] DB Optimization",
+    "title_es": "✅ [Completado] Optimización de Base de Datos",
+    "title_en": "✅ [Completed] DB Optimization",
     "start_time": "2026-08-22T02:00:00Z",
     "end_time": "2026-08-22T04:30:00Z",
     "status": "completed",
-    "description": "🇪🇸 El mantenimiento de la base de datos ha concluido.\n🇬🇧 The database maintenance has been completed.",
+    "description_es": "El mantenimiento de la base de datos ha concluido.",
+    "description_en": "The database maintenance has been completed.",
     "updates": [
         {
             "time": "2026-08-22T02:00:00Z",
-            "text": "🇪🇸 Comienzan los trabajos de migración.\n🇬🇧 Migration work begins."
+            "text_es": "Comienzan los trabajos de migración.",
+            "text_en": "Migration work begins."
         },
         {
             "time": "2026-08-22T04:30:00Z",
-            "text": "🇪🇸 Finalizado con éxito. Todos los sistemas operativos.\n🇬🇧 Finished successfully. All systems operational."
+            "text_es": "Finalizado con éxito. Todos los sistemas operativos.",
+            "text_en": "Finished successfully. All systems operational."
         }
     ]
 }

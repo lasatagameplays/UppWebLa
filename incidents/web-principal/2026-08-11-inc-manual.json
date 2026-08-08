@@ -1,21 +1,25 @@
 ﻿{
-    "_comentario": "ESTADO 'resolved_manual': Usar cuando el equipo técnico ha intervenido para solucionar la caída. Se debe añadir la fecha en 'end_time'.",
-    "_comment": "STATUS 'resolved_manual': Use when the technical team intervened to fix the outage. You must add the date in 'end_time'.",
+    "_comentario": "ESTADO 'resolved_manual': Usar cuando el equipo técnico ha intervenido para solucionar la caída.",
+    "_comment": "STATUS 'resolved_manual': Use when the technical team intervened to fix the outage.",
     "id": "2026-08-11-inc-manual",
     "service": "Nube Privada (FileBrowser)",
-    "title": "✅ [Resuelto] Error de acceso a base de datos | [Resolved] Database access error",
+    "title_es": "✅ [Resuelto] Error de acceso a base de datos",
+    "title_en": "✅ [Resolved] Database access error",
     "start_time": "2026-08-11T10:00:00Z",
     "end_time": "2026-08-11T11:45:00Z",
     "status": "resolved_manual",
-    "description": "🇪🇸 Los usuarios no podían iniciar sesión debido a un bloqueo en la base de datos.\n🇬🇧 Users were unable to log in due to a database deadlock.",
+    "description_es": "Los usuarios no podían iniciar sesión debido a un bloqueo en la base de datos.",
+    "description_en": "Users were unable to log in due to a database deadlock.",
     "updates": [
         {
             "time": "2026-08-11T10:30:00Z",
-            "text": "🇪🇸 Nuestros ingenieros están reiniciando el servicio de autenticación.\n🇬🇧 Our engineers are restarting the authentication service."
+            "text_es": "Nuestros ingenieros están reiniciando el servicio de autenticación.",
+            "text_en": "Our engineers are restarting the authentication service."
         },
         {
             "time": "2026-08-11T11:45:00Z",
-            "text": "🇪🇸 El servicio ha sido restaurado manualmente. Todos los accesos funcionan.\n🇬🇧 Service manually restored. All logins are fully operational."
+            "text_es": "El servicio ha sido restaurado manualmente. Todos los accesos funcionan.",
+            "text_en": "Service manually restored. All logins are fully operational."
         }
     ]
 }

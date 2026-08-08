@@ -56,13 +56,25 @@ Una vez configurado, ve a la pestaña **Actions** y ejecuta el flujo de trabajo 
 
 Puedes personalizar la apariencia superior del dashboard para adaptarlo a tu propia marca. Solo tienes que crear un archivo llamado `config.json` en la raíz de tu repositorio con este formato:
 
+```json
 {
-"companyName": "Mi Empresa",
-"companyLogo": "https://midominio.com/logo.png",
-"returnLinkTextES": "Volver a la web principal",
-"returnLinkTextEN": "Return to main website",
-"returnLinkUrl": "https://midominio.com"
+  "companyName": "Mi Empresa",
+  "companyLogo": "https://midominio.com/logo.png",
+  "returnLinkTextES": "Volver a la web principal",
+  "returnLinkTextEN": "Return to main website",
+  "returnLinkUrl": "https://midominio.com",
+  "globalTitleES": "Monitorización Global",
+  "globalTitleEN": "Global Monitoring",
+  "globalDescES": "Supervisión en tiempo real. Actualizado cada 5 minutos.",
+  "globalDescEN": "Real-time supervision. Updated every 5 minutes.",
+  "languages": [
+    {"code": "es", "name": "Español", "flag": "es"},
+    {"code": "en", "name": "English", "flag": "gb"}
+  ]
 }
+```
+
+Puedes personalizar la apariencia y los idiomas del dashboard editando el archivo `config.json`. En la sección `languages`, puedes añadir o quitar idiomas (se recomienda mantener al menos 2 para una mejor accesibilidad). Solo asegúrate de tener el archivo `.json` correspondiente en la raíz (ej. `fr.json` si añades francés).
 
 > **Aviso importante sobre los logos:** Tus logos personales deben tener un nombre diferente a los originales. **No modifiques ni elimines los archivos que contengan la palabra `NoChange` en su nombre** (ej: `logoNoChange.png`), ya que forman parte de los derechos de autor obligatorios del proyecto.
 
@@ -73,21 +85,26 @@ El sistema organiza las incidencias en la carpeta incidents/ separadas por subca
 ### 1. Crear un reporte de incidencia
 Crea un archivo JSON dentro de la subcarpeta correspondiente (ejemplo: incidents/LASATA.EU/2026-08-07-001.json):
 
+```json
 {
   "id": "2026-08-07-001",
   "service": "Web Principal (LASATA)",
-  "title": "Mantenimiento programado en la base de datos",
+  "title_es": "Mantenimiento programado en la base de datos",
+  "title_en": "Scheduled database maintenance",
   "start_time": "2026-08-07T14:00:00Z",
   "end_time": null,
   "status": "active",
-  "description": "Estamos realizando una optimización de índices en el servidor de base de datos. Se esperan interrupciones intermitentes.",
+  "description_es": "Estamos realizando una optimización de índices en el servidor de base de datos. Se esperan interrupciones intermitentes.",
+  "description_en": "We are performing index optimization on the database server. Intermittent interruptions are expected.",
   "updates": [
     {
       "time": "2026-08-07T14:05:00Z",
-      "text": "Inicio del mantenimiento. Tareas de respaldo completadas."
+      "text_es": "Inicio del mantenimiento. Tareas de respaldo completadas.",
+      "text_en": "Maintenance started. Backup tasks completed."
     }
   ]
 }
+```
 
 ### 2. Actualizar o marcar como Resuelta
 * Para añadir comentarios en tiempo real a la cronología de la web, agrega elementos al array "updates".
@@ -106,21 +123,26 @@ El sistema organiza los mantenimientos programados en la carpeta `maintenances/`
 ### 1. Crear un reporte de mantenimiento
 Para anunciar un mantenimiento, crea un archivo JSON dentro de la subcarpeta del ID correspondiente (ejemplo: `maintenances/web-principal/2026-08-15-maint.json`):
 
+```json
 {
   "id": "2026-08-15-maint",
   "service": "Web Principal (LASATA)",
-  "title": "Actualización del sistema operativo",
+  "title_es": "Actualización del sistema operativo",
+  "title_en": "Operating system update",
   "start_time": "2026-08-15T02:00:00Z",
   "end_time": null,
   "status": "scheduled",
-  "description": "Se realizará una actualización del sistema operativo del servidor. Se esperan breves cortes de conexión durante la madrugada.",
+  "description_es": "Se realizará una actualización del sistema operativo del servidor. Se esperan breves cortes de conexión durante la madrugada.",
+  "description_en": "An operating system update will be performed on the server. Brief connection outages are expected during the early morning hours.",
   "updates": [
     {
       "time": "2026-08-10T12:00:00Z",
-      "text": "Mantenimiento programado y notificado con 5 días de antelación."
+      "text_es": "Mantenimiento programado y notificado con 5 días de antelación.",
+      "text_en": "Maintenance scheduled and notified 5 days in advance."
     }
   ]
 }
+```
 
 ### 2. Actualizar o marcar como Completado
 * Para añadir comentarios sobre el progreso, agrega elementos al array `"updates"`.
@@ -199,13 +221,25 @@ Go to the **Actions** tab and manually run the workflow for the first time. From
 
 You can customize the top appearance of the dashboard to fit your own brand. Just create a file named `config.json` in the root of your repository with this format:
 
+```json
 {
-"companyName": "My Company",
-"companyLogo": "https://mydomain.com/logo.png",
-"returnLinkTextES": "Volver a la web principal",
-"returnLinkTextEN": "Return to main website",
-"returnLinkUrl": "https://mydomain.com"
+  "companyName": "My Company",
+  "companyLogo": "https://mydomain.com/logo.png",
+  "returnLinkTextES": "Volver a la web principal",
+  "returnLinkTextEN": "Return to main website",
+  "returnLinkUrl": "https://mydomain.com",
+  "globalTitleES": "Monitorización Global",
+  "globalTitleEN": "Global Monitoring",
+  "globalDescES": "Supervisión en tiempo real. Actualizado cada 5 minutos.",
+  "globalDescEN": "Real-time supervision. Updated every 5 minutes.",
+  "languages": [
+    {"code": "es", "name": "Español", "flag": "es"},
+    {"code": "en", "name": "English", "flag": "gb"}
+  ]
 }
+```
+
+You can customize the dashboard's appearance and languages by editing the `config.json` file. In the `languages` section, you can add or remove languages (we recommend keeping at least 2 for better accessibility). Just make sure you have the corresponding `.json` dictionary in the root folder (e.g., `fr.json` if you add French).
 
 > **Important notice about logos:** Your personal logos must have a different name. **Do not modify or delete files containing the word `NoChange` in their name** (e.g., `logoNoChange.png`), as they are part of the project's mandatory copyright attribution.
 
@@ -216,21 +250,26 @@ The system organizes incidents in the incidents/ folder, separated by service or
 ### 1. Create an incident report
 Create a JSON file inside the corresponding subfolder (example: incidents/LASATA.EU/2026-08-07-001.json):
 
+```json
 {
   "id": "2026-08-07-001",
   "service": "Main Web (LASATA)",
-  "title": "Scheduled database maintenance",
+  "title_es": "Mantenimiento programado en la base de datos",
+  "title_en": "Scheduled database maintenance",
   "start_time": "2026-08-07T14:00:00Z",
   "end_time": null,
   "status": "active",
-  "description": "We are performing index optimization on the database server. Intermittent interruptions are expected.",
+  "description_es": "Estamos realizando una optimización de índices en el servidor de base de datos. Se esperan interrupciones intermitentes.",
+  "description_en": "We are performing index optimization on the database server. Intermittent interruptions are expected.",
   "updates": [
     {
       "time": "2026-08-07T14:05:00Z",
-      "text": "Maintenance started. Backup tasks completed."
+      "text_es": "Inicio del mantenimiento. Tareas de respaldo completadas.",
+      "text_en": "Maintenance started. Backup tasks completed."
     }
   ]
 }
+```
 
 ### 2. Update or mark as Resolved
 * To add real-time comments to the website's timeline, add elements to the "updates" array.
@@ -249,21 +288,26 @@ The system organizes scheduled maintenance in the `maintenances/` folder, separa
 ### 1. Create a maintenance report
 To announce a maintenance window, create a JSON file inside the corresponding ID subfolder (example: `maintenances/web-principal/2026-08-15-maint.json`):
 
+```json
 {
   "id": "2026-08-15-maint",
   "service": "Main Web (LASATA)",
-  "title": "Operating system update",
+  "title_es": "Actualización del sistema operativo",
+  "title_en": "Operating system update",
   "start_time": "2026-08-15T02:00:00Z",
   "end_time": null,
   "status": "scheduled",
-  "description": "An operating system update will be performed on the server. Brief connection outages are expected during the early morning hours.",
+  "description_es": "Se realizará una actualización del sistema operativo del servidor. Se esperan breves cortes de conexión durante la madrugada.",
+  "description_en": "An operating system update will be performed on the server. Brief connection outages are expected during the early morning hours.",
   "updates": [
     {
       "time": "2026-08-10T12:00:00Z",
-      "text": "Maintenance scheduled and notified 5 days in advance."
+      "text_es": "Mantenimiento programado y notificado con 5 días de antelación.",
+      "text_en": "Maintenance scheduled and notified 5 days in advance."
     }
   ]
 }
+```
 
 ### 2. Update or mark as Completed
 * To add progress comments, add elements to the `"updates"` array.

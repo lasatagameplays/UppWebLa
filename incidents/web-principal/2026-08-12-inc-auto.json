@@ -1,17 +1,20 @@
 ﻿{
-    "_comentario": "ESTADO 'resolved_auto': Usar cuando hubo un corte, pero el sistema se reinició o recuperó por sí mismo sin intervención humana.",
-    "_comment": "STATUS 'resolved_auto': Use when there was an outage, but the system rebooted or recovered on its own without human intervention.",
+    "_comentario": "ESTADO 'resolved_auto': Usar cuando el sistema se recuperó por sí mismo.",
+    "_comment": "STATUS 'resolved_auto': Use when the system recovered on its own.",
     "id": "2026-08-12-inc-auto",
     "service": "Server S1 (HestiaCP)",
-    "title": "⚡ [Auto-Resuelto] Pico de red mitigado | [Auto-Resolved] Network spike mitigated",
+    "title_es": "⚡ [Auto-Resuelto] Pico de red mitigado",
+    "title_en": "⚡ [Auto-Resolved] Network spike mitigated",
     "start_time": "2026-08-12T04:00:00Z",
     "end_time": "2026-08-12T04:05:00Z",
     "status": "resolved_auto",
-    "description": "🇪🇸 Se registró una desconexión de 5 minutos por un micro-corte de red.\n🇬🇧 A 5-minute disconnection was recorded due to a network micro-outage.",
+    "description_es": "Se registró una desconexión de 5 minutos por un micro-corte de red.",
+    "description_en": "A 5-minute disconnection was recorded due to a network micro-outage.",
     "updates": [
         {
             "time": "2026-08-12T04:05:00Z",
-            "text": "🇪🇸 El firewall bloqueó el tráfico anómalo automáticamente y el servicio volvió a la normalidad.\n🇬🇧 The firewall automatically blocked anomalous traffic and service returned to normal."
+            "text_es": "El firewall bloqueó el tráfico anómalo automáticamente y el servicio volvió a la normalidad.",
+            "text_en": "The firewall automatically blocked anomalous traffic and service returned to normal."
         }
     ]
 }

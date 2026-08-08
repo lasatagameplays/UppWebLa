@@ -658,34 +658,13 @@
         const externalLinkIcon = `<svg viewBox="0 0 24 24"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg>`;
 
         let userConfig = {
-            companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#"
+            companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#",
+            languages: [{ "code": "es", "name": "Español", "flag": "es" }, { "code": "en", "name": "English", "flag": "gb" }]
         };
 
         const fallbackDicts = {
-            es: {
-                title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ",
-                uptimeTitle: "Disponibilidad", avgLatency: "Latencia media",
-                incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.",
-                maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.",
-                ms: "ms", rights: "Todos los derechos reservados.",
-                allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos",
-                viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página",
-                incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)",
-                maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado",
-                regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }
-            },
-            en: {
-                title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ",
-                uptimeTitle: "Uptime", avgLatency: "Average latency",
-                incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.",
-                maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.",
-                ms: "ms", rights: "All rights reserved.",
-                allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage",
-                viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page",
-                incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)",
-                maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed",
-                regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }
-            }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" } },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" } }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
@@ -695,8 +674,25 @@
         let currentIncidentPage = 1, currentMaintenancePage = 1;
         const itemsPerPage = 5;
 
-        async function loadConfig() {
-            try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) { }
+        // 🔮 FUNCIÓN MÁGICA: Extrae el texto en el idioma actual o busca el de por defecto (Español)
+        function getDynamicText(obj, key) {
+            const loc = key + '_' + currentLang;
+            return (obj[loc] && obj[loc] !== 'null') ? obj[loc] : (obj[key + '_es'] || obj[key] || '--');
+        }
+
+        async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) { } }
+
+        // 🎨 Genera el menú de banderas automáticamente leyendo config.json
+        function renderLangMenu() {
+            const langs = userConfig.languages || [{ code: "es", name: "Español", flag: "es" }, { code: "en", name: "English", flag: "gb" }];
+            let menuHtml = ''; let currentIcon = 'https://flagcdn.com/w20/es.png', currentName = 'Español';
+            langs.forEach(l => {
+                menuHtml += `<div class="lang-option" onclick="changeLang('${l.code}')"><img src="https://flagcdn.com/w20/${l.flag}.png" alt="${l.code.toUpperCase()}"> ${l.name}</div>`;
+                if (l.code === currentLang) { currentIcon = `https://flagcdn.com/w20/${l.flag}.png`; currentName = l.name; }
+            });
+            document.getElementById('langMenu').innerHTML = menuHtml;
+            document.getElementById('currentLangIcon').src = currentIcon;
+            document.getElementById('currentLangText').innerText = currentName;
         }
 
         function applyClientConfig() {
@@ -710,17 +706,14 @@
             document.getElementById('ui-global-desc').innerText = isEs ? userConfig.globalDescES : userConfig.globalDescEN;
         }
 
-        function renderProtectedFooter() {
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa</a></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
-        }
+        function renderProtectedFooter() { document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa</a></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`; }
 
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
         document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
 
         async function changeLang(lang) {
             currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
-            document.getElementById('currentLangIcon').src = lang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
-            document.getElementById('currentLangText').innerText = lang === 'es' ? "Español" : "English";
+            renderLangMenu();
             document.getElementById('langMenu').classList.remove('show');
 
             dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
@@ -738,8 +731,7 @@
         }
 
         function updateGlobalBanner(components) {
-            const banner = document.getElementById('globalStatusBanner');
-            const text = document.getElementById('globalStatusText');
+            const banner = document.getElementById('globalStatusBanner'); const text = document.getElementById('globalStatusText');
             if (!banner || !text) return;
             let totalChecks = 0, upChecks = 0;
             components.forEach(comp => { Object.values(comp.regions || {}).forEach(regData => { const status = typeof regData === 'string' ? regData : (regData.status || 'UP'); totalChecks++; if (status === 'UP') upChecks++; }); });
@@ -762,7 +754,7 @@
             uniqueComponents.forEach((comp) => {
                 const checkTime = comp.last_check || data.last_check;
                 const formattedDate = checkTime ? new Intl.DateTimeFormat(currentLang === 'es' ? 'es-ES' : 'en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(checkTime)) : '--';
-                const compName = (currentLang === 'en' && comp.name_en && comp.name_en !== 'null') ? comp.name_en : (comp.name_es || comp.name);
+                const compName = getDynamicText(comp, 'name');
                 const safeId = comp.id || comp.name_es || comp.name;
 
                 let regionsHtml = '';
@@ -778,11 +770,9 @@
             });
         }
 
-        /* ----- PAGINACIÓN Y RENDERIZADO DE INCIDENCIAS ----- */
         function renderIncidents() {
             const container = document.getElementById('incidents-container');
-            if (!container) return;
-            container.innerHTML = '';
+            if (!container) return; container.innerHTML = '';
             if (!latestIncidents || latestIncidents.length === 0) { container.innerHTML = `<p class="no-incidents">${dict.noIncidents}</p>`; return; }
 
             const start = (currentIncidentPage - 1) * itemsPerPage;
@@ -791,12 +781,15 @@
             paginated.forEach(inc => {
                 const formattedDate = new Intl.DateTimeFormat(currentLang === 'es' ? 'es-ES' : 'en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(inc.start_time));
                 const isActive = inc.status === 'active';
+                const titleText = getDynamicText(inc, 'title');
+                const descText = getDynamicText(inc, 'description');
+
                 let badgeText = dict.incidentResolved;
                 if (isActive) badgeText = dict.incidentActive;
                 if (inc.status === 'resolved_manual') badgeText = dict.statusResolvedManual;
                 if (inc.status === 'resolved_auto') badgeText = dict.statusResolvedAuto;
 
-                container.insertAdjacentHTML('beforeend', `<div class="incident-card ${isActive ? 'active' : 'resolved'}" onclick="window.location.href='incident.html?id=${inc.id}&type=incident'" style="cursor:pointer;"><div class="incident-header"><span class="incident-title-text">${inc.title}</span><span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${badgeText}</span></div><div class="incident-date">🕒 ${formattedDate} - ${inc.service}</div><p class="incident-desc">${inc.description.substring(0, 140)}...</p><div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div></div>`);
+                container.insertAdjacentHTML('beforeend', `<div class="incident-card ${isActive ? 'active' : 'resolved'}" onclick="window.location.href='incident.html?id=${inc.id}'" style="cursor:pointer;"><div class="incident-header"><span class="incident-title-text">${titleText}</span><span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${badgeText}</span></div><div class="incident-date">🕒 ${formattedDate} - ${inc.service}</div><p class="incident-desc">${descText.substring(0, 140)}...</p><div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div></div>`);
             });
 
             if (latestIncidents.length > itemsPerPage) {
@@ -805,11 +798,9 @@
             }
         }
 
-        /* ----- PAGINACIÓN Y RENDERIZADO DE MANTENIMIENTOS ----- */
         function renderMaintenances() {
             const container = document.getElementById('maintenances-container');
-            if (!container) return;
-            container.innerHTML = '';
+            if (!container) return; container.innerHTML = '';
             if (!latestMaintenances || latestMaintenances.length === 0) { container.innerHTML = `<p class="no-incidents">${dict.noMaintenances}</p>`; return; }
 
             const start = (currentMaintenancePage - 1) * itemsPerPage;
@@ -817,13 +808,14 @@
 
             paginated.forEach(maint => {
                 const formattedDate = new Intl.DateTimeFormat(currentLang === 'es' ? 'es-ES' : 'en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(maint.start_time));
+                const titleText = getDynamicText(maint, 'title');
+                const descText = getDynamicText(maint, 'description');
 
-                let badgeClass = 'resolved'; // default green
-                let badgeLabel = dict.maintCompleted;
+                let badgeClass = 'resolved'; let badgeLabel = dict.maintCompleted;
                 if (maint.status === 'scheduled') { badgeClass = 'scheduled'; badgeLabel = dict.maintScheduled; }
                 else if (maint.status === 'in_progress') { badgeClass = 'in_progress'; badgeLabel = dict.maintInProgress; }
 
-                container.insertAdjacentHTML('beforeend', `<div class="incident-card ${badgeClass}" onclick="window.location.href='maintenance.html?id=${maint.id}'" style="cursor:pointer;"><div class="incident-header"><span class="incident-title-text">${maint.title}</span><span class="incident-badge ${badgeClass === 'scheduled' ? 'badge-scheduled' : (badgeClass === 'in_progress' ? 'badge-active' : 'badge-resolved')}">${badgeLabel}</span></div><div class="incident-date">🕒 ${formattedDate} - ${maint.service}</div><p class="incident-desc">${maint.description.substring(0, 140)}...</p><div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div></div>`);
+                container.insertAdjacentHTML('beforeend', `<div class="incident-card ${badgeClass}" onclick="window.location.href='maintenance.html?id=${maint.id}'" style="cursor:pointer;"><div class="incident-header"><span class="incident-title-text">${titleText}</span><span class="incident-badge ${badgeClass === 'scheduled' ? 'badge-scheduled' : (badgeClass === 'in_progress' ? 'badge-active' : 'badge-resolved')}">${badgeLabel}</span></div><div class="incident-date">🕒 ${formattedDate} - ${maint.service}</div><p class="incident-desc">${descText.substring(0, 140)}...</p><div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div></div>`);
             });
 
             if (latestMaintenances.length > itemsPerPage) {
@@ -842,7 +834,9 @@
             let history = [];
             try { if (comp.history_file) { const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`); if (res.ok) history = await res.json(); } } catch (err) { }
             activeHistoryFull = history; activeRegKey = regKey;
-            document.getElementById('modalCompTitle').innerText = `${(currentLang === 'en' && comp.name_en && comp.name_en !== 'null') ? comp.name_en : (comp.name_es || comp.name)} - ${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}`;
+
+            const compName = getDynamicText(comp, 'name');
+            document.getElementById('modalCompTitle').innerText = `${compName} - ${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}`;
             filterChart('24h', document.getElementById('btn-24h'));
         }
 

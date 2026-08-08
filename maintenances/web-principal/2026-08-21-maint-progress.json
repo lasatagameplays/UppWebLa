@@ -3,15 +3,18 @@
     "_comment": "STATUS 'in_progress': Use when the time comes and engineers start working.",
     "id": "2026-08-21-maint-progress",
     "service": "Nube Privada (FileBrowser)",
-    "title": "⚙️ [En curso] Aumento de almacenamiento | [In progress] Storage upgrade",
+    "title_es": "⚙️ [En curso] Aumento de almacenamiento",
+    "title_en": "⚙️ [In progress] Storage upgrade",
     "start_time": "2026-08-21T10:00:00Z",
     "end_time": "2026-08-21T14:00:00Z",
     "status": "in_progress",
-    "description": "🇪🇸 Los servidores de almacenamiento están actualmente en mantenimiento.\n🇬🇧 The storage servers are currently undergoing maintenance.",
+    "description_es": "Los servidores de almacenamiento están actualmente en mantenimiento.",
+    "description_en": "The storage servers are currently undergoing maintenance.",
     "updates": [
         {
             "time": "2026-08-21T10:00:00Z",
-            "text": "🇪🇸 Comienzan los trabajos. Desconectando servicios.\n🇬🇧 Work begins. Disconnecting services."
+            "text_es": "Comienzan los trabajos. Desconectando servicios.",
+            "text_en": "Work begins. Disconnecting services."
         }
     ]
 }

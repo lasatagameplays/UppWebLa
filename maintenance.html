@@ -362,7 +362,7 @@
     </div>
     <div id="secure-footer-container"></div>
     <script>
-        let userConfig = { companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#" };
+        let userConfig = { companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#", languages: [{ "code": "es", "name": "Español", "flag": "es" }, { "code": "en", "name": "English", "flag": "gb" }] };
         const fallbackDicts = {
             es: { title: "💻 Estado del Sistema", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", startedAt: "Inicio programado:", endedAt: "Fin estimado:", serviceAffected: "Servicio afectado:", timelineTitle: "Cronología de actualizaciones", backToHome: "← Volver al Dashboard", noUpdates: "No hay actualizaciones registradas.", error: "Mantenimiento no encontrado." },
             en: { title: "💻 System Status", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", startedAt: "Scheduled Start:", endedAt: "Estimated End:", serviceAffected: "Affected service:", timelineTitle: "Update timeline", backToHome: "← Back to Dashboard", noUpdates: "No updates recorded.", error: "Maintenance not found." }
@@ -372,12 +372,29 @@
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let currentMaint = null;
 
-        async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) {} }
+        function getDynamicText(obj, key) {
+            const loc = key + '_' + currentLang;
+            return (obj[loc] && obj[loc] !== 'null') ? obj[loc] : (obj[key + '_es'] || obj[key] || '--');
+        }
+
+        async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) { } }
+
+        function renderLangMenu() {
+            const langs = userConfig.languages || [{ code: "es", name: "Español", flag: "es" }, { code: "en", name: "English", flag: "gb" }];
+            let menuHtml = ''; let currentIcon = 'https://flagcdn.com/w20/es.png', currentName = 'Español';
+            langs.forEach(l => {
+                menuHtml += `<div class="lang-option" onclick="changeLang('${l.code}')"><img src="https://flagcdn.com/w20/${l.flag}.png" alt="${l.code.toUpperCase()}"> ${l.name}</div>`;
+                if (l.code === currentLang) { currentIcon = `https://flagcdn.com/w20/${l.flag}.png`; currentName = l.name; }
+            });
+            document.getElementById('langMenu').innerHTML = menuHtml;
+            document.getElementById('currentLangIcon').src = currentIcon;
+            document.getElementById('currentLangText').innerText = currentName;
+        }
 
         function applyClientConfig() {
             document.title = `${userConfig.companyName} | ${dict.title}`;
             document.getElementById('clientName').innerText = userConfig.companyName;
-            if(userConfig.companyLogo) { document.getElementById('clientLogo').src = userConfig.companyLogo; document.getElementById('clientLogo').style.display = 'block'; }
+            if (userConfig.companyLogo) { document.getElementById('clientLogo').src = userConfig.companyLogo; document.getElementById('clientLogo').style.display = 'block'; }
             document.getElementById('clientLink').href = userConfig.returnLinkUrl;
             document.getElementById('clientLink').innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
             document.getElementById('ui-back-btn').innerText = dict.backToHome;
@@ -389,13 +406,11 @@
 
         async function changeLang(lang) {
             currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
-            document.getElementById('currentLangIcon').src = lang === 'es' ? "https://flagcdn.com/w20/es.png" : "https://flagcdn.com/w20/gb.png";
-            document.getElementById('currentLangText').innerText = lang === 'es' ? "Español" : "English";
-            document.getElementById('langMenu').classList.remove('show');
+            renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
             dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
-            try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) {}
+            try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
             applyClientConfig(); renderProtectedFooter(); document.documentElement.lang = currentLang;
-            if(currentMaint) renderMaint(currentMaint);
+            if (currentMaint) renderMaint(currentMaint);
         }
 
         function renderMaint(maint) {
@@ -408,16 +423,22 @@
 
             const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : '--';
 
-            let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${maint.title}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
-                        <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceAffected}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
-                        <div class="info-block"><div class="info-label">ID de Mantenimiento</div><div class="info-value">#${maint.id}</div></div>
-                        <div class="info-block"><div class="info-label">${dict.startedAt}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
-                        <div class="info-block"><div class="info-label">${dict.endedAt}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
-                        <div class="desc-box">${maint.description}</div><h2 class="timeline-title">${dict.timelineTitle}</h2><div class="timeline">`;
+            const titleText = getDynamicText(maint, 'title');
+            const descText = getDynamicText(maint, 'description');
+
+            let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${titleText}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
+                            <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceAffected}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
+                            <div class="info-block"><div class="info-label">ID de Mantenimiento</div><div class="info-value">#${maint.id}</div></div>
+                            <div class="info-block"><div class="info-label">${dict.startedAt}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
+                            <div class="info-block"><div class="info-label">${dict.endedAt}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
+                            <div class="desc-box">${descText}</div><h2 class="timeline-title">${dict.timelineTitle}</h2><div class="timeline">`;
 
             if (maint.updates && maint.updates.length > 0) {
-                const sortedUpdates = [...maint.updates].sort((a,b) => new Date(b.time) - new Date(a.time));
-                sortedUpdates.forEach(upd => { html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${upd.text}</div></div>`; });
+                const sortedUpdates = [...maint.updates].sort((a, b) => new Date(b.time) - new Date(a.time));
+                sortedUpdates.forEach(upd => {
+                    const updText = getDynamicText(upd, 'text');
+                    html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${updText}</div></div>`;
+                });
             } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates}</div></div>`; }
             html += `</div></div>`;
             container.innerHTML = html;
