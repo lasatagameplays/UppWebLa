@@ -35,7 +35,7 @@ A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni framework
 
 ## 🛠️ ¿Cómo funciona la arquitectura?
 
-1. **El Cron Job:** Un flujo de trabajo (`uptime.yml`) se ejecuta cada 5 minutos mediante GitHub Actions.
+1. **El Motor de Pings:** Un disparador externo (`Webhook`) ejecuta el flujo de trabajo (`uptime.yml`) exactamente **cada 5 minutos** con prioridad máxima en los servidores de GitHub.
 2. **Geo-Pings:** Los runners ejecutan peticiones avanzadas para medir códigos HTTP y tiempos de respuesta desde 3 continentes en base a los servicios definidos en `targets.json`.
 3. **Historial Modular e Incidencias:** Un trabajo final unifica los datos, guarda el historial de cada servicio y empaqueta las carpetas de incidencias y mantenimientos de forma automática.
 4. **Despliegue Automático:** Un bot hace un push silencioso y GitHub Pages sirve el dashboard estático al instante.
@@ -53,7 +53,9 @@ Una vez configurado, ve a la pestaña Actions y ejecuta el flujo de trabajo manu
 
 ## ⏱️ Forzar Pings Exactos (CronJob Externo)
 
-Por defecto, los servidores gratuitos de GitHub Actions ejecutan las tareas programadas con prioridad baja, lo que puede provocar retrasos en la medición. Para evitar esto y forzar que el bot trabaje **exactamente cada 5 minutos**, recomendamos usar un disparador externo:
+Como los servidores gratuitos de GitHub Actions ejecutan las tareas programadas internas con prioridad baja y provocan retrasos, UppWebLa delega su ejecución en un sistema cron externo para garantizar mediciones exactas cada 5 minutos.
+
+Para configurar el webhook principal en tu repositorio:
 
 1. Ve a GitHub y entra en **Settings > Developer settings > Personal access tokens > Tokens (classic)**.
 2. Genera un nuevo token sin caducidad marcando **solamente la casilla `repo`**, y cópialo.
@@ -222,7 +224,7 @@ Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks*
 
 ## 🛠️ How does the architecture work?
 
-1. **The Cron Job:** A workflow (`uptime.yml`) runs every 5 minutes via GitHub Actions.
+1. **The Ping Engine:** An external trigger (`Webhook`) executes the workflow (`uptime.yml`) exactly **every 5 minutes** with top priority on GitHub servers.
 2. **Geo-Pings:** GitHub runners execute advanced requests to measure HTTP status and response times based on the services defined in `targets.json`.
 3. **Modular History & Incidents:** A final job collects data, saves independent history files, and automatically packages incident and maintenance folders.
 4. **Automated Deployment:** A bot silently pushes the updates, and GitHub Pages serves the static dashboard instantly.
@@ -244,7 +246,9 @@ Go to the **Actions** tab and manually run the workflow for the first time. From
 
 ## ⏱️ Force Exact Pings (External CronJob)
 
-By default, GitHub Actions' free servers run scheduled tasks with low priority, which can cause measurement delays. To bypass this and force the bot to run exactly every 5 minutes, we recommend using an external trigger:
+Since free GitHub Actions servers execute internal scheduled tasks with low priority—causing delays—UppWeb delegates their execution to an external cron system to ensure accurate measurements every 5 minutes.
+
+To configure the main webhook in your repository:
 
 1. Go to GitHub and open **Settings > Developer settings > Personal access tokens > Tokens (classic)**.
 2. Generate a new token with no expiration, checking **only the `repo` box**, and copy it.

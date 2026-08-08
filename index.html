@@ -641,8 +641,8 @@
         };
 
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Esperando a los servidores de GitHub...", delayText: "Retraso en cola:" },
-            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Waiting for GitHub servers...", delayText: "Queue delay:" }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Obteniendo datos de GitHub...", delayText: "Retraso en cola:" },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Fetching data from GitHub...", delayText: "Queue delay:" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
@@ -905,6 +905,7 @@
                 const s = Math.floor((overdue % (1000 * 60)) / 1000);
                 timerEl.innerHTML = `🔄 <b>${dict.updating}</b> <span style="font-size: 0.85em; opacity: 0.8;">(${dict.delayText || 'Retraso:'} +${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')})</span>`;
 
+                // Mientras estamos en retraso, intenta obtener los datos de forma silenciosa cada 15s
                 if (overdue % 15000 < 1000 && !isFetching) {
                     fetchAllData();
                 }
@@ -921,7 +922,18 @@
             if (latestData) {
                 renderData(latestData);
                 if (latestData.last_check) {
-                    nextCheckTime = new Date(latestData.last_check).getTime() + (5 * 60 * 1000);
+                    // LA MAGIA DE LA PREDICCIÓN: Calculamos la fecha real de la próxima actualización.
+                    // Si el cron dispara en el minuto :00, apuntaremos al minuto :06 (1 minuto de margen).
+                    const lastCheckDate = new Date(latestData.last_check);
+                    const m = lastCheckDate.getMinutes();
+
+                    // Encontramos en qué múltiplo de 5 disparó el cron real
+                    const cronTriggerMinute = Math.floor(m / 5) * 5;
+
+                    // Sumamos 6 minutos (5 minutos para el próximo cron + 1 de tiempo de procesamiento)
+                    const nextReadyDate = new Date(lastCheckDate);
+                    nextReadyDate.setMinutes(cronTriggerMinute + 6, 0, 0);
+                    nextCheckTime = nextReadyDate.getTime();
                 }
             }
             renderIncidents();
@@ -933,7 +945,6 @@
             await loadConfig();
             await changeLang(currentLang);
 
-            // LA MAGIA ARREGLADA ESTÁ AQUÍ (Buscamos '.header', no '.header-container')
             if (!document.getElementById('ui-timer')) {
                 const header = document.querySelector('.header');
                 if (header) {
