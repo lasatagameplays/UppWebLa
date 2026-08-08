@@ -4,19 +4,23 @@
     "_comment": "STATUS 'completed': Use when maintenance finishes successfully.",
     "id": "2026-08-22-maint-completed",
     "service": "Web Principal (LASATA)",
-    "title": "✅ [Completado] Optimización de Base de Datos | [Completed] DB Optimization",
+    "title_es": "✅ [Completado] Optimización de Base de Datos",
+    "title_en": "✅ [Completed] DB Optimization",
     "start_time": "2026-08-22T02:00:00Z",
     "end_time": "2026-08-22T04:30:00Z",
     "status": "completed",
-    "description": "🇪🇸 El mantenimiento de la base de datos ha concluido.\n🇬🇧 The database maintenance has been completed.",
+    "description_es": "El mantenimiento de la base de datos ha concluido.",
+    "description_en": "The database maintenance has been completed.",
     "updates": [
       {
         "time": "2026-08-22T02:00:00Z",
-        "text": "🇪🇸 Comienzan los trabajos de migración.\n🇬🇧 Migration work begins."
+        "text_es": "Comienzan los trabajos de migración.",
+        "text_en": "Migration work begins."
       },
       {
         "time": "2026-08-22T04:30:00Z",
-        "text": "🇪🇸 Finalizado con éxito. Todos los sistemas operativos.\n🇬🇧 Finished successfully. All systems operational."
+        "text_es": "Finalizado con éxito. Todos los sistemas operativos.",
+        "text_en": "Finished successfully. All systems operational."
       }
     ]
   },
@@ -25,15 +29,18 @@
     "_comment": "STATUS 'in_progress': Use when the time comes and engineers start working.",
     "id": "2026-08-21-maint-progress",
     "service": "Nube Privada (FileBrowser)",
-    "title": "⚙️ [En curso] Aumento de almacenamiento | [In progress] Storage upgrade",
+    "title_es": "⚙️ [En curso] Aumento de almacenamiento",
+    "title_en": "⚙️ [In progress] Storage upgrade",
     "start_time": "2026-08-21T10:00:00Z",
     "end_time": "2026-08-21T14:00:00Z",
     "status": "in_progress",
-    "description": "🇪🇸 Los servidores de almacenamiento están actualmente en mantenimiento.\n🇬🇧 The storage servers are currently undergoing maintenance.",
+    "description_es": "Los servidores de almacenamiento están actualmente en mantenimiento.",
+    "description_en": "The storage servers are currently undergoing maintenance.",
     "updates": [
       {
         "time": "2026-08-21T10:00:00Z",
-        "text": "🇪🇸 Comienzan los trabajos. Desconectando servicios.\n🇬🇧 Work begins. Disconnecting services."
+        "text_es": "Comienzan los trabajos. Desconectando servicios.",
+        "text_en": "Work begins. Disconnecting services."
       }
     ]
   },
@@ -42,15 +49,18 @@
     "_comment": "STATUS 'scheduled': Use days in advance to notify clients.",
     "id": "2026-08-20-maint-scheduled",
     "service": "Webmail (Roundcube Webmail)",
-    "title": "📅 Actualización de servidores de correo | Mail server upgrade",
+    "title_es": "📅 Actualización de servidores de correo",
+    "title_en": "📅 Mail server upgrade",
     "start_time": "2026-08-20T22:00:00Z",
     "end_time": null,
     "status": "scheduled",
-    "description": "🇪🇸 El próximo día 20 realizaremos una migración de servidores. El correo web no estará disponible durante 4 horas.\n🇬🇧 On the 20th we will perform a server migration. Webmail will be unavailable for 4 hours.",
+    "description_es": "El próximo día 20 realizaremos una migración de servidores. El correo web no estará disponible durante 4 horas.",
+    "description_en": "On the 20th we will perform a server migration. Webmail will be unavailable for 4 hours.",
     "updates": [
       {
         "time": "2026-08-15T09:00:00Z",
-        "text": "🇪🇸 Mantenimiento programado y anunciado con 5 días de antelación.\n🇬🇧 Maintenance scheduled and announced 5 days in advance."
+        "text_es": "Mantenimiento programado y anunciado con 5 días de antelación.",
+        "text_en": "Maintenance scheduled and announced 5 days in advance."
       }
     ]
   }
