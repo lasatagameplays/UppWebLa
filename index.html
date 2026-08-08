@@ -717,14 +717,14 @@
 
         function renderProtectedFooter() {
             const footerHtml = `
-                        <footer>
-                            <p><span id="ui-footer-opensource">${dict.footerOpenSource}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">UppWebLa</a></p>
-                            <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank" rel="noopener">LASATA.EU</a>) - <span id="ui-footer-rights">${dict.rights}</span></p>
-                            <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">
-                                <img src="src/images/logoNoChange.png" alt="UppWebLa Autor" class="footer-logo">
-                            </a>
-                        </footer>
-                    `;
+                    <footer>
+                        <p><span id="ui-footer-opensource">${dict.footerOpenSource}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">UppWebLa</a></p>
+                        <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank" rel="noopener">LASATA.EU</a>) - <span id="ui-footer-rights">${dict.rights}</span></p>
+                        <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" rel="noopener">
+                            <img src="src/images/logoNoChange.png" alt="UppWebLa Autor" class="footer-logo">
+                        </a>
+                    </footer>
+                `;
             document.getElementById('secure-footer-container').innerHTML = footerHtml;
         }
 
@@ -804,24 +804,28 @@
 
             container.innerHTML = '';
             const uniqueComponents = [];
-            const seenNames = new Set();
+            const seenIds = new Set();
+
+            // FILTRO DE SEGURIDAD CORREGIDO: Usamos ID o name_es para evitar duplicados
             data.components.forEach(comp => {
-                if (comp && comp.name && !seenNames.has(comp.name)) {
-                    seenNames.add(comp.name);
+                const uniqueId = comp.id || comp.name_es || comp.name;
+                if (comp && uniqueId && !seenIds.has(uniqueId)) {
+                    seenIds.add(uniqueId);
                     uniqueComponents.push(comp);
                 }
             });
 
             updateGlobalBanner(uniqueComponents);
 
-            uniqueComponents.forEach((comp, compIdx) => {
+            uniqueComponents.forEach((comp) => {
                 const checkTime = comp.last_check || data.last_check;
                 const date = checkTime ? new Date(checkTime) : new Date();
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
                 const formattedDate = checkTime ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date) : '--';
 
-                // 🔥 Traducción dinámica (Prioriza inglés, luego español, luego formato antiguo)
+                // Lógica multilingüe para el nombre del servicio
                 const compName = (currentLang === 'en' && comp.name_en && comp.name_en !== 'null') ? comp.name_en : (comp.name_es || comp.name);
+                const safeId = comp.id || comp.name_es || comp.name;
 
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
@@ -832,26 +836,26 @@
                     const isUp = status === 'UP';
 
                     regionsHtml += `
-                        <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
-                            <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
-                            <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
-                            <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
-                            <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
-                        </div>
-                    `;
+                            <div class="region-box" onclick="openChart('${safeId}', '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
+                                <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
+                                <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
+                                <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
+                                <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
+                            </div>
+                        `;
                 });
 
                 container.insertAdjacentHTML('beforeend', `
-                    <div class="component">
-                        <div class="component-header">
-                            <a href="${comp.url}" target="_blank" rel="noopener noreferrer" class="component-name">
-                                ${compName} ${externalLinkIcon}
-                            </a>
-                            <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                        <div class="component">
+                            <div class="component-header">
+                                <a href="${comp.url}" target="_blank" rel="noopener noreferrer" class="component-name">
+                                    ${compName} ${externalLinkIcon}
+                                </a>
+                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                            </div>
+                            <div class="regions-grid">${regionsHtml}</div>
                         </div>
-                        <div class="regions-grid">${regionsHtml}</div>
-                    </div>
-                `);
+                    `);
             });
         }
 
@@ -882,27 +886,27 @@
                 if (inc.status === 'resolved_auto') badgeText = dict.statusResolvedAuto;
 
                 container.insertAdjacentHTML('beforeend', `
-                            <div class="incident-card ${isActive ? 'active' : 'resolved'}" onclick="window.location.href='incident.html?id=${inc.id}'" style="cursor:pointer;">
-                                <div class="incident-header">
-                                    <span class="incident-title-text">${inc.title}</span>
-                                    <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${badgeText}</span>
-                                </div>
-                                <div class="incident-date">🕒 ${formattedDate} - ${inc.service}</div>
-                                <p class="incident-desc">${inc.description.substring(0, 140)}...</p>
-                                <div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div>
+                        <div class="incident-card ${isActive ? 'active' : 'resolved'}" onclick="window.location.href='incident.html?id=${inc.id}'" style="cursor:pointer;">
+                            <div class="incident-header">
+                                <span class="incident-title-text">${inc.title}</span>
+                                <span class="incident-badge ${isActive ? 'badge-active' : 'badge-resolved'}">${badgeText}</span>
                             </div>
-                        `);
+                            <div class="incident-date">🕒 ${formattedDate} - ${inc.service}</div>
+                            <p class="incident-desc">${inc.description.substring(0, 140)}...</p>
+                            <div style="margin-top: 10px; font-size: 0.85rem; color: var(--accent-blue); font-weight: bold;">${dict.viewDetails} ➔</div>
+                        </div>
+                    `);
             });
 
             if (latestIncidents.length > incidentsPerPage) {
                 const totalPages = Math.ceil(latestIncidents.length / incidentsPerPage);
                 container.insertAdjacentHTML('beforeend', `
-                            <div style="display:flex; justify-content:center; gap: 1rem; margin-top: 1.5rem; align-items:center;">
-                                <button class="lang-btn" style="padding:0.4rem 0.8rem;" ${currentIncidentPage === 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="changeIncPage(-1)">◀ ${dict.prevPage}</button>
-                                <span style="font-size:0.9rem; color:var(--text-muted); font-weight:bold;">${dict.page} ${currentIncidentPage} / ${totalPages}</span>
-                                <button class="lang-btn" style="padding:0.4rem 0.8rem;" ${currentIncidentPage === totalPages ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="changeIncPage(1)">${dict.nextPage} ▶</button>
-                            </div>
-                        `);
+                        <div style="display:flex; justify-content:center; gap: 1rem; margin-top: 1.5rem; align-items:center;">
+                            <button class="lang-btn" style="padding:0.4rem 0.8rem;" ${currentIncidentPage === 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="changeIncPage(-1)">◀ ${dict.prevPage}</button>
+                            <span style="font-size:0.9rem; color:var(--text-muted); font-weight:bold;">${dict.page} ${currentIncidentPage} / ${totalPages}</span>
+                            <button class="lang-btn" style="padding:0.4rem 0.8rem;" ${currentIncidentPage === totalPages ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''} onclick="changeIncPage(1)">${dict.nextPage} ▶</button>
+                        </div>
+                    `);
             }
         }
 
@@ -911,9 +915,13 @@
             renderIncidents();
         }
 
-        async function openChart(compIdx, regKey) {
-            if (!latestData || !latestData.components[compIdx]) return;
-            const comp = latestData.components[compIdx];
+        async function openChart(compId, regKey) {
+            if (!latestData || !latestData.components) return;
+
+            // Busca el componente exacto por su ID o nombre
+            const comp = latestData.components.find(c => c.id === compId || c.name_es === compId || c.name === compId);
+            if (!comp) return;
+
             document.getElementById('modalCompTitle').innerText = `Cargando...`;
             document.getElementById('chartModal').style.display = 'flex';
 
