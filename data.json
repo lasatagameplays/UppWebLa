@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-08T23:01:12Z",
+  "last_check": "2026-08-08T23:05:40Z",
   "components": [
     {
       "id": "web-principal",
@@ -9,15 +9,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 56
+          "latency": 95
         },
         "EU": {
           "status": "UP",
-          "latency": 407
+          "latency": 489
         },
         "ASIA": {
           "status": "UP",
-          "latency": 71
+          "latency": 55
         }
       },
       "history_file": "history/web-principal.json"
@@ -29,16 +29,16 @@
       "url": "https://archivos.lasata.eu",
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 108
+          "status": "UP",
+          "latency": 491
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 2816
+          "status": "UP",
+          "latency": 437
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 182
+          "status": "UP",
+          "latency": 352
         }
       },
       "history_file": "history/nube-privada.json"
@@ -50,16 +50,16 @@
       "url": "https://webmail.lasata.eu",
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 132
+          "status": "UP",
+          "latency": 521
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 2813
+          "status": "UP",
+          "latency": 426
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 176
+          "status": "UP",
+          "latency": 539
         }
       },
       "history_file": "history/webmail.json"
@@ -71,16 +71,16 @@
       "url": "https://s1.lasata.eu:8083",
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 316
+          "status": "UP",
+          "latency": 1117
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 2587
+          "status": "UP",
+          "latency": 922
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 175
+          "status": "UP",
+          "latency": 915
         }
       },
       "history_file": "history/server-s1.json"
