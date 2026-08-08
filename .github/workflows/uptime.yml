@@ -24,6 +24,9 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v5
+
       - name: Ping a los servicios y medir latencia
         run: |
           check_service() {
@@ -37,16 +40,20 @@ jobs:
             if [[ "$code" =~ ^(200|301|302|403|503)$ ]]; then
               status="UP"
             fi
-
             echo "{\"status\": \"$status\", \"latency\": $time_ms}"
           }
 
-          WEB_RES=$(check_service "https://lasata.eu")
-          CLOUD_RES=$(check_service "https://archivos.lasata.eu")
-          MAIL_RES=$(check_service "https://webmail.lasata.eu")
-          S1_RES=$(check_service "https://s1.lasata.eu:8083")
-
-          echo "{\"region\": \"${{ matrix.region }}\", \"web\": $WEB_RES, \"cloud\": $CLOUD_RES, \"mail\": $MAIL_RES, \"s1\": $S1_RES}" > ${{ matrix.region }}.json
+          echo "{}" > region_data.json
+          
+          # Bucle dinámico por cada target
+          jq -c '.[]' targets.json | while read i; do
+            ID=$(echo "$i" | jq -r '.id')
+            URL=$(echo "$i" | jq -r '.url')
+            RES=$(check_service "$URL")
+            jq --arg id "$ID" --argjson res "$RES" '.[$id] = $res' region_data.json > tmp.json && mv tmp.json region_data.json
+          done
+          
+          jq --arg reg "${{ matrix.region }}" '{region: $reg} + .' region_data.json > ${{ matrix.region }}.json
 
       - name: Subir artefacto temporal
         uses: actions/upload-artifact@v5
@@ -68,63 +75,57 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
-      - name: Unificar datos, generar historial e indexar incidencias
+      - name: Unificar datos, generar historial y crear carpetas dinámicas
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-          W_US=$(cat US.json | jq '.web'); W_EU=$(cat EU.json | jq '.web'); W_AS=$(cat ASIA.json | jq '.web')
-          C_US=$(cat US.json | jq '.cloud'); C_EU=$(cat EU.json | jq '.cloud'); C_AS=$(cat ASIA.json | jq '.cloud')
-          M_US=$(cat US.json | jq '.mail'); M_EU=$(cat EU.json | jq '.mail'); M_AS=$(cat ASIA.json | jq '.mail')
-          S_US=$(cat US.json | jq '.s1'); S_EU=$(cat EU.json | jq '.s1'); S_AS=$(cat ASIA.json | jq '.s1')
-
-          # Crear carpetas necesarias de forma segura
           mkdir -p history
-          mkdir -p incidents/LASATA.EU
+          
+          echo "{\"last_check\": \"$TIMESTAMP\", \"components\": []}" > data.json
+          
+          jq -c '.[]' targets.json | while read i; do
+            ID=$(echo "$i" | jq -r '.id')
+            NAME_ES=$(echo "$i" | jq -r '.name_es')
+            NAME_EN=$(echo "$i" | jq -r '.name_en')
+            URL=$(echo "$i" | jq -r '.url')
+            
+            ST_US=$(jq -c --arg id "$ID" '.[$id]' US.json)
+            if [ "$ST_US" == "null" ] || [ -z "$ST_US" ]; then ST_US='{"status":"DOWN","latency":0}'; fi
+            
+            ST_EU=$(jq -c --arg id "$ID" '.[$id]' EU.json)
+            if [ "$ST_EU" == "null" ] || [ -z "$ST_EU" ]; then ST_EU='{"status":"DOWN","latency":0}'; fi
+            
+            ST_AS=$(jq -c --arg id "$ID" '.[$id]' ASIA.json)
+            if [ "$ST_AS" == "null" ] || [ -z "$ST_AS" ]; then ST_AS='{"status":"DOWN","latency":0}'; fi
+            
+            HFILE="history/$ID.json"
+            OLD_HIST="[]"
+            if [ -f "$HFILE" ]; then OLD_HIST=$(cat "$HFILE"); fi
+            
+            jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson old "$OLD_HIST" \
+              '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-105120:]' > "$HFILE"
+              
+            # Añadir a data.json con name_es y name_en
+            jq --arg id "$ID" --arg name_es "$NAME_ES" --arg name_en "$NAME_EN" --arg url "$URL" --arg hfile "$HFILE" \
+               --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
+               '.components += [{id: $id, name_es: $name_es, name_en: $name_en, url: $url, regions: {US: $us, EU: $eu, ASIA: $as}, history_file: $hfile}]' data.json > tmp.json && mv tmp.json data.json
+               
+            # Crea la carpeta de incidencias automáticamente
+            mkdir -p "incidents/$ID"
+            touch "incidents/$ID/.gitkeep"
+          done
 
-          update_history_file() {
-            local filepath=$1
-            local status_us=$2
-            local status_eu=$3
-            local status_as=$4
-
-            local old_history="[]"
-            if [ -f "$filepath" ]; then
-              old_history=$(cat "$filepath")
-            fi
-
-            jq -n \
-              --arg ts "$TIMESTAMP" \
-              --argjson us "$status_us" \
-              --argjson eu "$status_eu" \
-              --argjson as "$status_as" \
-              --argjson old "$old_history" \
-              '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-105120:]' > "$filepath"
-          }
-
-          update_history_file "history/web-principal.json" "$W_US" "$W_EU" "$W_AS"
-          update_history_file "history/nube-privada.json" "$C_US" "$C_EU" "$C_AS"
-          update_history_file "history/webmail.json" "$M_US" "$M_EU" "$M_AS"
-          update_history_file "history/server-s1.json" "$S_US" "$S_EU" "$S_AS"
-
-          jq -n \
-            --arg ts "$TIMESTAMP" \
-            --argjson wu "$W_US" --argjson we "$W_EU" --argjson wa "$W_AS" \
-            --argjson cu "$C_US" --argjson ce "$C_EU" --argjson ca "$C_AS" \
-            --argjson mu "$M_US" --argjson me "$M_EU" --argjson ma "$M_AS" \
-            --argjson su "$S_US" --argjson se "$S_EU" --argjson sa "$S_AS" \
-            '{
-              last_check: $ts,
-              components: [
-                { name: "Web Principal (LASATA)", url: "https://lasata.eu", regions: { US: $wu, EU: $we, ASIA: $wa }, history_file: "history/web-principal.json" },
-                { name: "Nube Privada (FileBrowser)", url: "https://archivos.lasata.eu", regions: { US: $cu, EU: $ce, ASIA: $ca }, history_file: "history/nube-privada.json" },
-                { name: "Webmail (Roundcube Webmail)", url: "https://webmail.lasata.eu", regions: { US: $mu, EU: $me, ASIA: $ma }, history_file: "history/webmail.json" },
-                { name: "Server S1 (HestiaCP)", url: "https://s1.lasata.eu:8083", regions: { US: $su, EU: $se, ASIA: $sa }, history_file: "history/server-s1.json" }
-              ]
-            }' > data.json
-
-          # Búsqueda segura de incidencias sin fallos de Bash
+          # Procesar incidencias y UTF-8
           shopt -s nullglob
           inc_files=(incidents/*/*.json)
+
+          for file in "${inc_files[@]}"; do
+            if [ -f "$file" ]; then
+              if ! iconv -f UTF-8 -t UTF-8 "$file" >/dev/null 2>&1; then
+                iconv -f WINDOWS-1252 -t UTF-8 "$file" > "$file.utf8" && mv "$file.utf8" "$file"
+              fi
+            fi
+          done
+
           if [ ${#inc_files[@]} -gt 0 ]; then
             jq -s 'sort_by(.start_time) | reverse' "${inc_files[@]}" > incidents-index.json
           else
@@ -137,4 +138,4 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add data.json history/ incidents/ incidents-index.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & incidents [skip ci]" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status [skip ci]" && git push)

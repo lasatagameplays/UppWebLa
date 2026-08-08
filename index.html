@@ -820,6 +820,9 @@
                 const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
                 const formattedDate = checkTime ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(date) : '--';
 
+                // 🔥 Traducción dinámica (Prioriza inglés, luego español, luego formato antiguo)
+                const compName = (currentLang === 'en' && comp.name_en && comp.name_en !== 'null') ? comp.name_en : (comp.name_es || comp.name);
+
                 let regionsHtml = '';
                 const regionFlags = { "US": "🌎", "EU": "🌍", "ASIA": "🌏" };
 
@@ -829,26 +832,26 @@
                     const isUp = status === 'UP';
 
                     regionsHtml += `
-                                <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
-                                    <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
-                                    <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
-                                    <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
-                                    <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
-                                </div>
-                            `;
+                        <div class="region-box" onclick="openChart(${compIdx}, '${regKey}')" title="${dict.clickForGraph || 'ver gráfica'}">
+                            <span class="region-flag">${regionFlags[regKey] || '🌐'}</span>
+                            <span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span>
+                            <span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span>
+                            <span class="region-latency">⚡ ${latency} ${dict.ms}</span>
+                        </div>
+                    `;
                 });
 
                 container.insertAdjacentHTML('beforeend', `
-                            <div class="component">
-                                <div class="component-header">
-                                    <a href="${comp.url}" target="_blank" rel="noopener noreferrer" class="component-name">
-                                        ${comp.name} ${externalLinkIcon}
-                                    </a>
-                                    <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
-                                </div>
-                                <div class="regions-grid">${regionsHtml}</div>
-                            </div>
-                        `);
+                    <div class="component">
+                        <div class="component-header">
+                            <a href="${comp.url}" target="_blank" rel="noopener noreferrer" class="component-name">
+                                ${compName} ${externalLinkIcon}
+                            </a>
+                            <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                        </div>
+                        <div class="regions-grid">${regionsHtml}</div>
+                    </div>
+                `);
             });
         }
 
@@ -926,7 +929,9 @@
             activeRegKey = regKey;
 
             const regionName = (dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey;
-            document.getElementById('modalCompTitle').innerText = `${comp.name} - ${regionName}`;
+            const compName = (currentLang === 'en' && comp.name_en && comp.name_en !== 'null') ? comp.name_en : (comp.name_es || comp.name);
+
+            document.getElementById('modalCompTitle').innerText = `${compName} - ${regionName}`;
 
             filterChart('24h', document.getElementById('btn-24h'));
         }

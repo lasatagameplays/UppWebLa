@@ -43,8 +43,8 @@ Eres libre de clonar este repositorio para monitorizar tus propias páginas web.
 1. **Bifurcar (Fork):** Haz un *Fork* de este repositorio a tu propia cuenta de GitHub.
 2. **Permisos del Bot:** * Ve a `Settings` > `Actions` > `General` en tu nuevo repositorio.
    * En "Workflow permissions", selecciona **Read and write permissions** y guarda.
-3. **Configurar URLs:**
-   * Edita el archivo `.github/workflows/uptime.yml` y añade las URLs de las webs que quieras monitorizar.
+3. **Configurar Servicios:**
+   * Edita el archivo `targets.json` en la raíz del repositorio para añadir las webs o APIs que quieras monitorizar (Soporta nombres en Español e Inglés).
 4. **Activar GitHub Pages:**
    * Ve a `Settings` > `Pages`.
    * En "Source", selecciona **Deploy from a branch**.
@@ -152,8 +152,8 @@ You are free to clone this repository to monitor your own websites. Just follow 
 1. **Fork:** Fork this repository to your GitHub account.
 2. **Bot Permissions:** * Go to `Settings` > `Actions` > `General`.
    * Under "Workflow permissions", select **Read and write permissions**, and save.
-3. **Configure URLs:**
-   * Edit `.github/workflows/uptime.yml` to target your own services.
+3. **Configure Services:**
+   * Edit `targets.json` file in the root of the repository to add the websites or APIs you want to monitor (Supports Spanish and English names).
 4. **Enable GitHub Pages:**
    * Go to `Settings` > `Pages`.
    * Under "Source", choose **Deploy from a branch** (`main`, `/ root` folder), and save.
