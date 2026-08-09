@@ -678,6 +678,55 @@
         let nextCheckTime = 0;
         let isFetching = false;
 
+        // FUNCIONES DE IDIOMA QUE FALTABAN
+        function toggleLangMenu() {
+            const menu = document.getElementById('langMenu');
+            if (menu) menu.classList.toggle('show');
+        }
+
+        // Cierra el menú de idioma si haces clic fuera de él
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('langDropdown');
+            const menu = document.getElementById('langMenu');
+            if (dropdown && menu && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        async function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('uppwebla_lang', currentLang);
+            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+
+            // Actualizar textos fijos del HTML
+            if (document.getElementById('ui-maintenances-title')) {
+                document.getElementById('ui-maintenances-title').innerText = dict.maintenancesTitle;
+            }
+            if (document.getElementById('ui-incidents-title')) {
+                document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
+            }
+            if (document.getElementById('ui-uptime')) {
+                document.getElementById('ui-uptime').innerText = dict.uptimeTitle;
+            }
+            if (document.getElementById('ui-avg-latency')) {
+                document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
+            }
+
+            // Aplicar configuración, menú y footer de nuevo con el idioma correcto
+            applyClientConfig();
+            renderLangMenu();
+            renderProtectedFooter();
+
+            // Si los datos ya se han descargado, recargar los componentes visuales
+            if (latestData) renderData(latestData);
+            if (latestIncidents) renderIncidents();
+            if (latestMaintenances) renderMaintenances();
+
+            // Cerrar menú si está abierto
+            const menu = document.getElementById('langMenu');
+            if (menu) menu.classList.remove('show');
+        }
+
         // MOTOR DE VERSIONES Y ACTUALIZACIONES
         let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
 
