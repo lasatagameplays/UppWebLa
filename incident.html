@@ -389,143 +389,107 @@
     <div id="secure-footer-container"></div>
 
     <script>
-        let userConfig = {
-            companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "index.html",
-            languages: [{ "code": "es", "name": "Español", "flag": "es" }, { "code": "en", "name": "English", "flag": "gb" }]
-        };
-
+        let userConfig = { companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#", languages: [{ "code": "es", "name": "Español", "flag": "es" }, { "code": "en", "name": "English", "flag": "gb" }] };
         const fallbackDicts = {
-            es: { title: "📢 Detalle de Incidencia", loading: "Cargando...", error: "Incidencia no encontrada.", rights: "Todos los derechos reservados.", back: "← Volver al estado del sistema", active: "Incidencia Activa", resolvedManual: "Resuelto (Manual)", resolvedAuto: "Resuelto (Automático)", updatesTitle: "📝 Historial de Actualizaciones", serviceLabel: "Servicio afectado:", durationLabel: "Duración / Estado:" },
-            en: { title: "📢 Incident Details", loading: "Loading...", error: "Incident not found.", rights: "All rights reserved.", back: "← Back to System Status", active: "Active Incident", resolvedManual: "Resolved (Manual)", resolvedAuto: "Resolved (Auto)", updatesTitle: "📝 Update History", serviceLabel: "Affected Service:", durationLabel: "Duration / Status:" }
+            es: { title: "💻 Estado del Sistema", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", timelineTitle: "Cronología de actualizaciones", backToHome: "← Volver al Dashboard", noUpdates: "Sin actualizaciones registradas.", error: "Incidencia no encontrada." },
+            en: { title: "💻 System Status", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", timelineTitle: "Update timeline", backToHome: "← Back to Dashboard", noUpdates: "No updates recorded.", error: "Incident not found." }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
-        let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
+        let currentIncident = null;
 
         function getDynamicText(obj, key) {
-            if (!obj) return '--';
             const loc = key + '_' + currentLang;
             return (obj[loc] && obj[loc] !== 'null') ? obj[loc] : (obj[key + '_es'] || obj[key] || '--');
         }
 
         async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) { } }
-        async function loadVersion() { try { const res = await fetch(`version.json?t=${new Date().getTime()}`); if (res.ok) localVersion = await res.json(); } catch (e) { } }
+
+        function renderLangMenu() {
+            const langs = userConfig.languages || [{ code: "es", name: "Español", flag: "es" }, { code: "en", name: "English", flag: "gb" }];
+            let menuHtml = ''; let currentIcon = 'https://flagcdn.com/w20/es.png', currentName = 'Español';
+            langs.forEach(l => {
+                menuHtml += `<div class="lang-option" onclick="changeLang('${l.code}')"><img src="https://flagcdn.com/w20/${l.flag}.png" alt="${l.code.toUpperCase()}"> ${l.name}</div>`;
+                if (l.code === currentLang) { currentIcon = `https://flagcdn.com/w20/${l.flag}.png`; currentName = l.name; }
+            });
+            document.getElementById('langMenu').innerHTML = menuHtml;
+            document.getElementById('currentLangIcon').src = currentIcon;
+            document.getElementById('currentLangText').innerText = currentName;
+        }
 
         function applyClientConfig() {
-            const isEs = currentLang === 'es';
             document.title = `${userConfig.companyName} | ${dict.title}`;
-            if (document.getElementById('clientName')) document.getElementById('clientName').innerText = userConfig.companyName;
-            if (document.getElementById('clientLogo') && userConfig.companyLogo) {
-                document.getElementById('clientLogo').src = userConfig.companyLogo;
-                document.getElementById('clientLogo').style.display = 'block';
-            }
-            if (document.getElementById('clientLink')) {
-                document.getElementById('clientLink').href = userConfig.returnLinkUrl || "index.html";
-                document.getElementById('clientLink').innerText = isEs ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
-            }
-        }
-
-        function toggleLangMenu() {
-            const menu = document.getElementById('langMenu');
-            if (menu) menu.classList.toggle('show');
-        }
-
-        async function changeLang(lang) {
-            currentLang = lang;
-            localStorage.setItem('uppwebla_lang', currentLang);
-            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
-            applyClientConfig();
-            renderProtectedFooter();
-            loadIncidentDetails();
-            const menu = document.getElementById('langMenu');
-            if (menu) menu.classList.remove('show');
+            document.getElementById('clientName').innerText = userConfig.companyName;
+            if (userConfig.companyLogo) { document.getElementById('clientLogo').src = userConfig.companyLogo; document.getElementById('clientLogo').style.display = 'block'; }
+            document.getElementById('clientLink').href = userConfig.returnLinkUrl;
+            document.getElementById('clientLink').innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
+            document.getElementById('ui-back-btn').innerText = dict.backToHome;
         }
 
         function renderProtectedFooter() {
-            const container = document.getElementById('secure-footer-container');
-            if (!container) return;
-            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización de software' : 'Last software update';
-            const formattedDate = currentLang === 'es' ? localVersion.release_date_es : localVersion.release_date_en;
-            container.innerHTML = `<footer><p><span>Open source, powered by</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v${localVersion.version}</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p></footer>`;
+            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
+            const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
+
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span id="ui-footer-opensource">${dict.footerOpenSource || 'Esta página es de código abierto, impulsada por'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.7</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+        }
+        function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
+        document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
+
+        async function changeLang(lang) {
+            currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
+            renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
+            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
+            try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
+            applyClientConfig(); renderProtectedFooter(); document.documentElement.lang = currentLang;
+            if (currentIncident) renderIncident(currentIncident);
         }
 
-        async function loadIncidentDetails() {
-            const container = document.getElementById('incidents-container') || document.getElementById('status-container') || document.body;
-            const urlParams = new URLSearchParams(window.location.search);
-            const incidentId = urlParams.get('id');
+        function renderIncident(inc) {
+            const container = document.getElementById('incident-content');
+            const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
 
-            if (!incidentId) {
-                container.innerHTML = `<div class="loader">${dict.error} (ID faltante)</div>`;
-                return;
-            }
+            let badgeClass = 'badge-resolved'; let badgeLabel = dict.incidentResolved;
+            if (inc.status === 'active') { badgeClass = 'badge-active'; badgeLabel = dict.incidentActive; }
+            else if (inc.status === 'resolved_manual') badgeLabel = dict.statusResolvedManual;
+            else if (inc.status === 'resolved_auto') badgeLabel = dict.statusResolvedAuto;
 
-            try {
-                const res = await fetch(`incidents-index.json?t=${new Date().getTime()}`);
-                if (!res.ok) throw new Error("No se pudo cargar el archivo de incidencias");
-                const data = await res.json();
+            const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : '--';
 
-                const incident = data.find(x => String(x.id) === String(incidentId));
+            const titleText = getDynamicText(inc, 'title');
+            const descText = getDynamicText(inc, 'description');
 
-                if (!incident) {
-                    container.innerHTML = `<div class="loader">${dict.error}</div>`;
-                    return;
-                }
+            let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${titleText}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
+                                <div class="info-grid"><div class="info-block"><div class="info-label">Servicio afectado</div><div class="info-value" style="color:var(--down-color);">${inc.service || '--'}</div></div>
+                                <div class="info-block"><div class="info-label">ID de Incidencia</div><div class="info-value">#${inc.id}</div></div>
+                                <div class="info-block"><div class="info-label">Detectado el</div><div class="info-value">${formatD(inc.start_time)}</div></div>
+                                <div class="info-block"><div class="info-label">Resuelto el</div><div class="info-value">${formatD(inc.end_time)}</div></div></div>
+                                <div class="desc-box">${descText}</div><h2 class="timeline-title">${dict.timelineTitle || 'Cronología'}</h2><div class="timeline">`;
 
-                const isEs = currentLang === 'es';
-                const titleText = getDynamicText(incident, 'title');
-                const descText = getDynamicText(incident, 'description');
-
-                const startDate = new Intl.DateTimeFormat(isEs ? 'es-ES' : 'en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(incident.start_time));
-                const endDate = incident.end_time ? new Intl.DateTimeFormat(isEs ? 'es-ES' : 'en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(incident.end_time)) : (isEs ? "En curso / Sin resolver" : "In progress / Unresolved");
-
-                let badgeClass = 'badge-active';
-                let badgeText = dict.active;
-                if (incident.status === 'resolved_manual') { badgeClass = 'badge-resolved'; badgeText = dict.resolvedManual; }
-                if (incident.status === 'resolved_auto') { badgeClass = 'badge-resolved'; badgeText = dict.resolvedAuto; }
-
-                let updatesHtml = '';
-                if (incident.updates && incident.updates.length > 0) {
-                    updatesHtml += `<h3 style="margin-top:2rem; border-bottom:1px solid var(--border-color); padding-bottom:0.5rem;">${dict.updatesTitle}</h3>`;
-                    incident.updates.forEach(upd => {
-                        const updTime = new Intl.DateTimeFormat(isEs ? 'es-ES' : 'en-US', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(upd.time));
-                        const updText = getDynamicText(upd, 'text');
-                        updatesHtml += `
-                            <div style="background:var(--card-bg); border-left:3px solid var(--accent-blue); padding:0.8rem 1rem; margin-bottom:0.8rem; border-radius:4px;">
-                                <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.3rem;">🕒 ${updTime}</div>
-                                <div style="font-size:0.95rem;">${updText}</div>
-                            </div>`;
-                    });
-                }
-
-                container.innerHTML = `
-                    <div style="margin-bottom:1.5rem;"><a href="index.html" style="color:var(--accent-blue); text-decoration:none; font-weight:bold;">${dict.back}</a></div>
-                    <div class="component" style="padding:2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
-                            <h1 style="margin:0; font-size:1.5rem;">${titleText}</h1>
-                            <span class="incident-badge ${badgeClass}">${badgeText}</span>
-                        </div>
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">
-                            <strong>${dict.serviceLabel}</strong> ${incident.service}<br>
-                            <strong>🕒 ${startDate} ➔ ${endDate}</strong>
-                        </p>
-                        <div style="font-size:1.05rem; line-height:1.6; margin-bottom:1.5rem;">${descText}</div>
-                        ${updatesHtml}
-                    </div>
-                `;
-
-            } catch (e) {
-                console.error(e);
-                container.innerHTML = `<div class="loader">${dict.error}</div>`;
-            }
+            if (inc.updates && inc.updates.length > 0) {
+                const sortedUpdates = [...inc.updates].sort((a, b) => new Date(b.time) - new Date(a.time));
+                sortedUpdates.forEach(upd => {
+                    const updText = getDynamicText(upd, 'text');
+                    html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${updText}</div></div>`;
+                });
+            } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates || 'Sin actualizaciones'}</div></div>`; }
+            html += `</div></div>`;
+            container.innerHTML = html;
         }
 
         async function init() {
-            await loadVersion();
-            await loadConfig();
-            applyClientConfig();
-            renderProtectedFooter();
-            await loadIncidentDetails();
+            await loadConfig(); await changeLang(currentLang);
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) { document.getElementById('incident-content').innerHTML = `<h2>${dict.error}</h2>`; return; }
+            try {
+                const res = await fetch(`incidents-index.json?t=${new Date().getTime()}`);
+                if (res.ok) {
+                    const incidents = await res.json();
+                    currentIncident = incidents.find(i => i.id === id);
+                    if (currentIncident) renderIncident(currentIncident);
+                    else document.getElementById('incident-content').innerHTML = `<h2>${dict.error}</h2>`;
+                }
+            } catch (err) { document.getElementById('incident-content').innerHTML = `<h2>${dict.error}</h2>`; }
         }
         init();
     </script>
