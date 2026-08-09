@@ -482,7 +482,6 @@
             color: var(--up-color);
         }
 
-        /* Flex-wrap añadido para evitar que los 9 botones se salgan */
         .time-filters {
             display: flex;
             flex-wrap: wrap;
@@ -641,7 +640,8 @@
                 </div>
             </div>
 
-            <div class="time-filters" id="time-filters-container"></div>
+            <div class="time-filters" id="time-filters-container">
+            </div>
 
             <div class="chart-container">
                 <canvas id="latencyChart"></canvas>
@@ -658,17 +658,19 @@
         };
 
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Obteniendo datos de GitHub...", delayText: "Retraso en cola:" },
-            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Fetching data from GitHub...", delayText: "Queue delay:" }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Obteniendo datos de GitHub...", delayText: "Retraso en cola:", allTime: "Todo" },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Fetching data from GitHub...", delayText: "Queue delay:", allTime: "All" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let latestData = null, latestIncidents = null, latestMaintenances = null;
+
+        // Novedad: Arrays separados para datos pesados (history) y datos ligeros (summary)
         let myChart = null, activeHistoryFull = [], activeSummaryFull = [], activeRegKey = '';
+
         let currentIncidentPage = 1, currentMaintenancePage = 1;
         const itemsPerPage = 5;
-
         let nextCheckTime = 0;
         let isFetching = false;
 
@@ -726,6 +728,9 @@
             if (latestData) renderData(latestData);
             if (latestIncidents) renderIncidents();
             if (latestMaintenances) renderMaintenances();
+            if (document.getElementById('chartModal').style.display === 'flex') {
+                renderTimeButtons();
+            }
         }
 
         function updateGlobalBanner(components) {
@@ -801,16 +806,16 @@
                 }
 
                 container.insertAdjacentHTML('beforeend', `
-                            <div class="component">
-                                <div class="component-header">
-                                    <div style="display:flex; align-items:center; flex-wrap:wrap;">
-                                        <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
-                                        ${tagHtml}
-                                    </div>
-                                    <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                        <div class="component">
+                            <div class="component-header">
+                                <div style="display:flex; align-items:center; flex-wrap:wrap;">
+                                    <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
+                                    ${tagHtml}
                                 </div>
-                                <div class="regions-grid">${regionsHtml}</div>
-                            </div>`);
+                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
+                            </div>
+                            <div class="regions-grid">${regionsHtml}</div>
+                        </div>`);
             });
         }
 
@@ -868,24 +873,7 @@
             }
         }
 
-        async function openChart(compId, regKey) {
-            if (!latestData || !latestData.components) return;
-            const comp = latestData.components.find(c => c.id === compId || c.name_es === compId || c.name === compId);
-            if (!comp) return;
-
-            document.getElementById('modalCompTitle').innerText = `Cargando...`;
-            document.getElementById('chartModal').style.display = 'flex';
-            let history = [];
-            try { if (comp.history_file) { const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`); if (res.ok) history = await res.json(); } } catch (err) { }
-            activeHistoryFull = history; activeRegKey = regKey;
-
-            const compName = getDynamicText(comp, 'name');
-            document.getElementById('modalCompTitle').innerText = `${compName} - ${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}`;
-            filterChart('24h', document.getElementById('btn-24h'));
-        }
-
-        // LÓGICA DE FILTRADO CON RANGOS CORTOS AÑADIDOS
-
+        // GENERADOR DINÁMICO DE BOTONES (LEE CONFIG.JSON)
         function renderTimeButtons() {
             const container = document.getElementById('time-filters-container');
             if (!container) return;
@@ -900,6 +888,7 @@
                     <button class="time-btn" onclick="filterChart('6m', this)">6m</button>
                     <button class="time-btn" onclick="filterChart('1y', this)">1y</button>
                 `;
+
             const ret = parseInt(userConfig.retentionYears) || 1;
             if (ret >= 5) html += `<button class="time-btn" onclick="filterChart('5y', this)">5y</button>`;
             if (ret >= 10) html += `<button class="time-btn" onclick="filterChart('10y', this)">10y</button>`;
@@ -912,12 +901,52 @@
             container.innerHTML = html;
         }
 
+        async function openChart(compId, regKey) {
+            if (!latestData || !latestData.components) return;
+            const comp = latestData.components.find(c => c.id === compId || c.name_es === compId || c.name === compId);
+            if (!comp) return;
+
+            document.getElementById('modalCompTitle').innerText = `Cargando...`;
+            document.getElementById('chartModal').style.display = 'flex';
+
+            let history = [];
+            let summary = [];
+
+            try {
+                if (comp.history_file) {
+                    const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`);
+                    if (res.ok) history = await res.json();
+                }
+            } catch (err) { }
+
+            try {
+                if (comp.history_file) {
+                    const summaryFile = comp.history_file.replace('.json', '_summary.json');
+                    const resSum = await fetch(`${summaryFile}?t=${new Date().getTime()}`);
+                    if (resSum.ok) summary = await resSum.json();
+                }
+            } catch (err) { }
+
+            activeHistoryFull = history;
+            activeSummaryFull = summary;
+            activeRegKey = regKey;
+
+            const compName = getDynamicText(comp, 'name');
+            document.getElementById('modalCompTitle').innerText = `${compName} - ${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}`;
+
+            renderTimeButtons();
+            filterChart('24h', document.getElementById('btn-24h'));
+        }
+
         function filterChart(range, btnElement) {
             if (!btnElement) btnElement = document.getElementById('btn-24h');
-            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active');
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            if (btnElement) btnElement.classList.add('active');
 
             const now = new Date().getTime();
             let cutoffTime = 0;
+            let datasetToUse = activeHistoryFull;
+            let isMonthly = false;
 
             if (range === '1h') cutoffTime = now - (1 * 3600 * 1000);
             else if (range === '6h') cutoffTime = now - (6 * 3600 * 1000);
@@ -928,9 +957,22 @@
             else if (range === '1m') cutoffTime = now - (30 * 24 * 3600 * 1000);
             else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
             else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
-            else if (range === 'all') cutoffTime = 0; // 0 significa desde el principio de los tiempos
+            else {
+                // Para 5 años en adelante o 'Todo', usamos el sumario ligero
+                if (activeSummaryFull && activeSummaryFull.length > 0) {
+                    datasetToUse = activeSummaryFull;
+                    isMonthly = true;
+                }
+                if (range === '5y') cutoffTime = now - (5 * 365 * 24 * 3600 * 1000);
+                else if (range === '10y') cutoffTime = now - (10 * 365 * 24 * 3600 * 1000);
+                else if (range === '25y') cutoffTime = now - (25 * 365 * 24 * 3600 * 1000);
+                else if (range === '50y') cutoffTime = now - (50 * 365 * 24 * 3600 * 1000);
+                else if (range === '100y') cutoffTime = now - (100 * 365 * 24 * 3600 * 1000);
+                else if (range === '150y') cutoffTime = now - (150 * 365 * 24 * 3600 * 1000);
+                else if (range === 'all') cutoffTime = 0;
+            }
 
-            const filtered = activeHistoryFull.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
+            const filtered = datasetToUse.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
 
             let upCount = 0, latCount = 0, totalLat = 0;
             filtered.forEach(entry => {
@@ -950,14 +992,17 @@
                 downsampled = filtered.filter((_, idx) => idx % step === 0 || idx === filtered.length - 1);
             }
 
-            // 🔥 FECHA COMPLETA FORZADA EN TODOS LOS PUNTOS Y EN LA DESCRIPCIÓN DE LA GRÁFICA
             const labels = downsampled.map(e => {
                 const d = new Date(e.timestamp);
                 const loc = currentLang === 'es' ? 'es-ES' : 'en-US';
-                return d.toLocaleString(loc, {
-                    day: '2-digit', month: '2-digit', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit'
-                });
+                if (isMonthly) {
+                    return d.toLocaleString(loc, { month: 'short', year: 'numeric' });
+                } else {
+                    return d.toLocaleString(loc, {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                }
             });
 
             const latencies = downsampled.map(e => typeof e[activeRegKey] === 'object' && e[activeRegKey].latency ? e[activeRegKey].latency : 0);
