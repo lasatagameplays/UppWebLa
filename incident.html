@@ -322,6 +322,18 @@
             font-weight: 600;
         }
 
+        footer a.custom-footer-link {
+            color: #ffffff;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        footer a.custom-footer-link:hover {
+            color: var(--accent-blue);
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
             .info-grid {
                 grid-template-columns: 1fr;
@@ -370,9 +382,10 @@
 
     <script>
         let userConfig = { companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#", languages: [{ "code": "es", "name": "Español", "flag": "es" }, { "code": "en", "name": "English", "flag": "gb" }] };
+
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", timelineTitle: "Cronología de actualizaciones", backToHome: "← Volver al Dashboard", noUpdates: "Sin actualizaciones registradas.", error: "Incidencia no encontrada.", serviceLabel: "Servicio afectado", idLabel: "ID de Incidencia", startLabel: "Detectado el", endLabel: "Resuelto el" },
-            en: { title: "💻 System Status", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", timelineTitle: "Update timeline", backToHome: "← Back to Dashboard", noUpdates: "No updates recorded.", error: "Incident not found.", serviceLabel: "Affected service", idLabel: "Incident ID", startLabel: "Detected on", endLabel: "Resolved on" }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Obteniendo datos de GitHub...", delayText: "Retraso en cola:", allTime: "Todo", scheduledTaskDefault: "Tarea Programada" },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Fetching data from GitHub...", delayText: "Queue delay:", allTime: "All", scheduledTaskDefault: "Scheduled Task" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
@@ -410,24 +423,30 @@
         }
 
         function renderProtectedFooter() {
-            const container = document.getElementById('secure-footer-container');
-            if (!container) return;
             const lastUpdateLabel = currentLang === 'es' ? 'Última actualización de software' : 'Last software update';
             const formattedDate = currentLang === 'es' ? localVersion.release_date_es : localVersion.release_date_en;
-            const footerText = dict.footerOpenSource || (currentLang === 'es' ? 'Esta página es de código abierto, impulsada por' : 'This page is open source, powered by');
-            const rightsText = dict.rights || (currentLang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.');
 
-            container.innerHTML = `<footer>
-                <p>
-                    <span>${footerText}</span>
-                    <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">
-                        <img src="src/images/iconoNoChange.png" alt="Logo" class="footer-logo"> UppWebLa v${localVersion.version}
-                    </a>
-                    <span id="update-badge"></span>
-                    • <span>${lastUpdateLabel}: ${formattedDate}</span>
-                </p>
-                <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${rightsText}</span></p>
-            </footer>`;
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" class="custom-footer-link">UppWebLa v${localVersion.version}</a><span id="update-badge"></span> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank" class="custom-footer-link">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+
+            // 🤖 BUSCADOR AUTOMÁTICO DE ACTUALIZACIONES (OTA)
+            setTimeout(async () => {
+                try {
+                    // Busca la versión en el repositorio maestro de LASATA
+                    const res = await fetch('https://raw.githubusercontent.com/lasatagameplays/UppWebLa/main/version.json?t=' + new Date().getTime());
+                    if (res.ok) {
+                        const remoteVer = await res.json();
+                        const vLocal = localVersion.version.split('.');
+                        const vRemote = remoteVer.version.split('.');
+
+                        // Si la versión del creador es mayor a la del usuario, mostramos la alerta
+                        if (+vRemote[0] > +vLocal[0] || (+vRemote[0] === +vLocal[0] && +vRemote[1] > +vLocal[1])) {
+                            const updateMsg = currentLang === 'es' ? `¡Actualización v${remoteVer.version} disponible!` : `Update v${remoteVer.version} available!`;
+                            const badge = document.getElementById('update-badge');
+                            if (badge) badge.innerHTML = `<a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" style="color: var(--warn-color); margin-left: 10px; font-weight: bold; text-decoration: none; border: 1px solid var(--warn-color); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">🔄 ${updateMsg}</a>`;
+                        }
+                    }
+                } catch (e) { }
+            }, 1500); // Se ejecuta en segundo plano para no ralentizar la web
         }
 
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
