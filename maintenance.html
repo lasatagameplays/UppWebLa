@@ -398,7 +398,7 @@
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let currentMaint = null;
-        let localVersion = { version: "2.9", release_date_es: "29 de agosto de 2026", release_date_en: "August 9, 2026" };
+        let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
 
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
@@ -466,7 +466,7 @@
         async function changeLang(lang) {
             currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
             renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
-            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
+            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };;
 
             try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
 

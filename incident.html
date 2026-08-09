@@ -459,7 +459,7 @@
         async function changeLang(lang) {
             currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
             renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
-            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
+            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
 
             try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
 
