@@ -74,6 +74,58 @@ jobs:
           pattern: result-*
           merge-multiple: true
 
+      - name: Evaluar Tareas Programadas (Cron Engine)
+        run: |
+          cat << 'EOF' > evaluate_cron.py
+          import json, sys
+          from datetime import datetime, timedelta, timezone
+          try:
+              from zoneinfo import ZoneInfo
+          except ImportError:
+              pass
+          
+          with open('targets.json') as f:
+              targets = json.load(f)
+          active_tasks = {}
+          now = datetime.now(timezone.utc)
+          
+          def match_part(part, val):
+              if part == '*': return True
+              if part.startswith('*/'): return val % int(part[2:]) == 0
+              if part.isdigit(): return val == int(part)
+              if ',' in part: return any(match_part(p, val) for p in part.split(','))
+              if '-' in part:
+                  s, e = map(int, part.split('-'))
+                  return s <= val <= e
+              return False
+          
+          for t in targets:
+              sid = t.get('id')
+              tasks = t.get('scheduled_tasks', [])
+              active_task = None
+              for task in tasks:
+                  cron = task.get('cron')
+                  if not cron: continue
+                  duration = task.get('duration_minutes', 5)
+                  tz_str = task.get('timezone', 'Europe/Madrid') # Adaptado a España por defecto
+                  try:
+                      tz = ZoneInfo(tz_str)
+                  except:
+                      tz = timezone.utc
+                  for m in range(duration):
+                      check_time = (now - timedelta(minutes=m)).astimezone(tz)
+                      parts = cron.split()
+                      if len(parts) >= 5:
+                          if (match_part(parts[0], check_time.minute) and match_part(parts[1], check_time.hour) and match_part(parts[2], check_time.day) and match_part(parts[3], check_time.month) and match_part(parts[4], check_time.isoweekday() % 7)):
+                              active_task = task
+                              break
+                  if active_task: break
+              if active_task: active_tasks[sid] = active_task
+          with open('active_tasks.json', 'w') as f:
+              json.dump(active_tasks, f)
+          EOF
+          python3 evaluate_cron.py
+
       - name: Unificar datos, gestionar auto-incidencias e indexar
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -95,14 +147,25 @@ jobs:
             
             ST_AS=$(jq -c --arg id "$ID" '.[$id]' ASIA.json)
             if [ "$ST_AS" == "null" ] || [ -z "$ST_AS" ]; then ST_AS='{"status":"DOWN","latency":0}'; fi
+
+            # ⚙️ INYECCIÓN DE TAREAS PROGRAMADAS
+            ACTIVE_TASK=$(jq -c --arg id "$ID" '.[$id] // empty' active_tasks.json)
+            if [ ! -z "$ACTIVE_TASK" ]; then
+              ST_US=$(echo "$ST_US" | jq '.status = "MAINTENANCE" | .latency = 0')
+              ST_EU=$(echo "$ST_EU" | jq '.status = "MAINTENANCE" | .latency = 0')
+              ST_AS=$(echo "$ST_AS" | jq '.status = "MAINTENANCE" | .latency = 0')
+              TASK_DESC_ES=$(echo "$ACTIVE_TASK" | jq -r '.desc_es // ""')
+              TASK_DESC_EN=$(echo "$ACTIVE_TASK" | jq -r '.desc_en // ""')
+              COMP_EXTRA=$(jq -n --arg es "$TASK_DESC_ES" --arg en "$TASK_DESC_EN" '{active_task: {desc_es: $es, desc_en: $en}}')
+            else
+              COMP_EXTRA="{}"
+            fi
             
             # Guardar historial
             HFILE="history/$ID.json"
             OLD_HIST="[]"
             if [ -f "$HFILE" ]; then 
-              if jq empty "$HFILE" >/dev/null 2>&1; then
-                OLD_HIST=$(cat "$HFILE")
-              fi
+              if jq empty "$HFILE" >/dev/null 2>&1; then OLD_HIST=$(cat "$HFILE"); fi
             fi
             
             jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson old "$OLD_HIST" \
@@ -120,15 +183,15 @@ jobs:
               {
                 timestamp: $ts,
                 US: {
-                  status: (if (map(select(.US.status == "UP")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                  status: (if (map(select(.US.status == "UP" or .US.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
                   latency: (if length > 0 then (map(.US.latency) | add / length | round) else 0 end)
                 },
                 EU: {
-                  status: (if (map(select(.EU.status == "UP")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                  status: (if (map(select(.EU.status == "UP" or .EU.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
                   latency: (if length > 0 then (map(.EU.latency) | add / length | round) else 0 end)
                 },
                 ASIA: {
-                  status: (if (map(select(.ASIA.status == "UP")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                  status: (if (map(select(.ASIA.status == "UP" or .ASIA.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
                   latency: (if length > 0 then (map(.ASIA.latency) | add / length | round) else 0 end)
                 }
               } end
@@ -144,8 +207,8 @@ jobs:
             # -------------------------------------------------------------
               
             jq --argjson comp "$i" --arg hfile "$HFILE" \
-               --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
-               '.components += [($comp + {regions: {US: $us, EU: $eu, ASIA: $as}, history_file: $hfile})]' data.json > tmp.json && mv tmp.json data.json
+               --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson extra "$COMP_EXTRA" \
+               '.components += [($comp + {regions: {US: $us, EU: $eu, ASIA: $as}, history_file: $hfile} + $extra)]' data.json > tmp.json && mv tmp.json data.json
                
             mkdir -p "incidents/$ID"
             touch "incidents/$ID/.gitkeep"
@@ -157,28 +220,20 @@ jobs:
             EU_STATUS=$(echo "$ST_EU" | jq -r '.status')
             AS_STATUS=$(echo "$ST_AS" | jq -r '.status')
 
-            # 1. Si los 3 continentes están caídos -> CAÍDA TOTAL DETECTADA
             if [ "$US_STATUS" == "DOWN" ] && [ "$EU_STATUS" == "DOWN" ] && [ "$AS_STATUS" == "DOWN" ]; then
-              
-              # Buscar si ya hay un reporte automático activo
               ACTIVE_AUTO_INC=""
               shopt -s nullglob
               for inc_file in incidents/$ID/*-auto-*.json; do
                 if [ -f "$inc_file" ]; then
                   ST=$(jq -r '.status // ""' "$inc_file")
-                  if [ "$ST" == "active" ]; then
-                    ACTIVE_AUTO_INC="$inc_file"
-                    break
-                  fi
+                  if [ "$ST" == "active" ]; then ACTIVE_AUTO_INC="$inc_file"; break; fi
                 fi
               done
               shopt -u nullglob
 
-              # Si no hay ninguna auto-incidencia activa, la creamos
               if [ -z "$ACTIVE_AUTO_INC" ]; then
                 AUTO_ID="${DATE_STAMP}-auto-${ID}"
                 FILE_PATH="incidents/${ID}/${AUTO_ID}.json"
-                echo "🔴 Generando Auto-Incidencia en $FILE_PATH"
                 
                 jq -n --arg id "$AUTO_ID" --arg service "$NAME_ES" --arg ts "$TIMESTAMP" \
                       --arg name_es "$NAME_ES" --arg name_en "$NAME_EN" '
@@ -201,15 +256,12 @@ jobs:
                   ]
                 }' > "$FILE_PATH"
               fi
-
-            # 2. Si el servicio vuelve a estar UP en al menos 1 continente -> RECUPERACIÓN DETECTADA
             else
               shopt -s nullglob
               for inc_file in incidents/$ID/*-auto-*.json; do
                 if [ -f "$inc_file" ]; then
                   ST=$(jq -r '.status // ""' "$inc_file")
                   if [ "$ST" == "active" ]; then
-                    echo "🟩 Cerrando Auto-Incidencia en $inc_file"
                     jq --arg ts "$TIMESTAMP" '
                       .status = "resolved_auto" |
                       .end_time = $ts |
@@ -258,5 +310,5 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add data.json history/ incidents/ incidents-index.json maintenances/ maintenances-index.json
+          git add data.json history/ incidents/ incidents-index.json maintenances/ maintenances-index.json active_tasks.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "🌍 Auto-update multiregion status & auto-incidents [skip ci]" && git push)

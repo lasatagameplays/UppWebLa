@@ -3,24 +3,128 @@
         "id": "web-principal",
         "name_es": "Web Principal (LASATA)",
         "name_en": "Main Web (LASATA)",
-        "url": "https://lasata.eu"
+        "url": "https://lasata.eu",
+        "scheduled_tasks": [
+            {
+                "cron": "0 1 * * 0",
+                "duration_minutes": 5,
+                "desc_es": "Reinicio semanal del sistema",
+                "desc_en": "Weekly system reboot"
+            },
+            {
+                "cron": "30 3 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de seguridad local",
+                "desc_en": "Local backup in progress"
+            },
+            {
+                "cron": "30 4 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de la base de datos MariaDB",
+                "desc_en": "MariaDB database backup"
+            },
+            {
+                "cron": "0 6 * * *",
+                "duration_minutes": 5,
+                "desc_es": "Sincronización FTP HestiaCP",
+                "desc_en": "HestiaCP FTP synchronization"
+            }
+        ]
     },
     {
         "id": "nube-privada",
         "name_es": "Nube Privada (FileBrowser)",
         "name_en": "Private Cloud (FileBrowser)",
-        "url": "https://archivos.lasata.eu"
+        "url": "https://archivos.lasata.eu",
+        "scheduled_tasks": [
+            {
+                "cron": "0 1 * * 0",
+                "duration_minutes": 5,
+                "desc_es": "Reinicio semanal del sistema",
+                "desc_en": "Weekly system reboot"
+            },
+            {
+                "cron": "30 3 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de seguridad local",
+                "desc_en": "Local backup in progress"
+            },
+            {
+                "cron": "30 4 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de la base de datos MariaDB",
+                "desc_en": "MariaDB database backup"
+            },
+            {
+                "cron": "0 6 * * *",
+                "duration_minutes": 5,
+                "desc_es": "Sincronización FTP HestiaCP",
+                "desc_en": "HestiaCP FTP synchronization"
+            }
+        ]
     },
     {
         "id": "webmail",
         "name_es": "Webmail (Roundcube Webmail)",
         "name_en": "Webmail (Roundcube Webmail)",
-        "url": "https://webmail.lasata.eu"
+        "url": "https://webmail.lasata.eu",
+        "scheduled_tasks": [
+            {
+                "cron": "0 1 * * 0",
+                "duration_minutes": 5,
+                "desc_es": "Reinicio semanal del sistema",
+                "desc_en": "Weekly system reboot"
+            },
+            {
+                "cron": "30 3 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de seguridad local",
+                "desc_en": "Local backup in progress"
+            },
+            {
+                "cron": "30 4 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de la base de datos MariaDB",
+                "desc_en": "MariaDB database backup"
+            },
+            {
+                "cron": "0 6 * * *",
+                "duration_minutes": 5,
+                "desc_es": "Sincronización FTP HestiaCP",
+                "desc_en": "HestiaCP FTP synchronization"
+            }
+        ]
     },
     {
         "id": "server-s1",
         "name_es": "Server S1 (HestiaCP)",
         "name_en": "Server S1 (HestiaCP)",
-        "url": "https://s1.lasata.eu:8083"
+        "url": "https://s1.lasata.eu:8083",
+        "scheduled_tasks": [
+            {
+                "cron": "0 1 * * 0",
+                "duration_minutes": 5,
+                "desc_es": "Reinicio semanal del sistema",
+                "desc_en": "Weekly system reboot"
+            },
+            {
+                "cron": "30 3 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de seguridad local",
+                "desc_en": "Local backup in progress"
+            },
+            {
+                "cron": "30 4 * * *",
+                "duration_minutes": 10,
+                "desc_es": "Copia de la base de datos MariaDB",
+                "desc_en": "MariaDB database backup"
+            },
+            {
+                "cron": "0 6 * * *",
+                "duration_minutes": 5,
+                "desc_es": "Sincronización FTP HestiaCP",
+                "desc_en": "HestiaCP FTP synchronization"
+            }
+        ]
     }
 ]

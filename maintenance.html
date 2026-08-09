@@ -392,6 +392,13 @@
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let currentMaint = null;
 
+        // MOTOR DE VERSIONES Y ACTUALIZACIONES
+        let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
+
+        async function loadVersion() {
+            try { const res = await fetch(`version.json?t=${new Date().getTime()}`); if (res.ok) localVersion = await res.json(); } catch (e) { }
+        }
+
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
             return (obj[loc] && obj[loc] !== 'null') ? obj[loc] : (obj[key + '_es'] || obj[key] || '--');
@@ -421,67 +428,32 @@
         }
 
         function renderProtectedFooter() {
-            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
-            const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
+            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización de software' : 'Last software update';
+            const formattedDate = currentLang === 'es' ? localVersion.release_date_es : localVersion.release_date_en;
 
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span id="ui-footer-opensource">${dict.footerOpenSource || 'Esta página es de código abierto, impulsada por'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.8</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
-        }
-        function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
-        document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v${localVersion.version}</a><span id="update-badge"></span> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
 
-        async function changeLang(lang) {
-            currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
-            renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
-            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
-            try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
-            applyClientConfig(); renderProtectedFooter(); document.documentElement.lang = currentLang;
-            if (currentMaint) renderMaint(currentMaint);
-        }
+            // 🤖 BUSCADOR AUTOMÁTICO DE ACTUALIZACIONES (OTA)
+            setTimeout(async () => {
+                try {
+                    // Busca la versión en el repositorio maestro de LASATA
+                    const res = await fetch('https://raw.githubusercontent.com/lasatagameplays/UppWebLa/main/version.json?t=' + new Date().getTime());
+                    if (res.ok) {
+                        const remoteVer = await res.json();
+                        const vLocal = localVersion.version.split('.');
+                        const vRemote = remoteVer.version.split('.');
 
-        function renderMaint(maint) {
-            const container = document.getElementById('maint-content');
-            const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
-
-            let badgeClass = 'badge-resolved'; let badgeLabel = dict.maintCompleted;
-            if (maint.status === 'scheduled') { badgeClass = 'badge-scheduled'; badgeLabel = dict.maintScheduled; }
-            else if (maint.status === 'in_progress') { badgeClass = 'badge-active'; badgeLabel = dict.maintInProgress; }
-
-            const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : '--';
-
-            const titleText = getDynamicText(maint, 'title');
-            const descText = getDynamicText(maint, 'description');
-
-            let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${titleText}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
-                            <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceAffected}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
-                            <div class="info-block"><div class="info-label">ID de Mantenimiento</div><div class="info-value">#${maint.id}</div></div>
-                            <div class="info-block"><div class="info-label">${dict.startedAt}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
-                            <div class="info-block"><div class="info-label">${dict.endedAt}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
-                            <div class="desc-box">${descText}</div><h2 class="timeline-title">${dict.timelineTitle}</h2><div class="timeline">`;
-
-            if (maint.updates && maint.updates.length > 0) {
-                const sortedUpdates = [...maint.updates].sort((a, b) => new Date(b.time) - new Date(a.time));
-                sortedUpdates.forEach(upd => {
-                    const updText = getDynamicText(upd, 'text');
-                    html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${updText}</div></div>`;
-                });
-            } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates}</div></div>`; }
-            html += `</div></div>`;
-            container.innerHTML = html;
-        }
-
-        async function init() {
-            await loadConfig(); await changeLang(currentLang);
-            const id = new URLSearchParams(window.location.search).get('id');
-            if (!id) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; return; }
-            try {
-                const res = await fetch(`maintenances-index.json?t=${new Date().getTime()}`);
-                if (res.ok) {
-                    const maints = await res.json();
-                    currentMaint = maints.find(i => i.id === id);
-                    if (currentMaint) renderMaint(currentMaint); else document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`;
-                }
-            } catch (err) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; }
-        }
+                        // Si la versión del creador es mayor a la del usuario, mostramos la alerta
+                        if (+vRemote[0] > +vLocal[0] || (+vRemote[0] === +vLocal[0] && +vRemote[1] > +vLocal[1])) {
+                            const updateMsg = currentLang === 'es' ? `¡Actualización v${remoteVer.version} disponible!` : `Update v${remoteVer.version} available!`;
+                            const badge = document.getElementById('update-badge');
+                            if (badge) badge.innerHTML = `<a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" style="color: var(--warn-color); margin-left: 10px; font-weight: bold; text-decoration: none; border: 1px solid var(--warn-color); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">🔄 ${updateMsg}</a>`;
+                        }
+                    }
+                } catch (e) { }
+            }, 1500); // Se ejecuta en segundo plano para no ralentizar la web
+        } catch (err) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; }
+            }
         init();
     </script>
 </body>

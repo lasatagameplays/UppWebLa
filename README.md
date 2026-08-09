@@ -1,6 +1,6 @@
 ﻿<div align="center">
   <img src="src/images/logoNoChange.png" alt="UppWebLa Logo" width="720" />
-  <h1>💻 UppWebLa 2.8</h1>
+  <h1>💻 UppWebLa 2.9</h1>
   
   <p>
     <a href="#-español"><b>🇪🇸 Español</b></a> •
@@ -141,6 +141,32 @@ Si quieres reportar un problema menor o dar explicaciones a tus usuarios, crea u
 
 Al subir los cambios, el motor indexará la incidencia y aparecerá al instante en el centro de control con su página de detalles completa.
 
+## ⚙️ Tareas Programadas y Reinicios (Cron)
+
+Para evitar falsas alarmas durante reinicios semanales o copias de seguridad de tu servidor, puedes añadir tareas programadas (`scheduled_tasks`) en tu archivo `targets.json`. 
+El sistema leerá la expresión cron y, si la tarea está en curso, suspenderá las alertas y marcará el estado como "Mantenimiento".
+
+```json
+{
+  "id": "mi-servidor",
+  "name": "Servidor Principal",
+  "url": "[https://midominio.com](https://midominio.com)",
+  "scheduled_tasks": [
+    {
+      "cron": "0 1 * * 0",
+      "duration_minutes": 5,
+      "timezone": "Europe/Madrid",
+      "desc_es": "Reinicio semanal del sistema",
+      "desc_en": "Weekly system reboot"
+    }
+  ]
+}
+```
+
+* **cron:** La expresión matemática exacta **(ej: 30 3 * * *)**.
+* **duration_minutes:** Tiempo estimado que el servidor estará inaccesible.
+* **timezone:** (Opcional) Zona horaria del servidor. Por defecto es **Europe/Madrid**.
+
 ## 🔧 Mantenimientos Programados
 
 El sistema organiza los mantenimientos programados en la carpeta `maintenances/` separadas por subcarpetas de servicios. El sistema creará las subcarpetas automáticamente basado en los ID que configures en `targets.json`.
@@ -176,13 +202,23 @@ Para anunciar un mantenimiento, crea un archivo JSON dentro de la subcarpeta del
   * `"in_progress"`: Mantenimiento en proceso.
   * `"completed"`: Mantenimiento completado y servicio restablecido.
 
-## 🔄 Cómo actualizar tu clon de UppWebLa
+## 🔄 Sistema de Actualizaciones y Copias de Seguridad
 
-Este proyecto está en constante evolución. Para actualizarlo de forma 100% segura:
+UppWebLa incluye un **detector automático de versiones**. Si publicamos una nueva actualización con mejoras, el pie de página de tu panel te avisará discretamente con un botón de actualización (ej: *¡Actualización v3.0 disponible!*). Este proyecto está en constante evolución, por lo que actualizar es muy sencillo.
 
-1. Ve a la página principal de tu repositorio en GitHub.
-2. Si hay actualizaciones, verás el mensaje *"This branch is X commits behind lasatagameplays/UppWebLa"*.
-3. Haz clic en **"Sync fork"** y luego en **"Update branch"**. ¡Listo! Tu código se actualizará sin borrar tu historial de estado.
+### ¿Cómo actualizar de forma segura (Sin perder tus datos)?
+Tus datos históricos (`history/`), reportes (`incidents/`, `maintenances/`) y tu configuración (`config.json` y `targets.json`) son sagrados. Para actualizar el código de la web sin romper tu base de datos, sigue estos pasos:
+
+**Método Automático vía GitHub (Recomendado):**
+1. **⚠️ Haz un Backup previo:** Descarga tu repositorio como archivo `.zip` por seguridad.
+2. Ve a la página principal de tu repositorio (Fork) en GitHub.
+3. Si hay actualizaciones, verás el mensaje *"This branch is X commits behind lasatagameplays/UppWebLa"*.
+4. Haz clic en **"Sync fork"** y luego en **"Update branch"**. ¡Listo! GitHub fusionará el nuevo código del motor sin borrar tu historial de estado ni tus archivos personales.
+
+**Método Manual:**
+1. **⚠️ Haz un Backup previo:** Descarga tu repositorio como archivo `.zip`.
+2. Descarga la nueva versión de UppWebLa y reemplaza **ÚNICAMENTE** estos archivos: `index.html`, `incident.html`, `maintenance.html`, `version.json` y el contenido de `src/`.
+3. **⛔ NUNCA reemplaces (durante una actualización):** Tu carpeta `.github`, ni tus archivos `config.json` o `targets.json`, ya que ahí viven tu configuración y contraseñas. Además,**NUNCA** edites el archivo `version.json` ; este está vinculado al núcleo del código, y si lo alteras manualmente, el motor de actualizaciones (OTA) se romperá y dejarás de recibir avisos de mejoras.
 
 ### 💡 Plantillas de Ejemplo incluidas
 
@@ -337,6 +373,32 @@ If you want to report a minor issue or provide updates to your users, create a J
 
 Once you push the changes, the engine will index the incident and it will instantly appear in the control center with its full details page.
 
+## ⚙️ Scheduled Tasks & Reboots (Cron)
+
+To prevent false alarms during weekly reboots or server backups, you can add scheduled tasks (`scheduled_tasks`) to your `targets.json` file.
+The system will read the cron expression and, if the task is ongoing, it will suspend alerts and set the status to "Maintenance".
+
+```json
+{
+  "id": "my-server",
+  "name": "Main Server",
+  "url": "[https://mydomain.com](https://mydomain.com)",
+  "scheduled_tasks": [
+    {
+      "cron": "0 1 * * 0",
+      "duration_minutes": 5,
+      "timezone": "Europe/Madrid",
+      "desc_es": "Reinicio semanal del sistema",
+      "desc_en": "Weekly system reboot"
+    }
+  ]
+}
+```
+
+* **cron:** The exact mathematical expression **(e.g., 30 3 * * *)**.
+* **duration_minutes:** Estimated time the server will be unreachable.
+* **timezone:** (Optional) Server timezone. Defaults to **Europe/Madrid**.
+
 ## 🔧 Scheduled Maintenances
 
 The system organizes scheduled maintenance in the `maintenances/` folder, separated by service subfolders. The system will automatically create the subfolders based on the IDs configured in `targets.json`.
@@ -372,10 +434,23 @@ To announce a maintenance window, create a JSON file inside the corresponding ID
   * `"in_progress"`: Maintenance is in progress.
   * `"completed"`: Maintenance completed and service restored.
 
-## 🔄 How to update your UppWebLa clone
+## 🔄 Updates and Backup System
 
-1. Go to your repository's main page.
-2. Click **"Sync fork"** and then **"Update branch"** when updates are available. Your historical data will remain safe.
+UppWebLa features an **automatic version detector**. If we release a new update with enhancements, your dashboard's footer will discreetly notify you with an update badge (e.g., *Update v3.0 available!*). This project is constantly evolving, so updating is very straightforward.
+
+### How to update safely (Without losing your data)?
+Your historical data (`history/`), reports (`incidents/`, `maintenances/`), and configuration (`config.json` and `targets.json`) are sacred. To update the core code without breaking your database, follow these steps:
+
+**Automatic Method via GitHub (Recommended):**
+1. **⚠️ Pre-update Backup:** Download your repository as a `.zip` file for safety.
+2. Go to your repository's main page (Fork) on GitHub.
+3. If there are updates, you will see the message *"This branch is X commits behind lasatagameplays/UppWebLa"*.
+4. Click the **"Sync fork"** button, then **"Update branch"**. Done! GitHub will merge the new engine code without deleting your status history or personal files.
+
+**Manual Method:**
+1. **⚠️ Pre-update Backup:** Download your repository as a `.zip` file.
+2. Download the new UppWebLa version and replace **ONLY** these files: `index.html`, `incident.html`, `maintenance.html`, `version.json`, and the contents of `src/`.
+3. **⛔ NEVER replace (during an update):** Your `.github` folder, `config.json`, or `targets.json` files, as they contain your personal layout and setup. Additionally,**NEVER** edit the `version.json` file; it is tied to the core code, and if you alter it manually, the Over-The-Air (OTA) update engine will break and you will stop receiving update notices.      
 
 ### 💡 Included Example Templates
 

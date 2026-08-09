@@ -311,6 +311,12 @@
             border: 1px solid rgba(248, 81, 73, 0.4);
         }
 
+        .status-maint {
+            background-color: var(--maint-bg);
+            color: var(--maint-blue);
+            border: 1px solid rgba(31, 111, 235, 0.4);
+        }
+
         .loader {
             text-align: center;
             color: var(--text-muted);
@@ -658,21 +664,26 @@
         };
 
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Obteniendo datos de GitHub...", delayText: "Retraso en cola:", allTime: "Todo" },
-            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Fetching data from GitHub...", delayText: "Queue delay:", allTime: "All" }
+            es: { title: "💻 Estado del Sistema", loading: "Comprobando...", error: "Error de lectura.", up: "En línea", down: "Caído", lastCheck: "Última comprobación: ", uptimeTitle: "Disponibilidad", avgLatency: "Latencia media", incidentsTitle: "📢 Reportes e Incidencias", noIncidents: "No hay incidencias reportadas.", maintenancesTitle: "🔧 Mantenimientos Programados", noMaintenances: "No hay mantenimientos programados.", ms: "ms", rights: "Todos los derechos reservados.", allOperational: "✅ Todos los sistemas operativos", partialOutage: "⚠️ Interrupción parcial", majorOutage: "🔴 Sistemas caídos", viewDetails: "Ver detalles completos", prevPage: "Anterior", nextPage: "Siguiente", page: "Página", incidentActive: "Incidencia Activa", incidentResolved: "Resuelto", statusResolvedManual: "Resuelto (Manual)", statusResolvedAuto: "Resuelto (Automático)", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", regions: { "US": "América", "EU": "Europa", "ASIA": "Asia" }, majorOutageTag: "Caída Completa", partialOutageTag: "Caída Parcial", operationalTag: "Operativo", maintInProgressTag: "En Mantenimiento", maintScheduledTag: "Mantenimiento Programado", nextUpdate: "Próxima actualización est. en:", updating: "Obteniendo datos de GitHub...", delayText: "Retraso en cola:", allTime: "Todo", scheduledTaskDefault: "Tarea Programada" },
+            en: { title: "💻 System Status", loading: "Checking...", error: "Read error.", up: "Online", down: "Offline", lastCheck: "Last check: ", uptimeTitle: "Uptime", avgLatency: "Average latency", incidentsTitle: "📢 Incident Reports", noIncidents: "No incidents reported.", maintenancesTitle: "🔧 Scheduled Maintenances", noMaintenances: "No scheduled maintenances.", ms: "ms", rights: "All rights reserved.", allOperational: "✅ All systems operational", partialOutage: "⚠️ Partial outage", majorOutage: "🔴 Major outage", viewDetails: "View full details", prevPage: "Previous", nextPage: "Next", page: "Page", incidentActive: "Active Incident", incidentResolved: "Resolved", statusResolvedManual: "Resolved (Manual)", statusResolvedAuto: "Resolved (Auto)", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", regions: { "US": "America", "EU": "Europe", "ASIA": "Asia" }, majorOutageTag: "Complete Outage", partialOutageTag: "Partial Outage", operationalTag: "Operational", maintInProgressTag: "Under Maintenance", maintScheduledTag: "Scheduled Maintenance", nextUpdate: "Estimated next update in:", updating: "Fetching data from GitHub...", delayText: "Queue delay:", allTime: "All", scheduledTaskDefault: "Scheduled Task" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let latestData = null, latestIncidents = null, latestMaintenances = null;
-
-        // Novedad: Arrays separados para datos pesados (history) y datos ligeros (summary)
         let myChart = null, activeHistoryFull = [], activeSummaryFull = [], activeRegKey = '';
-
         let currentIncidentPage = 1, currentMaintenancePage = 1;
         const itemsPerPage = 5;
+
         let nextCheckTime = 0;
         let isFetching = false;
+
+        // MOTOR DE VERSIONES Y ACTUALIZACIONES
+        let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
+
+        async function loadVersion() {
+            try { const res = await fetch(`version.json?t=${new Date().getTime()}`); if (res.ok) localVersion = await res.json(); } catch (e) { }
+        }
 
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
@@ -705,42 +716,47 @@
         }
 
         function renderProtectedFooter() {
-            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
-            const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.8</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
-        }
+            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización de software' : 'Last software update';
+            const formattedDate = currentLang === 'es' ? localVersion.release_date_es : localVersion.release_date_en;
 
-        function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
-        document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v${localVersion.version}</a><span id="update-badge"></span> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
 
-        async function changeLang(lang) {
-            currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
-            renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
-            dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
-            try { const response = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (response.ok) dict = { ...dict, ...(await response.json()) }; } catch (e) { }
+            // 🤖 BUSCADOR AUTOMÁTICO DE ACTUALIZACIONES (OTA)
+            setTimeout(async () => {
+                try {
+                    // Busca la versión en el repositorio maestro de LASATA
+                    const res = await fetch('https://raw.githubusercontent.com/lasatagameplays/UppWebLa/main/version.json?t=' + new Date().getTime());
+                    if (res.ok) {
+                        const remoteVer = await res.json();
+                        const vLocal = localVersion.version.split('.');
+                        const vRemote = remoteVer.version.split('.');
 
-            applyClientConfig(); renderProtectedFooter(); document.documentElement.lang = currentLang;
-            document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
-            document.getElementById('ui-maintenances-title').innerText = dict.maintenancesTitle;
-            document.getElementById('ui-uptime').innerText = dict.uptimeTitle;
-            document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
-
-            if (latestData) renderData(latestData);
-            if (latestIncidents) renderIncidents();
-            if (latestMaintenances) renderMaintenances();
-            if (document.getElementById('chartModal').style.display === 'flex') {
-                renderTimeButtons();
-            }
+                        // Si la versión del creador es mayor a la del usuario, mostramos la alerta
+                        if (+vRemote[0] > +vLocal[0] || (+vRemote[0] === +vLocal[0] && +vRemote[1] > +vLocal[1])) {
+                            const updateMsg = currentLang === 'es' ? `¡Actualización v${remoteVer.version} disponible!` : `Update v${remoteVer.version} available!`;
+                            const badge = document.getElementById('update-badge');
+                            if (badge) badge.innerHTML = `<a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" style="color: var(--warn-color); margin-left: 10px; font-weight: bold; text-decoration: none; border: 1px solid var(--warn-color); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">🔄 ${updateMsg}</a>`;
+                        }
+                    }
+                } catch (e) { }
+            }, 1500); // Se ejecuta en segundo plano para no ralentizar la web
         }
 
         function updateGlobalBanner(components) {
             const banner = document.getElementById('globalStatusBanner'); const text = document.getElementById('globalStatusText');
             if (!banner || !text) return;
-            let totalChecks = 0, upChecks = 0;
-            components.forEach(comp => { Object.values(comp.regions || {}).forEach(regData => { const status = typeof regData === 'string' ? regData : (regData.status || 'UP'); totalChecks++; if (status === 'UP') upChecks++; }); });
+            let totalChecks = 0, upChecks = 0, maintChecks = 0;
+            components.forEach(comp => {
+                Object.values(comp.regions || {}).forEach(regData => {
+                    const status = typeof regData === 'string' ? regData : (regData.status || 'UP');
+                    totalChecks++;
+                    if (status === 'UP') upChecks++;
+                    if (status === 'MAINTENANCE') maintChecks++;
+                });
+            });
             banner.classList.remove('all-up', 'partial', 'all-down');
-            if (totalChecks === 0 || upChecks === totalChecks) { banner.classList.add('all-up'); text.innerText = dict.allOperational; }
-            else if (upChecks === 0) { banner.classList.add('all-down'); text.innerText = dict.majorOutage; }
+            if (totalChecks === 0 || upChecks + maintChecks === totalChecks) { banner.classList.add('all-up'); text.innerText = dict.allOperational; }
+            else if (upChecks === 0 && maintChecks === 0) { banner.classList.add('all-down'); text.innerText = dict.majorOutage; }
             else { banner.classList.add('partial'); text.innerText = dict.partialOutage; }
         }
 
@@ -769,18 +785,30 @@
                 Object.entries(comp.regions || {}).forEach(([regKey, regData]) => {
                     const status = typeof regData === 'string' ? regData : (regData.status || 'UP');
                     const latency = typeof regData === 'object' && regData.latency !== undefined ? regData.latency : 0;
-                    const isUp = status === 'UP';
+
+                    const isUp = status === 'UP' || status === 'MAINTENANCE';
+                    let badgeStatus = isUp ? 'status-up' : 'status-down';
+                    let badgeText = isUp ? dict.up : dict.down;
+                    if (status === 'MAINTENANCE') { badgeStatus = 'status-maint'; badgeText = '⚙️'; }
 
                     totalChecks++;
                     if (isUp) upChecks++;
 
-                    regionsHtml += `<div class="region-box" onclick="openChart('${safeId}', '${regKey}')" title="${dict.clickForGraph}"><span class="region-flag">${regionFlags[regKey] || '🌐'}</span><span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span><span class="status-badge ${isUp ? 'status-up' : 'status-down'}">${isUp ? dict.up : dict.down}</span><span class="region-latency">⚡ ${latency} ${dict.ms}</span></div>`;
+                    regionsHtml += `<div class="region-box" onclick="openChart('${safeId}', '${regKey}')" title="${dict.clickForGraph}"><span class="region-flag">${regionFlags[regKey] || '🌐'}</span><span class="region-name">${(dict.regions && dict.regions[regKey]) ? dict.regions[regKey] : regKey}</span><span class="status-badge ${badgeStatus}">${badgeText}</span><span class="region-latency">⚡ ${latency} ${dict.ms}</span></div>`;
                 });
 
                 let tagHtml = '';
                 let isMaint = false;
 
-                if (latestMaintenances) {
+                // ⚙️ TAREAS PROGRAMADAS (NUEVO V2.9)
+                if (comp.active_task) {
+                    let taskText = getDynamicText(comp.active_task, 'desc');
+                    if (taskText === '--' || !taskText) taskText = dict.scheduledTaskDefault || 'Tarea programada';
+                    tagHtml = `<span class="status-badge" style="background: var(--maint-bg); color: var(--maint-blue); border: 1px solid rgba(31, 111, 235, 0.4); margin-left: 10px; cursor: default;">⚙️ ${taskText}</span>`;
+                    isMaint = true;
+                }
+
+                if (!isMaint && latestMaintenances) {
                     const activeMaint = latestMaintenances.find(m =>
                         (m.service && (m.service.includes(comp.name_es) || m.service.includes(comp.name_en) || m.service.includes(comp.id))) &&
                         (m.status === 'in_progress' || m.status === 'scheduled')
@@ -806,16 +834,16 @@
                 }
 
                 container.insertAdjacentHTML('beforeend', `
-                        <div class="component">
-                            <div class="component-header">
-                                <div style="display:flex; align-items:center; flex-wrap:wrap;">
-                                    <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
-                                    ${tagHtml}
+                            <div class="component">
+                                <div class="component-header">
+                                    <div style="display:flex; align-items:center; flex-wrap:wrap;">
+                                        <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
+                                        ${tagHtml}
+                                    </div>
+                                    <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
                                 </div>
-                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
-                            </div>
-                            <div class="regions-grid">${regionsHtml}</div>
-                        </div>`);
+                                <div class="regions-grid">${regionsHtml}</div>
+                            </div>`);
             });
         }
 
@@ -873,22 +901,20 @@
             }
         }
 
-        // GENERADOR DINÁMICO DE BOTONES (LEE CONFIG.JSON)
         function renderTimeButtons() {
             const container = document.getElementById('time-filters-container');
             if (!container) return;
             let html = `
-                    <button class="time-btn" onclick="filterChart('1h', this)">1h</button>
-                    <button class="time-btn" onclick="filterChart('6h', this)">6h</button>
-                    <button class="time-btn" onclick="filterChart('12h', this)">12h</button>
-                    <button class="time-btn" onclick="filterChart('18h', this)">18h</button>
-                    <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24h</button>
-                    <button class="time-btn" onclick="filterChart('7d', this)">7d</button>
-                    <button class="time-btn" onclick="filterChart('1m', this)">1m</button>
-                    <button class="time-btn" onclick="filterChart('6m', this)">6m</button>
-                    <button class="time-btn" onclick="filterChart('1y', this)">1y</button>
-                `;
-
+                        <button class="time-btn" onclick="filterChart('1h', this)">1h</button>
+                        <button class="time-btn" onclick="filterChart('6h', this)">6h</button>
+                        <button class="time-btn" onclick="filterChart('12h', this)">12h</button>
+                        <button class="time-btn" onclick="filterChart('18h', this)">18h</button>
+                        <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24h</button>
+                        <button class="time-btn" onclick="filterChart('7d', this)">7d</button>
+                        <button class="time-btn" onclick="filterChart('1m', this)">1m</button>
+                        <button class="time-btn" onclick="filterChart('6m', this)">6m</button>
+                        <button class="time-btn" onclick="filterChart('1y', this)">1y</button>
+                    `;
             const ret = parseInt(userConfig.retentionYears) || 1;
             if (ret >= 5) html += `<button class="time-btn" onclick="filterChart('5y', this)">5y</button>`;
             if (ret >= 10) html += `<button class="time-btn" onclick="filterChart('10y', this)">10y</button>`;
@@ -896,7 +922,6 @@
             if (ret >= 50) html += `<button class="time-btn" onclick="filterChart('50y', this)">50y</button>`;
             if (ret >= 100) html += `<button class="time-btn" onclick="filterChart('100y', this)">100y</button>`;
             if (ret >= 150) html += `<button class="time-btn" onclick="filterChart('150y', this)">150y</button>`;
-
             html += `<button class="time-btn" onclick="filterChart('all', this)">${dict.allTime || 'Todo'}</button>`;
             container.innerHTML = html;
         }
@@ -909,16 +934,13 @@
             document.getElementById('modalCompTitle').innerText = `Cargando...`;
             document.getElementById('chartModal').style.display = 'flex';
 
-            let history = [];
-            let summary = [];
-
+            let history = [], summary = [];
             try {
                 if (comp.history_file) {
                     const res = await fetch(`${comp.history_file}?t=${new Date().getTime()}`);
                     if (res.ok) history = await res.json();
                 }
             } catch (err) { }
-
             try {
                 if (comp.history_file) {
                     const summaryFile = comp.history_file.replace('.json', '_summary.json');
@@ -958,7 +980,6 @@
             else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
             else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
             else {
-                // Para 5 años en adelante o 'Todo', usamos el sumario ligero
                 if (activeSummaryFull && activeSummaryFull.length > 0) {
                     datasetToUse = activeSummaryFull;
                     isMonthly = true;
@@ -979,7 +1000,7 @@
                 const r = entry[activeRegKey];
                 const s = typeof r === 'string' ? r : (r && r.status ? r.status : 'DOWN');
                 const l = typeof r === 'object' && r.latency ? r.latency : 0;
-                if (s === 'UP') upCount++;
+                if (s === 'UP' || s === 'MAINTENANCE') upCount++;
                 if (l > 0) { latCount++; totalLat += l; }
             });
 
@@ -995,14 +1016,8 @@
             const labels = downsampled.map(e => {
                 const d = new Date(e.timestamp);
                 const loc = currentLang === 'es' ? 'es-ES' : 'en-US';
-                if (isMonthly) {
-                    return d.toLocaleString(loc, { month: 'short', year: 'numeric' });
-                } else {
-                    return d.toLocaleString(loc, {
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
-                    });
-                }
+                if (isMonthly) return d.toLocaleString(loc, { month: 'short', year: 'numeric' });
+                return d.toLocaleString(loc, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             });
 
             const latencies = downsampled.map(e => typeof e[activeRegKey] === 'object' && e[activeRegKey].latency ? e[activeRegKey].latency : 0);
@@ -1025,21 +1040,11 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#c9d1d9' } }
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#c9d1d9' } } },
                     scales: {
-                        x: {
-                            ticks: { color: '#8b949e', maxTicksLimit: 10 },
-                            grid: { color: '#30363d' }
-                        },
-                        y: {
-                            ticks: { color: '#8b949e' },
-                            grid: { color: '#30363d' },
-                            beginAtZero: true
-                        }
+                        x: { ticks: { color: '#8b949e', maxTicksLimit: 10 }, grid: { color: '#30363d' } },
+                        y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true }
                     },
                     animation: { duration: 400 }
                 }
@@ -1052,7 +1057,6 @@
             if (!nextCheckTime) return;
             const timerEl = document.getElementById('ui-timer');
             if (!timerEl) return;
-
             const now = new Date().getTime();
             const diff = nextCheckTime - now;
 
@@ -1065,10 +1069,7 @@
                 const m = Math.floor((overdue % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((overdue % (1000 * 60)) / 1000);
                 timerEl.innerHTML = `🔄 <b>${dict.updating}</b> <span style="font-size: 0.85em; opacity: 0.8;">(${dict.delayText || 'Retraso:'} +${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')})</span>`;
-
-                if (overdue % 15000 < 1000 && !isFetching) {
-                    fetchAllData();
-                }
+                if (overdue % 15000 < 1000 && !isFetching) fetchAllData();
             }
         }
 
@@ -1096,16 +1097,13 @@
         }
 
         async function init() {
+            await loadVersion();
             await loadConfig();
             await changeLang(currentLang);
-
             if (!document.getElementById('ui-timer')) {
                 const header = document.querySelector('.header');
-                if (header) {
-                    header.insertAdjacentHTML('beforeend', '<div id="ui-timer" style="margin-top: 15px; font-size: 0.95rem; color: var(--accent-blue); font-weight: 400; background: rgba(88, 166, 255, 0.1); padding: 6px 16px; border-radius: 20px; display: inline-block; border: 1px solid rgba(88, 166, 255, 0.3);"></div>');
-                }
+                if (header) header.insertAdjacentHTML('beforeend', '<div id="ui-timer" style="margin-top: 15px; font-size: 0.95rem; color: var(--accent-blue); font-weight: 400; background: rgba(88, 166, 255, 0.1); padding: 6px 16px; border-radius: 20px; display: inline-block; border: 1px solid rgba(88, 166, 255, 0.3);"></div>');
             }
-
             await fetchAllData();
             setInterval(updateTimer, 1000);
         }
