@@ -399,6 +399,53 @@
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let currentIncident = null;
 
+        // --- FUNCIONES DE IDIOMA UNIVERSALES ---
+        function toggleLangMenu() {
+            const menu = document.getElementById('langMenu');
+            if (menu) menu.classList.toggle('show');
+        }
+
+        // Cierra el menú de idioma si haces clic fuera de él
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('langDropdown');
+            const menu = document.getElementById('langMenu');
+            if (dropdown && menu && !dropdown.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        async function changeLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('uppwebla_lang', currentLang);
+            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+
+            // 1. Textos estáticos (solo se cambian si existen en el HTML actual)
+            if (document.getElementById('ui-maintenances-title')) document.getElementById('ui-maintenances-title').innerText = dict.maintenancesTitle;
+            if (document.getElementById('ui-incidents-title')) document.getElementById('ui-incidents-title').innerText = dict.incidentsTitle;
+            if (document.getElementById('ui-uptime')) document.getElementById('ui-uptime').innerText = dict.uptimeTitle;
+            if (document.getElementById('ui-avg-latency')) document.getElementById('ui-avg-latency').innerText = dict.avgLatency;
+
+            // 2. Elementos comunes de la interfaz
+            if (typeof applyClientConfig === 'function') applyClientConfig();
+            if (typeof renderLangMenu === 'function') renderLangMenu();
+            if (typeof renderProtectedFooter === 'function') renderProtectedFooter();
+
+            // 3. Recargar los datos visuales (dependiendo de en qué página estemos)
+            // Para index.html:
+            if (typeof renderData === 'function' && typeof latestData !== 'undefined' && latestData) renderData(latestData);
+            if (typeof renderIncidents === 'function' && typeof latestIncidents !== 'undefined' && latestIncidents) renderIncidents();
+            if (typeof renderMaintenances === 'function' && typeof latestMaintenances !== 'undefined' && latestMaintenances) renderMaintenances();
+
+            // Para incident.html o maintenance.html (recargan sus detalles si la función existe):
+            if (typeof renderDetails === 'function') renderDetails();
+            if (typeof loadIncidentDetails === 'function') loadIncidentDetails();
+            if (typeof loadMaintenanceDetails === 'function') loadMaintenanceDetails();
+
+            // 4. Cerrar menú si está abierto
+            const menu = document.getElementById('langMenu');
+            if (menu) menu.classList.remove('show');
+        }
+
         // MOTOR DE VERSIONES Y ACTUALIZACIONES
         let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
 
