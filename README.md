@@ -1,6 +1,6 @@
 ﻿<div align="center">
   <img src="src/images/logoNoChange.png" alt="UppWebLa Logo" width="720" />
-  <h1>💻 UppWebLa</h1>
+  <h1>💻 UppWebLa 2.8</h1>
   
   <p>
     <a href="#-español"><b>🇪🇸 Español</b></a> •
@@ -33,6 +33,7 @@ A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni framework
 * 📢 **Sistema de Incidencias Nativo:** Panel integrado y paginado para reportar caídas, mantenimientos o incidencias en curso con soporte de cronograma interactivo.
 * 🌐 **Interfaz Multilenguaje 100% Dinámica:** Cambia de idioma al instante. Detecta el idioma del navegador y extrae automáticamente los textos en Español, Inglés (o cualquier otro que añadas).
 * 💸 **100% Gratuito:** Sin costes de servidores, bases de datos o servicios de terceros. Todo se ejecuta y se aloja dentro de GitHub.
+* 💾 **Almacenamiento Histórico Infinito (Downsampling):** Motor de compresión de datos y particionamiento en tiempo real que convierte registros masivos de pings en promedios mensuales ultra-ligeros. Permite configurar una retención visual de 1 a 200 años sin exceder los límites de tamaño de GitHub ni colapsar la memoria del navegador.
 
 ## 🛠️ ¿Cómo funciona la arquitectura?
 
@@ -223,6 +224,7 @@ Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks*
 * 📢 **Native Incident Management:** Built-in paginated panel to report ongoing outages, maintenance, or incidents with an interactive timeline support.
 * 🌐 **100% Dynamic Multilingual UI:** Switch languages instantly. Automatically extracts texts in Spanish, English (or any other you add).
 * 💸 **100% Free:** Zero server or database costs. Fully hosted and executed within GitHub.
+* 💾 **Infinite Historical Storage (Downsampling):** Real-time data compression and partitioning engine that converts massive ping records into ultra-lightweight monthly averages. It allows you to configure a visual retention span from 1 up to 200 years without exceeding GitHub's file size limits or crashing the browser's memory.
 
 ## 🛠️ How does the architecture work?
 

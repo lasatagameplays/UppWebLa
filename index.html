@@ -641,17 +641,7 @@
                 </div>
             </div>
 
-            <div class="time-filters">
-                <button class="time-btn" onclick="filterChart('1h', this)">1h</button>
-                <button class="time-btn" onclick="filterChart('6h', this)">6h</button>
-                <button class="time-btn" onclick="filterChart('12h', this)">12h</button>
-                <button class="time-btn" onclick="filterChart('18h', this)">18h</button>
-                <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24h</button>
-                <button class="time-btn" onclick="filterChart('7d', this)">7d</button>
-                <button class="time-btn" onclick="filterChart('1m', this)">1m</button>
-                <button class="time-btn" onclick="filterChart('6m', this)">6m</button>
-                <button class="time-btn" onclick="filterChart('1y', this)">1y</button>
-            </div>
+            <div class="time-filters" id="time-filters-container"></div>
 
             <div class="chart-container">
                 <canvas id="latencyChart"></canvas>
@@ -675,7 +665,7 @@
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let latestData = null, latestIncidents = null, latestMaintenances = null;
-        let myChart = null, activeHistoryFull = [], activeRegKey = '';
+        let myChart = null, activeHistoryFull = [], activeSummaryFull = [], activeRegKey = '';
         let currentIncidentPage = 1, currentMaintenancePage = 1;
         const itemsPerPage = 5;
 
@@ -811,16 +801,16 @@
                 }
 
                 container.insertAdjacentHTML('beforeend', `
-                        <div class="component">
-                            <div class="component-header">
-                                <div style="display:flex; align-items:center; flex-wrap:wrap;">
-                                    <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
-                                    ${tagHtml}
+                            <div class="component">
+                                <div class="component-header">
+                                    <div style="display:flex; align-items:center; flex-wrap:wrap;">
+                                        <a href="${comp.url}" target="_blank" class="component-name" style="margin-right: 0;">${compName} ${externalLinkIcon}</a>
+                                        ${tagHtml}
+                                    </div>
+                                    <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
                                 </div>
-                                <span class="component-time">${dict.lastCheck} ${formattedDate}</span>
-                            </div>
-                            <div class="regions-grid">${regionsHtml}</div>
-                        </div>`);
+                                <div class="regions-grid">${regionsHtml}</div>
+                            </div>`);
             });
         }
 
@@ -895,6 +885,33 @@
         }
 
         // LÓGICA DE FILTRADO CON RANGOS CORTOS AÑADIDOS
+
+        function renderTimeButtons() {
+            const container = document.getElementById('time-filters-container');
+            if (!container) return;
+            let html = `
+                    <button class="time-btn" onclick="filterChart('1h', this)">1h</button>
+                    <button class="time-btn" onclick="filterChart('6h', this)">6h</button>
+                    <button class="time-btn" onclick="filterChart('12h', this)">12h</button>
+                    <button class="time-btn" onclick="filterChart('18h', this)">18h</button>
+                    <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24h</button>
+                    <button class="time-btn" onclick="filterChart('7d', this)">7d</button>
+                    <button class="time-btn" onclick="filterChart('1m', this)">1m</button>
+                    <button class="time-btn" onclick="filterChart('6m', this)">6m</button>
+                    <button class="time-btn" onclick="filterChart('1y', this)">1y</button>
+                `;
+            const ret = parseInt(userConfig.retentionYears) || 1;
+            if (ret >= 5) html += `<button class="time-btn" onclick="filterChart('5y', this)">5y</button>`;
+            if (ret >= 10) html += `<button class="time-btn" onclick="filterChart('10y', this)">10y</button>`;
+            if (ret >= 25) html += `<button class="time-btn" onclick="filterChart('25y', this)">25y</button>`;
+            if (ret >= 50) html += `<button class="time-btn" onclick="filterChart('50y', this)">50y</button>`;
+            if (ret >= 100) html += `<button class="time-btn" onclick="filterChart('100y', this)">100y</button>`;
+            if (ret >= 150) html += `<button class="time-btn" onclick="filterChart('150y', this)">150y</button>`;
+
+            html += `<button class="time-btn" onclick="filterChart('all', this)">${dict.allTime || 'Todo'}</button>`;
+            container.innerHTML = html;
+        }
+
         function filterChart(range, btnElement) {
             if (!btnElement) btnElement = document.getElementById('btn-24h');
             document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active');
@@ -911,6 +928,7 @@
             else if (range === '1m') cutoffTime = now - (30 * 24 * 3600 * 1000);
             else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
             else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
+            else if (range === 'all') cutoffTime = 0; // 0 significa desde el principio de los tiempos
 
             const filtered = activeHistoryFull.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
 

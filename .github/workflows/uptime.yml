@@ -107,6 +107,41 @@ jobs:
             
             jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson old "$OLD_HIST" \
               '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-105120:]' > "$HFILE"
+
+            # -------------------------------------------------------------
+            # MOTOR DE COMPRESIÓN (Downsampling Mensual para hasta 200 Años)
+            # -------------------------------------------------------------
+            CURRENT_MONTH=$(date -u +"%Y-%m")
+            MONTH_TIMESTAMP="${CURRENT_MONTH}-01T00:00:00Z"
+            
+            jq -c --arg month "$CURRENT_MONTH" --arg ts "$MONTH_TIMESTAMP" '
+              map(select(.timestamp | startswith($month))) | 
+              if length == 0 then empty else
+              {
+                timestamp: $ts,
+                US: {
+                  status: (if (map(select(.US.status == "UP")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                  latency: (if length > 0 then (map(.US.latency) | add / length | round) else 0 end)
+                },
+                EU: {
+                  status: (if (map(select(.EU.status == "UP")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                  latency: (if length > 0 then (map(.EU.latency) | add / length | round) else 0 end)
+                },
+                ASIA: {
+                  status: (if (map(select(.ASIA.status == "UP")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                  latency: (if length > 0 then (map(.ASIA.latency) | add / length | round) else 0 end)
+                }
+              } end
+            ' "$HFILE" > "history/${ID}_tmp.json"
+            
+            if [ -s "history/${ID}_tmp.json" ]; then
+              SFILE="history/${ID}_summary.json"
+              if [ ! -f "$SFILE" ]; then echo "[]" > "$SFILE"; fi
+              jq -c --arg ts "$MONTH_TIMESTAMP" --slurpfile new_item "history/${ID}_tmp.json" '
+                map(select(.timestamp != $ts)) + $new_item
+              ' "$SFILE" > tmp_sum.json && mv tmp_sum.json "$SFILE"
+            fi
+            # -------------------------------------------------------------
               
             jq --argjson comp "$i" --arg hfile "$HFILE" \
                --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
