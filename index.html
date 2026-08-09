@@ -482,9 +482,11 @@
             color: var(--up-color);
         }
 
+        /* Flex-wrap añadido para evitar que los 9 botones se salgan */
         .time-filters {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 1rem;
         }
 
@@ -546,10 +548,11 @@
             .footer-logo:hover {
                 opacity: 1;
             }
+
         /* 📱 MODO RESPONSIVE DEFINITIVO (Móviles y Zoom Extremo) */
         @media (max-width: 768px) {
             .regions-grid {
-                grid-template-columns: 1fr; /* Cambia de 3 columnas a 1 columna apilada */
+                grid-template-columns: 1fr;
             }
 
             .component-header {
@@ -639,6 +642,10 @@
             </div>
 
             <div class="time-filters">
+                <button class="time-btn" onclick="filterChart('1h', this)">1h</button>
+                <button class="time-btn" onclick="filterChart('6h', this)">6h</button>
+                <button class="time-btn" onclick="filterChart('12h', this)">12h</button>
+                <button class="time-btn" onclick="filterChart('18h', this)">18h</button>
                 <button class="time-btn active" id="btn-24h" onclick="filterChart('24h', this)">24h</button>
                 <button class="time-btn" onclick="filterChart('7d', this)">7d</button>
                 <button class="time-btn" onclick="filterChart('1m', this)">1m</button>
@@ -708,7 +715,7 @@
         function renderProtectedFooter() {
             const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
             const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.7</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span>${dict.footerOpenSource || 'Open source, powered by'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.8</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
         }
 
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
@@ -887,26 +894,97 @@
             filterChart('24h', document.getElementById('btn-24h'));
         }
 
+        // LÓGICA DE FILTRADO CON RANGOS CORTOS AÑADIDOS
         function filterChart(range, btnElement) {
             if (!btnElement) btnElement = document.getElementById('btn-24h');
             document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active');
-            const now = new Date().getTime(); let cutoffTime = 0;
-            if (range === '24h') cutoffTime = now - (24 * 3600 * 1000); else if (range === '7d') cutoffTime = now - (7 * 24 * 3600 * 1000); else if (range === '1m') cutoffTime = now - (30 * 24 * 3600 * 1000); else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000); else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
+
+            const now = new Date().getTime();
+            let cutoffTime = 0;
+
+            if (range === '1h') cutoffTime = now - (1 * 3600 * 1000);
+            else if (range === '6h') cutoffTime = now - (6 * 3600 * 1000);
+            else if (range === '12h') cutoffTime = now - (12 * 3600 * 1000);
+            else if (range === '18h') cutoffTime = now - (18 * 3600 * 1000);
+            else if (range === '24h') cutoffTime = now - (24 * 3600 * 1000);
+            else if (range === '7d') cutoffTime = now - (7 * 24 * 3600 * 1000);
+            else if (range === '1m') cutoffTime = now - (30 * 24 * 3600 * 1000);
+            else if (range === '6m') cutoffTime = now - (182 * 24 * 3600 * 1000);
+            else if (range === '1y') cutoffTime = now - (365 * 24 * 3600 * 1000);
+
             const filtered = activeHistoryFull.filter(entry => new Date(entry.timestamp).getTime() >= cutoffTime);
+
             let upCount = 0, latCount = 0, totalLat = 0;
-            filtered.forEach(entry => { const r = entry[activeRegKey]; const s = typeof r === 'string' ? r : (r && r.status ? r.status : 'DOWN'); const l = typeof r === 'object' && r.latency ? r.latency : 0; if (s === 'UP') upCount++; if (l > 0) { latCount++; totalLat += l; } });
+            filtered.forEach(entry => {
+                const r = entry[activeRegKey];
+                const s = typeof r === 'string' ? r : (r && r.status ? r.status : 'DOWN');
+                const l = typeof r === 'object' && r.latency ? r.latency : 0;
+                if (s === 'UP') upCount++;
+                if (l > 0) { latCount++; totalLat += l; }
+            });
+
             document.getElementById('modalUptime').innerText = `${filtered.length > 0 ? ((upCount / filtered.length) * 100).toFixed(4) : "100.0000"}%`;
             document.getElementById('modalAvgLatency').innerText = `${latCount > 0 ? Math.round(totalLat / latCount) : 0} ${dict.ms}`;
-            let downsampled = filtered; if (filtered.length > 150) { const step = Math.ceil(filtered.length / 150); downsampled = filtered.filter((_, idx) => idx % step === 0 || idx === filtered.length - 1); }
-            const labels = downsampled.map(e => { const d = new Date(e.timestamp); const loc = currentLang === 'es' ? 'es-ES' : 'en-US'; return (range === '24h' || range === '7d') ? d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString(loc, { month: 'short', day: 'numeric', hour: '2-digit' }); });
+
+            let downsampled = filtered;
+            if (filtered.length > 150) {
+                const step = Math.ceil(filtered.length / 150);
+                downsampled = filtered.filter((_, idx) => idx % step === 0 || idx === filtered.length - 1);
+            }
+
+            // 🔥 FECHA COMPLETA FORZADA EN TODOS LOS PUNTOS Y EN LA DESCRIPCIÓN DE LA GRÁFICA
+            const labels = downsampled.map(e => {
+                const d = new Date(e.timestamp);
+                const loc = currentLang === 'es' ? 'es-ES' : 'en-US';
+                return d.toLocaleString(loc, {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            });
+
             const latencies = downsampled.map(e => typeof e[activeRegKey] === 'object' && e[activeRegKey].latency ? e[activeRegKey].latency : 0);
+
             if (myChart) myChart.destroy();
-            myChart = new Chart(document.getElementById('latencyChart').getContext('2d'), { type: 'line', data: { labels: labels, datasets: [{ label: `${dict.chartTitle || 'Latencia'} (${dict.ms})`, data: latencies, borderColor: '#58a6ff', backgroundColor: 'rgba(88, 166, 255, 0.1)', fill: true, tension: 0.3, pointRadius: filtered.length > 50 ? 1 : 4, pointBackgroundColor: '#58a6ff', borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#c9d1d9' } } }, scales: { x: { ticks: { color: '#8b949e', maxTicksLimit: 10 }, grid: { color: '#30363d' } }, y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' }, beginAtZero: true } }, animation: { duration: 400 } } });
+            myChart = new Chart(document.getElementById('latencyChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${dict.chartTitle || 'Latencia'} (${dict.ms})`,
+                        data: latencies,
+                        borderColor: '#58a6ff',
+                        backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: filtered.length > 50 ? 1 : 4,
+                        pointBackgroundColor: '#58a6ff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#c9d1d9' } }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#8b949e', maxTicksLimit: 10 },
+                            grid: { color: '#30363d' }
+                        },
+                        y: {
+                            ticks: { color: '#8b949e' },
+                            grid: { color: '#30363d' },
+                            beginAtZero: true
+                        }
+                    },
+                    animation: { duration: 400 }
+                }
+            });
         }
 
         function closeModal(e) { document.getElementById('chartModal').style.display = 'none'; }
 
-        // ⏱️ LÓGICA DEL CONTADOR REGRESIVO Y ESPERA ACTIVA
         function updateTimer() {
             if (!nextCheckTime) return;
             const timerEl = document.getElementById('ui-timer');
@@ -925,7 +1003,6 @@
                 const s = Math.floor((overdue % (1000 * 60)) / 1000);
                 timerEl.innerHTML = `🔄 <b>${dict.updating}</b> <span style="font-size: 0.85em; opacity: 0.8;">(${dict.delayText || 'Retraso:'} +${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')})</span>`;
 
-                // Mientras estamos en retraso, intenta obtener los datos de forma silenciosa cada 15s
                 if (overdue % 15000 < 1000 && !isFetching) {
                     fetchAllData();
                 }
@@ -942,15 +1019,9 @@
             if (latestData) {
                 renderData(latestData);
                 if (latestData.last_check) {
-                    // LA MAGIA DE LA PREDICCIÓN: Calculamos la fecha real de la próxima actualización.
-                    // Si el cron dispara en el minuto :00, apuntaremos al minuto :06 (1 minuto de margen).
                     const lastCheckDate = new Date(latestData.last_check);
                     const m = lastCheckDate.getMinutes();
-
-                    // Encontramos en qué múltiplo de 5 disparó el cron real
                     const cronTriggerMinute = Math.floor(m / 5) * 5;
-
-                    // Sumamos 6 minutos (5 minutos para el próximo cron + 1 de tiempo de procesamiento)
                     const nextReadyDate = new Date(lastCheckDate);
                     nextReadyDate.setMinutes(cronTriggerMinute + 6, 0, 0);
                     nextCheckTime = nextReadyDate.getTime();

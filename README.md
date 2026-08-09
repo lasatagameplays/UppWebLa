@@ -26,6 +26,7 @@ A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni framework
 
 * 🌍 **Monitorización Multirregión:** Realiza pings simultáneos desde los servidores de GitHub distribuidos globalmente (**América, Europa y Asia**) utilizando *Ubuntu*, *Windows* y *macOS*.
 * ⚡ **Medición de Latencia y Disponibilidad:** Cada ping registra el tiempo de respuesta en milisegundos (`ms`). Calcula tu % de Uptime exacto analizando hasta 1 año de registros ininterrumpidos.
+* 📊 **Gráficas de Alta Precisión:** Filtros interactivos de latencia a corto y largo plazo (1h, 6h, 12h, 24h, 7d...) con *tooltips* milimétricos que muestran la fecha y hora exacta en cada medición.
 * 🤖 **Auto-Incidencias:** Si el sistema detecta una caída total en todas las regiones, el bot abrirá un reporte de forma automática y lo cerrará por sí solo cuando el servicio se recupere.
 * ⏱️ **Auto-Recarga en Tiempo Real:** Dashboard inteligente con temporizador regresivo que consulta silenciosamente a GitHub y actualiza los gráficos sin recargar la página.
 * 🎨 **Marca Blanca (White Label):** Permite a las empresas personalizar el diseño, logotipo, enlaces e idiomas modificando un simple archivo `config.json`.
@@ -215,6 +216,7 @@ Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks*
 
 * 🌍 **Multi-Region Monitoring:** Simultaneous pings from globally distributed GitHub servers (**America, Europe, and Asia**) via *Ubuntu*, *Windows*, and *macOS*.
 * ⚡ **Latency & Uptime Tracking:** Measures response time in milliseconds (`ms`). Accurately calculates Uptime % by analyzing up to 1 year of continuous records.
+* 📊 **High-Precision Charts:** Interactive latency filters for short and long-term analysis (1h, 6h, 12h, 24h, 7d...) with exact tooltips displaying full date and minute-by-minute timestamps.
 * 🤖 **Automatic Incidents:** If the system detects a total outage across all regions, the bot will automatically open an incident report and close it when the service recovers.
 * ⏱️ **Real-Time Auto-Refresh:** Smart dashboard with a countdown timer that silently queries GitHub and updates charts without reloading the page.
 * 🎨 **White Label Ready:** Allows companies to customize the layout, logo, links, and languages by simply editing a `config.json` file.
