@@ -73,6 +73,11 @@
             transition: 0.2s;
         }
 
+            .client-return-link:hover {
+                text-decoration: underline;
+                color: #79c0ff;
+            }
+
         .container {
             max-width: 1050px;
             width: 100%;
@@ -251,6 +256,7 @@
             margin-bottom: 2.5rem;
         }
 
+        /* TIMELINE (CRONOLOGÍA) */
         .timeline-title {
             font-size: 1.3rem;
             margin-bottom: 1.5rem;
@@ -309,11 +315,10 @@
         }
 
         .footer-logo {
-            width: 400px;
-            max-width: 80%;
-            margin: 15px auto;
-            display: block;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            width: 1080px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 4px;
         }
 
         footer a {
@@ -332,29 +337,10 @@
                 gap: 10px;
             }
         }
-        /* 📱 MODO RESPONSIVE DEFINITIVO (Móviles y Zoom Extremo) */
-        @media (max-width: 768px) {
-            .regions-grid {
-                grid-template-columns: 1fr; /* Cambia de 3 columnas a 1 columna apilada */
-            }
-
-            .component-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .modal-stats {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .header h1 {
-                font-size: 1.4rem;
-            }
-        }
     </style>
 </head>
 <body>
+
     <div class="client-nav">
         <div class="client-nav-inner">
             <div class="client-brand">
@@ -364,6 +350,7 @@
             <a id="clientLink" href="#" target="_blank" class="client-return-link">Volver a la web</a>
         </div>
     </div>
+
     <div class="container">
         <div class="top-bar">
             <a href="index.html" class="back-btn" id="ui-back-btn">← Volver al Dashboard</a>
@@ -378,19 +365,25 @@
                 </div>
             </div>
         </div>
-        <div id="maint-content" style="text-align: center; padding: 2rem; color: var(--text-muted);">Cargando detalles de mantenimiento...</div>
+
+        <div id="maint-content" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            Cargando detalles del mantenimiento...
+        </div>
     </div>
+
     <div id="secure-footer-container"></div>
+
     <script>
         let userConfig = { companyName: "LASATA", companyLogo: "", returnLinkTextES: "Volver", returnLinkTextEN: "Return", returnLinkUrl: "#", languages: [{ "code": "es", "name": "Español", "flag": "es" }, { "code": "en", "name": "English", "flag": "gb" }] };
         const fallbackDicts = {
-            es: { title: "💻 Estado del Sistema", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", startedAt: "Inicio programado:", endedAt: "Fin estimado:", serviceAffected: "Servicio afectado:", timelineTitle: "Cronología de actualizaciones", backToHome: "← Volver al Dashboard", noUpdates: "No hay actualizaciones registradas.", error: "Mantenimiento no encontrado." },
-            en: { title: "💻 System Status", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", startedAt: "Scheduled Start:", endedAt: "Estimated End:", serviceAffected: "Affected service:", timelineTitle: "Update timeline", backToHome: "← Back to Dashboard", noUpdates: "No updates recorded.", error: "Maintenance not found." }
+            es: { title: "🔧 Detalles de Mantenimiento", footerOpenSource: "Esta página es de código abierto, impulsada por", rights: "Todos los derechos reservados.", maintScheduled: "Programado", maintInProgress: "En Proceso", maintCompleted: "Completado", timelineTitle: "Cronología de trabajos", backToHome: "← Volver al Dashboard", noUpdates: "Sin trabajos registrados.", error: "Mantenimiento no encontrado.", serviceLabel: "Servicio afectado", idLabel: "ID de Mantenimiento", startLabel: "Inicio programado", endLabel: "Fin programado" },
+            en: { title: "🔧 Maintenance Details", footerOpenSource: "This page is open source, powered by", rights: "All rights reserved.", maintScheduled: "Scheduled", maintInProgress: "In Progress", maintCompleted: "Completed", timelineTitle: "Work timeline", backToHome: "← Back to Dashboard", noUpdates: "No work recorded.", error: "Maintenance not found.", serviceLabel: "Affected service", idLabel: "Maintenance ID", startLabel: "Scheduled start", endLabel: "Scheduled end" }
         };
 
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let currentMaint = null;
+        let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
 
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
@@ -398,6 +391,7 @@
         }
 
         async function loadConfig() { try { const res = await fetch(`config.json?t=${new Date().getTime()}`); if (res.ok) userConfig = { ...userConfig, ...(await res.json()) }; } catch (e) { } }
+        async function loadVersion() { try { const res = await fetch(`version.json?t=${new Date().getTime()}`); if (res.ok) localVersion = await res.json(); } catch (e) { } }
 
         function renderLangMenu() {
             const langs = userConfig.languages || [{ code: "es", name: "Español", flag: "es" }, { code: "en", name: "English", flag: "gb" }];
@@ -421,42 +415,84 @@
         }
 
         function renderProtectedFooter() {
-            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización' : 'Last update';
-            const formattedDate = currentLang === 'es' ? '8 de agosto de 2026' : 'August 8, 2026';
+            const container = document.getElementById('secure-footer-container');
+            if (!container) return;
+            const lastUpdateLabel = currentLang === 'es' ? 'Última actualización de software' : 'Last software update';
+            const formattedDate = currentLang === 'es' ? localVersion.release_date_es : localVersion.release_date_en;
+            const footerText = dict.footerOpenSource || (currentLang === 'es' ? 'Esta página es de código abierto, impulsada por' : 'This page is open source, powered by');
+            const rightsText = dict.rights || (currentLang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.');
 
-            document.getElementById('secure-footer-container').innerHTML = `<footer><p><span id="ui-footer-opensource">${dict.footerOpenSource || 'Esta página es de código abierto, impulsada por'}</span> <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">UppWebLa v2.7</a> • <span>${lastUpdateLabel}: ${formattedDate}</span></p><p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${dict.rights}</span></p><a href="https://github.com/lasatagameplays/UppWebLa" target="_blank"><img src="src/images/logoNoChange.png" class="footer-logo"></a></footer>`;
+            container.innerHTML = `<footer>
+                    <p>
+                        <span>${footerText}</span>
+                        <a href="https://github.com/lasatagameplays/UppWebLa" target="_blank">
+                            <img src="src/images/iconoNoChange.png" alt="Logo" class="footer-logo"> UppWebLa v${localVersion.version}
+                        </a>
+                        <span id="update-badge"></span>
+                        • <span>${lastUpdateLabel}: ${formattedDate}</span>
+                    </p>
+                    <p>© 2026 Rubén Castañeda Matute (<a href="https://lasata.eu" target="_blank">LASATA.EU</a>) - <span>${rightsText}</span></p>
+                </footer>`;
         }
+
         function toggleLangMenu() { document.getElementById('langMenu').classList.toggle('show'); }
-        document.addEventListener('click', e => { if (!document.getElementById('langDropdown').contains(e.target)) document.getElementById('langMenu').classList.remove('show'); });
+
+        document.addEventListener('click', e => {
+            if (!document.getElementById('langDropdown').contains(e.target))
+                document.getElementById('langMenu').classList.remove('show');
+        });
 
         async function changeLang(lang) {
             currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
             renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
             dict = { ...(fallbackDicts[lang] || fallbackDicts['es']) };
+
             try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
-            applyClientConfig(); renderProtectedFooter(); document.documentElement.lang = currentLang;
+
+            applyClientConfig();
+            renderProtectedFooter();
+            document.documentElement.lang = currentLang;
             if (currentMaint) renderMaint(currentMaint);
+        }
+
+        async function checkRemoteVersion() {
+            setTimeout(async () => {
+                try {
+                    const res = await fetch('https://raw.githubusercontent.com/lasatagameplays/UppWebLa/main/version.json?t=' + new Date().getTime());
+                    if (res.ok) {
+                        const remoteVer = await res.json();
+                        const vLocal = localVersion.version.split('.');
+                        const vRemote = remoteVer.version.split('.');
+
+                        if (+vRemote[0] > +vLocal[0] || (+vRemote[0] === +vLocal[0] && +vRemote[1] > +vLocal[1])) {
+                            const updateMsg = currentLang === 'es' ? `¡Actualización v${remoteVer.version} disponible!` : `Update v${remoteVer.version} available!`;
+                            const badge = document.getElementById('update-badge');
+                            if (badge) badge.innerHTML = `<a href="https://github.com/lasatagameplays/UppWebLa" target="_blank" style="color: var(--warn-color); margin-left: 10px; font-weight: bold; text-decoration: none; border: 1px solid var(--warn-color); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">🔄 ${updateMsg}</a>`;
+                        }
+                    }
+                } catch (e) { }
+            }, 1500);
         }
 
         function renderMaint(maint) {
             const container = document.getElementById('maint-content');
             const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
 
-            let badgeClass = 'badge-resolved'; let badgeLabel = dict.maintCompleted;
-            if (maint.status === 'scheduled') { badgeClass = 'badge-scheduled'; badgeLabel = dict.maintScheduled; }
-            else if (maint.status === 'in_progress') { badgeClass = 'badge-active'; badgeLabel = dict.maintInProgress; }
+            let badgeClass = 'badge-scheduled'; let badgeLabel = dict.maintScheduled;
+            if (maint.status === 'in_progress') { badgeClass = 'badge-active'; badgeLabel = dict.maintInProgress; }
+            else if (maint.status === 'completed') { badgeClass = 'badge-resolved'; badgeLabel = dict.maintCompleted; }
 
-            const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : '--';
+            const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : (currentLang === 'es' ? 'Sin fecha de fin fija' : 'No end date set');
 
             const titleText = getDynamicText(maint, 'title');
             const descText = getDynamicText(maint, 'description');
 
             let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${titleText}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
-                                <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceAffected}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
-                                <div class="info-block"><div class="info-label">ID de Mantenimiento</div><div class="info-value">#${maint.id}</div></div>
-                                <div class="info-block"><div class="info-label">${dict.startedAt}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
-                                <div class="info-block"><div class="info-label">${dict.endedAt}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
-                                <div class="desc-box">${descText}</div><h2 class="timeline-title">${dict.timelineTitle}</h2><div class="timeline">`;
+                                    <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceLabel || 'Servicio afectado'}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
+                                    <div class="info-block"><div class="info-label">${dict.idLabel || 'ID de Mantenimiento'}</div><div class="info-value">#${maint.id}</div></div>
+                                    <div class="info-block"><div class="info-label">${dict.startLabel || 'Inicio programado'}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
+                                    <div class="info-block"><div class="info-label">${dict.endLabel || 'Fin programado'}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
+                                    <div class="desc-box">${descText}</div><h2 class="timeline-title">${dict.timelineTitle || 'Cronología'}</h2><div class="timeline">`;
 
             if (maint.updates && maint.updates.length > 0) {
                 const sortedUpdates = [...maint.updates].sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -464,24 +500,30 @@
                     const updText = getDynamicText(upd, 'text');
                     html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${updText}</div></div>`;
                 });
-            } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates}</div></div>`; }
+            } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates || 'Sin trabajos registrados'}</div></div>`; }
             html += `</div></div>`;
             container.innerHTML = html;
         }
 
         async function init() {
-            await loadConfig(); await changeLang(currentLang);
+            await loadVersion();
+            await loadConfig();
+            await changeLang(currentLang);
+            checkRemoteVersion();
+
             const id = new URLSearchParams(window.location.search).get('id');
             if (!id) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; return; }
             try {
                 const res = await fetch(`maintenances-index.json?t=${new Date().getTime()}`);
                 if (res.ok) {
                     const maints = await res.json();
-                    currentMaint = maints.find(i => i.id === id);
-                    if (currentMaint) renderMaint(currentMaint); else document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`;
+                    currentMaint = maints.find(i => String(i.id) === String(id));
+                    if (currentMaint) renderMaint(currentMaint);
+                    else document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`;
                 }
             } catch (err) { document.getElementById('maint-content').innerHTML = `<h2>${dict.error}</h2>`; }
         }
+
         init();
     </script>
 </body>
