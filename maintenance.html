@@ -428,7 +428,7 @@
             document.getElementById('clientLink').innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
             document.getElementById('ui-back-btn').innerText = dict.backToHome;
             if (document.getElementById('ui-back-btn')) {
-                document.getElementById('ui-back-btn').innerText = dict.backToHome || "← Volver al Dashboard3";
+                document.getElementById('ui-back-btn').innerText = dict.backToHome || "← Volver al Dashboard";
             }
         }
 
@@ -467,16 +467,30 @@
         });
 
         async function changeLang(lang) {
-            currentLang = lang; localStorage.setItem('uppwebla_lang', lang);
-            renderLangMenu(); document.getElementById('langMenu').classList.remove('show');
-            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };;
+            currentLang = lang;
+            localStorage.setItem('uppwebla_lang', lang);
+            renderLangMenu();
+            document.getElementById('langMenu').classList.remove('show');
 
-            try { const res = await fetch(`${lang}.json?t=${new Date().getTime()}`); if (res.ok) dict = { ...dict, ...(await res.json()) }; } catch (e) { }
+            // Diccionario base de respaldo
+            dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+
+            // Carga dinámica desde la carpeta lang/
+            try {
+                const res = await fetch(`lang/${lang}.json?t=${new Date().getTime()}`);
+                if (res.ok) {
+                    const externalDict = await res.json();
+                    dict = { ...dict, ...externalDict };
+                }
+            } catch (e) { }
 
             applyClientConfig();
             renderProtectedFooter();
             document.documentElement.lang = currentLang;
-            if (currentMaint) renderMaint(currentMaint);
+
+            // Recargar vista según corresponda (en incident.html o maintenance.html)
+            if (typeof currentIncident !== 'undefined' && currentIncident) renderIncident(currentIncident);
+            if (typeof currentMaint !== 'undefined' && currentMaint) renderMaint(currentMaint);
         }
 
         async function checkRemoteVersion() {

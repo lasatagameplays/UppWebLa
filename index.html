@@ -697,7 +697,20 @@
         async function changeLang(lang) {
             currentLang = lang;
             localStorage.setItem('uppwebla_lang', currentLang);
+
+            // 1. Establecer diccionario base por defecto
             dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
+
+            // 2. Intentar cargar el archivo de idioma externo desde la carpeta lang/
+            try {
+                const res = await fetch(`lang/${lang}.json?t=${new Date().getTime()}`);
+                if (res.ok) {
+                    const externalDict = await res.json();
+                    dict = { ...dict, ...externalDict };
+                }
+            } catch (e) {
+                console.warn(`No se pudo cargar lang/${lang}.json, usando diccionario por defecto.`);
+            }
 
             // Actualizar textos fijos del HTML
             if (document.getElementById('ui-maintenances-title')) {
