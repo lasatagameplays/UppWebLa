@@ -7228,5 +7228,20 @@
       "status": "MAINTENANCE",
       "latency": 0
     }
+  },
+  {
+    "timestamp": "2026-08-10T02:40:47Z",
+    "US": {
+      "status": "UP",
+      "latency": 1229
+    },
+    "EU": {
+      "status": "UP",
+      "latency": 879
+    },
+    "ASIA": {
+      "status": "UP",
+      "latency": 1104
+    }
   }
 ]
