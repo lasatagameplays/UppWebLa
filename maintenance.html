@@ -427,6 +427,9 @@
             document.getElementById('clientLink').href = userConfig.returnLinkUrl;
             document.getElementById('clientLink').innerText = currentLang === 'es' ? userConfig.returnLinkTextES : userConfig.returnLinkTextEN;
             document.getElementById('ui-back-btn').innerText = dict.backToHome;
+            if (document.getElementById('ui-back-btn')) {
+                document.getElementById('ui-back-btn').innerText = dict.backToHome || "← Volver al Dashboard3";
+            }
         }
 
         function renderProtectedFooter() {
@@ -499,21 +502,48 @@
             const container = document.getElementById('maint-content');
             const locale = currentLang === 'es' ? 'es-ES' : 'en-US';
 
-            let badgeClass = 'badge-scheduled'; let badgeLabel = dict.maintScheduled;
-            if (maint.status === 'in_progress') { badgeClass = 'badge-active'; badgeLabel = dict.maintInProgress; }
-            else if (maint.status === 'completed') { badgeClass = 'badge-resolved'; badgeLabel = dict.maintCompleted; }
+            let badgeClass = 'badge-scheduled';
+            let badgeLabel = dict.maintScheduled;
+            if (maint.status === 'in_progress') {
+                badgeClass = 'badge-active';
+                badgeLabel = dict.maintInProgress;
+            }
+            else if (maint.status === 'completed') {
+                badgeClass = 'badge-resolved';
+                badgeLabel = dict.maintCompleted;
+            }
 
             const formatD = (ds) => ds ? new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeStyle: 'short' }).format(new Date(ds)) : (currentLang === 'es' ? 'Sin fecha de fin fija' : 'No end date set');
 
             const titleText = getDynamicText(maint, 'title');
             const descText = getDynamicText(maint, 'description');
 
-            let html = `<div class="incident-card" style="text-align: left;"><div class="incident-header"><h1 class="incident-title">${titleText}</h1><span class="incident-badge ${badgeClass}">${badgeLabel}</span></div>
-                                    <div class="info-grid"><div class="info-block"><div class="info-label">${dict.serviceLabel || 'Servicio afectado'}</div><div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div></div>
-                                    <div class="info-block"><div class="info-label">${dict.idLabel || 'ID de Mantenimiento'}</div><div class="info-value">#${maint.id}</div></div>
-                                    <div class="info-block"><div class="info-label">${dict.startLabel || 'Inicio programado'}</div><div class="info-value">${formatD(maint.start_time)}</div></div>
-                                    <div class="info-block"><div class="info-label">${dict.endLabel || 'Fin programado'}</div><div class="info-value">${formatD(maint.end_time)}</div></div></div>
-                                    <div class="desc-box">${descText}</div><h2 class="timeline-title">${dict.timelineTitle || 'Cronología'}</h2><div class="timeline">`;
+            let html = `<div class="incident-card" style="text-align: left;">
+                <div class="incident-header">
+                    <h1 class="incident-title">${titleText}</h1>
+                    <span class="incident-badge ${badgeClass}">${badgeLabel}</span>
+                </div>
+                <div class="info-grid">
+                    <div class="info-block">
+                        <div class="info-label">${dict.serviceAffected}</div>
+                        <div class="info-value" style="color:var(--maint-blue);">${maint.service || '--'}</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label">ID</div>
+                        <div class="info-value">#${maint.id}</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label">${dict.startedAt}</div>
+                        <div class="info-value">${formatD(maint.start_time)}</div>
+                    </div>
+                    <div class="info-block">
+                        <div class="info-label">${dict.endedAt}</div>
+                        <div class="info-value">${formatD(maint.end_time)}</div>
+                    </div>
+                </div>
+                <div class="desc-box">${descText}</div>
+                <h2 class="timeline-title">${dict.timelineTitle}</h2>
+                <div class="timeline">`;
 
             if (maint.updates && maint.updates.length > 0) {
                 const sortedUpdates = [...maint.updates].sort((a, b) => new Date(b.time) - new Date(a.time));
@@ -521,7 +551,9 @@
                     const updText = getDynamicText(upd, 'text');
                     html += `<div class="timeline-item"><div class="timeline-time">${formatD(upd.time)}</div><div class="timeline-text">${updText}</div></div>`;
                 });
-            } else { html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates || 'Sin trabajos registrados'}</div></div>`; }
+            } else {
+                html += `<div class="timeline-item"><div class="timeline-text" style="color:var(--text-muted);">${dict.noUpdates}</div></div>`;
+            }
             html += `</div></div>`;
             container.innerHTML = html;
         }
