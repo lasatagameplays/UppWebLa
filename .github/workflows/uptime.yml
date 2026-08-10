@@ -151,58 +151,65 @@ jobs:
             # ⚙️ INYECCIÓN DE TAREAS PROGRAMADAS
             ACTIVE_TASK=$(jq -c --arg id "$ID" '.[$id] // empty' active_tasks.json)
             if [ ! -z "$ACTIVE_TASK" ]; then
-              ST_US=$(echo "$ST_US" | jq '.status = "MAINTENANCE" | .latency = 0')
-              ST_EU=$(echo "$ST_EU" | jq '.status = "MAINTENANCE" | .latency = 0')
-              ST_AS=$(echo "$ST_AS" | jq '.status = "MAINTENANCE" | .latency = 0')
-              TASK_DESC_ES=$(echo "$ACTIVE_TASK" | jq -r '.desc_es // ""')
-              TASK_DESC_EN=$(echo "$ACTIVE_TASK" | jq -r '.desc_en // ""')
-              COMP_EXTRA=$(jq -n --arg es "$TASK_DESC_ES" --arg en "$TASK_DESC_EN" '{active_task: {desc_es: $es, desc_en: $en}}')
+                ST_US=$(echo "$ST_US" | jq '.status = "MAINTENANCE" | .latency = 0')
+                ST_EU=$(echo "$ST_EU" | jq '.status = "MAINTENANCE" | .latency = 0')
+                ST_AS=$(echo "$ST_AS" | jq '.status = "MAINTENANCE" | .latency = 0')
+                TASK_DESC_ES=$(echo "$ACTIVE_TASK" | jq -r '.desc_es // ""')
+                TASK_DESC_EN=$(echo "$ACTIVE_TASK" | jq -r '.desc_en // ""')
+                COMP_EXTRA=$(jq -n --arg es "$TASK_DESC_ES" --arg en "$TASK_DESC_EN" '{active_task: {desc_es: $es, desc_en: $en}}')
             else
-              COMP_EXTRA="{}"
+                COMP_EXTRA="{}"
             fi
-            
-            # Guardar historial
-            HFILE="history/$ID.json"
-            OLD_HIST="[]"
-            if [ -f "$HFILE" ]; then 
-              if jq empty "$HFILE" >/dev/null 2>&1; then OLD_HIST=$(cat "$HFILE"); fi
+    
+            # 📁 NUEVO: Crear la subcarpeta específica para este ID
+            mkdir -p "history/$ID"
+    
+            # 📁 NUEVO: Guardar historial en su propia subcarpeta
+            HFILE="history/$ID/$ID.json"
+    
+            if [ -f "$HFILE" ] && jq empty "$HFILE" >/dev/null 2>&1; then 
+                # El archivo existe y es válido, lo procesamos directamente leyendo el archivo
+                jq --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
+                '. + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}] | .[-105120:]' "$HFILE" > "tmp_hist.json"
+                mv "tmp_hist.json" "$HFILE"
+            else
+                # El archivo no existe o está corrupto, iniciamos un array nuevo
+                jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
+                '[{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}]' > "$HFILE"
             fi
-            
-            jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson old "$OLD_HIST" \
-              '($old + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}])[-105120:]' > "$HFILE"
-
+  
             # -------------------------------------------------------------
             # MOTOR DE COMPRESIÓN (Downsampling Mensual para hasta 200 Años)
             # -------------------------------------------------------------
             CURRENT_MONTH=$(date -u +"%Y-%m")
             MONTH_TIMESTAMP="${CURRENT_MONTH}-01T00:00:00Z"
-            
+    
             jq -c --arg month "$CURRENT_MONTH" --arg ts "$MONTH_TIMESTAMP" '
-              map(select(.timestamp | startswith($month))) | 
-              if length == 0 then empty else
-              {
+            map(select(.timestamp | startswith($month))) | 
+            if length == 0 then empty else
+            {
                 timestamp: $ts,
                 US: {
-                  status: (if (map(select(.US.status == "UP" or .US.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
-                  latency: (if length > 0 then (map(.US.latency) | add / length | round) else 0 end)
+                    status: (if (map(select(.US.status == "UP" or .US.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                    latency: (if length > 0 then (map(.US.latency) | add / length | round) else 0 end)
                 },
                 EU: {
-                  status: (if (map(select(.EU.status == "UP" or .EU.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
-                  latency: (if length > 0 then (map(.EU.latency) | add / length | round) else 0 end)
+                    status: (if (map(select(.EU.status == "UP" or .EU.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                    latency: (if length > 0 then (map(.EU.latency) | add / length | round) else 0 end)
                 },
                 ASIA: {
-                  status: (if (map(select(.ASIA.status == "UP" or .ASIA.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
-                  latency: (if length > 0 then (map(.ASIA.latency) | add / length | round) else 0 end)
+                    status: (if (map(select(.ASIA.status == "UP" or .ASIA.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                    latency: (if length > 0 then (map(.ASIA.latency) | add / length | round) else 0 end)
                 }
-              } end
-            ' "$HFILE" > "history/${ID}_tmp.json"
-            
-            if [ -s "history/${ID}_tmp.json" ]; then
-              SFILE="history/${ID}_summary.json"
-              if [ ! -f "$SFILE" ]; then echo "[]" > "$SFILE"; fi
-              jq -c --arg ts "$MONTH_TIMESTAMP" --slurpfile new_item "history/${ID}_tmp.json" '
+            } end
+            ' "$HFILE" > "history/$ID/${ID}_tmp.json"
+    
+            if [ -s "history/$ID/${ID}_tmp.json" ]; then
+                SFILE="history/$ID/${ID}_summary.json"
+                if [ ! -f "$SFILE" ]; then echo "[]" > "$SFILE"; fi
+                jq -c --arg ts "$MONTH_TIMESTAMP" --slurpfile new_item "history/$ID/${ID}_tmp.json" '
                 map(select(.timestamp != $ts)) + $new_item
-              ' "$SFILE" > tmp_sum.json && mv tmp_sum.json "$SFILE"
+                ' "$SFILE" > tmp_sum.json && mv tmp_sum.json "$SFILE"
             fi
             # -------------------------------------------------------------
               

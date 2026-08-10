@@ -742,7 +742,7 @@
         }
 
         // MOTOR DE VERSIONES Y ACTUALIZACIONES
-        let localVersion = { version: "2.9", release_date_es: "9 de agosto de 2026", release_date_en: "August 9, 2026" };
+        let localVersion = { version: "3.0", release_date_es: "10 de agosto de 2026", release_date_en: "August 10, 2026" };
 
         async function loadVersion() {
             try { const res = await fetch(`version.json?t=${new Date().getTime()}`); if (res.ok) localVersion = await res.json(); } catch (e) { }
