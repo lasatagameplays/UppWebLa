@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-10T02:25:39Z",
+  "last_check": "2026-08-10T02:31:03Z",
   "components": [
     {
       "id": "web-principal",
@@ -34,19 +34,23 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 51
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 625
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 50
+          "status": "MAINTENANCE",
+          "latency": 0
         }
       },
-      "history_file": "history/web-principal.json"
+      "history_file": "history/web-principal.json",
+      "active_task": {
+        "desc_es": "Copia de la base de datos MariaDB",
+        "desc_en": "MariaDB database backup"
+      }
     },
     {
       "id": "nube-privada",
@@ -81,19 +85,23 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 370
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 640
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 335
+          "status": "MAINTENANCE",
+          "latency": 0
         }
       },
-      "history_file": "history/nube-privada.json"
+      "history_file": "history/nube-privada.json",
+      "active_task": {
+        "desc_es": "Copia de la base de datos MariaDB",
+        "desc_en": "MariaDB database backup"
+      }
     },
     {
       "id": "webmail",
@@ -128,19 +136,23 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 429
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 412
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 370
+          "status": "MAINTENANCE",
+          "latency": 0
         }
       },
-      "history_file": "history/webmail.json"
+      "history_file": "history/webmail.json",
+      "active_task": {
+        "desc_es": "Copia de la base de datos MariaDB",
+        "desc_en": "MariaDB database backup"
+      }
     },
     {
       "id": "server-s1",
@@ -175,19 +187,23 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 1081
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 842
+          "status": "MAINTENANCE",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 903
+          "status": "MAINTENANCE",
+          "latency": 0
         }
       },
-      "history_file": "history/server-s1.json"
+      "history_file": "history/server-s1.json",
+      "active_task": {
+        "desc_es": "Copia de la base de datos MariaDB",
+        "desc_en": "MariaDB database backup"
+      }
     }
   ]
 }
