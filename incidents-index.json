@@ -50,8 +50,8 @@
     "title_es": "🔴 Caída automática detectada en Webmail (Roundcube Webmail)",
     "title_en": "🔴 Automatic outage detected on Webmail (Roundcube Webmail)",
     "start_time": "2026-08-11T05:21:21Z",
-    "end_time": null,
-    "status": "active",
+    "end_time": "2026-08-11T05:36:20Z",
+    "status": "resolved_auto",
     "description_es": "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
     "description_en": "The monitoring system has detected a complete service outage across all regions.",
     "updates": [
@@ -59,6 +59,11 @@
         "time": "2026-08-11T05:21:21Z",
         "text_es": "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
         "text_en": "🔴 Service outage detected, automatic report opened."
+      },
+      {
+        "time": "2026-08-11T05:36:20Z",
+        "text_es": "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
+        "text_en": "⚡ The service has automatically recovered and the incident has been closed."
       }
     ]
   },
@@ -68,8 +73,8 @@
     "title_es": "🔴 Caída automática detectada en Web Principal (LASATA)",
     "title_en": "🔴 Automatic outage detected on Main Web (LASATA)",
     "start_time": "2026-08-11T05:21:21Z",
-    "end_time": null,
-    "status": "active",
+    "end_time": "2026-08-11T05:36:20Z",
+    "status": "resolved_auto",
     "description_es": "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
     "description_en": "The monitoring system has detected a complete service outage across all regions.",
     "updates": [
@@ -77,6 +82,11 @@
         "time": "2026-08-11T05:21:21Z",
         "text_es": "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
         "text_en": "🔴 Service outage detected, automatic report opened."
+      },
+      {
+        "time": "2026-08-11T05:36:20Z",
+        "text_es": "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
+        "text_en": "⚡ The service has automatically recovered and the incident has been closed."
       }
     ]
   },
@@ -86,8 +96,8 @@
     "title_es": "🔴 Caída automática detectada en Server S1 (HestiaCP)",
     "title_en": "🔴 Automatic outage detected on Server S1 (HestiaCP)",
     "start_time": "2026-08-11T05:21:21Z",
-    "end_time": null,
-    "status": "active",
+    "end_time": "2026-08-11T05:36:20Z",
+    "status": "resolved_auto",
     "description_es": "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
     "description_en": "The monitoring system has detected a complete service outage across all regions.",
     "updates": [
@@ -95,6 +105,11 @@
         "time": "2026-08-11T05:21:21Z",
         "text_es": "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
         "text_en": "🔴 Service outage detected, automatic report opened."
+      },
+      {
+        "time": "2026-08-11T05:36:20Z",
+        "text_es": "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
+        "text_en": "⚡ The service has automatically recovered and the incident has been closed."
       }
     ]
   },
@@ -104,8 +119,8 @@
     "title_es": "🔴 Caída automática detectada en Nube Privada (FileBrowser)",
     "title_en": "🔴 Automatic outage detected on Private Cloud (FileBrowser)",
     "start_time": "2026-08-11T05:21:21Z",
-    "end_time": null,
-    "status": "active",
+    "end_time": "2026-08-11T05:36:20Z",
+    "status": "resolved_auto",
     "description_es": "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
     "description_en": "The monitoring system has detected a complete service outage across all regions.",
     "updates": [
@@ -113,6 +128,11 @@
         "time": "2026-08-11T05:21:21Z",
         "text_es": "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
         "text_en": "🔴 Service outage detected, automatic report opened."
+      },
+      {
+        "time": "2026-08-11T05:36:20Z",
+        "text_es": "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
+        "text_en": "⚡ The service has automatically recovered and the incident has been closed."
       }
     ]
   },
