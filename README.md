@@ -3,6 +3,7 @@
   <h1>💻 UppWebLa 3.1</h1>
   
   <p>
+    <a href="https://github.com/lasatagameplays/UppWebLa/blob/main/LICENSE.ES.md"><img src="https://img.shields.io/badge/Licencia-Español-green?style=flat-square" alt="Licencia en Español" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/releases/latest"><img src="https://img.shields.io/github/v/release/lasatagameplays/UppWebLa?label=latest%20release&style=flat-square&color=58a6ff" alt="Latest Release" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/actions/workflows/uppwebla.yml"><img src="https://img.shields.io/github/actions/workflow/status/lasatagameplays/UppWebLa/uppwebla.yml?label=build&style=flat-square&color=2ea043" alt="Build Status" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/stargazers"><img src="https://img.shields.io/github/stars/lasatagameplays/UppWebLa?style=flat-square&color=d29922" alt="GitHub Stars" /></a>
@@ -260,7 +261,7 @@ Puedes encontrarlos en las carpetas `incidents/web-principal/` y `maintenances/w
 
 ## 📄 Licencia y Copyright
 
-Este proyecto es de código abierto y está disponible gratuitamente bajo los términos de la [Licencia MIT](LICENSE).
+Este proyecto es de código abierto y está disponible gratuitamente bajo los términos de la [Licencia MIT](LICENSE) ([📖 Ver traducción en Español](LICENSE.ES.md)).
 
 Creado, diseñado y mantenido con ❤️ por **[Rubén Castañeda Matute](https://github.com/lasatagameplays) (LASATA.EU)**. 
 
@@ -518,7 +519,7 @@ You can find them in the `incidents/web-principal/` and `maintenances/web-princi
 
 ## 📄 License and Copyright
 
-This project is open-source and freely available under the [MIT License](LICENSE).
+This project is open-source and freely available under the [MIT License](LICENSE) ([📖 Read Spanish translation](LICENSE.ES.md)).
 
 Created, designed, and maintained with ❤️ by **[Rubén Castañeda Matute](https://github.com/lasatagameplays) (LASATA.EU)**. 
 
