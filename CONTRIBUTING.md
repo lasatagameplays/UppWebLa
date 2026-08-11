@@ -1,4 +1,12 @@
-﻿--- VERSIÓN EN ESPAÑOL ---
+﻿<p align="center">
+  <b>🌐 Select Language / Seleccionar Idioma:</b><br>
+  <a href="#-versión-en-español"><b>🇪🇸 Español</b></a> • 
+  <a href="#-english-version"><b>🇬🇧 English</b></a>
+</p>
+
+---
+
+## 🇪🇸 Versión en Español
 
 # Guía de Contribución
 
@@ -6,7 +14,7 @@
 
 Este es un proyecto Open Source creado para ayudar a la comunidad. Todas las contribuciones (reportes de bugs, mejoras de código, nuevas traducciones o sugerencias) son bienvenidas.
 
-## ¿Cómo contribuir?
+### ¿Cómo contribuir?
 
 1. **Haz un Fork** del repositorio.
 2. **Crea una nueva rama** para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`).
@@ -20,7 +28,9 @@ Si tu Pull Request incluye nuevas traducciones (por ejemplo, `fr.json`), por fav
 
 ¡Gracias por hacer de UppWebLa una herramienta mejor!
 
---- ENGLISH VERSION ---
+---
+
+## 🇬🇧 English Version
 
 # Contributing Guidelines
 
@@ -28,22 +38,14 @@ Thank you for your interest in contributing to **UppWebLa**! 🎉
 
 This is an open-source project created to help the community. All contributions (bug reports, code improvements, new translations, or suggestions) are welcome.
 
-## How to Contribute?
+### How to Contribute?
 
 1. **Fork** the repository.
-
 2. **Create a new branch** for your feature (`git checkout -b feature/new-feature`).
-
 3. **Make your changes** and ensure the code is clean and commented.
-
 4. **Do not modify the `version.json` file**; this is reserved for official releases.
-
 5. **Commit** your changes (`git commit -m 'Add new feature'`).
-
 6. **Push your changes** to your fork (`git push origin feature/new-feature`).
-
 7. **Open a Pull Request** to the `main` branch of this repository, describing your changes in detail.
 
-If your Pull Request includes new translations (for example, `fr.json`), please ensure that the format exactly matches the keys in `es.json` and `en.json`.
-
-Thank you for making UppWebLa a better tool!
+If your Pull Request includes new translations (for example, `fr.json`), please ensure that the format matches `es.json` and `en.json`.
