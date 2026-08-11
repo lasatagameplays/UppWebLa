@@ -4,10 +4,10 @@
   
   <p>
     <a href="https://github.com/lasatagameplays/UppWebLa/blob/main/LICENSE.ES.md"><img src="https://img.shields.io/badge/Licencia-Español-green?style=flat-square" alt="Licencia en Español" /></a>
+    <a href="https://github.com/lasatagameplays/UppWebLa/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square" alt="License: MIT" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/releases/latest"><img src="https://img.shields.io/github/v/release/lasatagameplays/UppWebLa?label=latest%20release&style=flat-square&color=58a6ff" alt="Latest Release" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/actions/workflows/uppwebla.yml"><img src="https://img.shields.io/github/actions/workflow/status/lasatagameplays/UppWebLa/uppwebla.yml?label=build&style=flat-square&color=2ea043" alt="Build Status" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/stargazers"><img src="https://img.shields.io/github/stars/lasatagameplays/UppWebLa?style=flat-square&color=d29922" alt="GitHub Stars" /></a>
-    <a href="https://github.com/lasatagameplays/UppWebLa/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square" alt="License: MIT" /></a>
     <img src="https://img.shields.io/github/repo-size/lasatagameplays/UppWebLa?label=repo%20size&style=flat-square&color=8b949e" alt="Repo Size" />
   </p>
   
