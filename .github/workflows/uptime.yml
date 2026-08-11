@@ -114,8 +114,8 @@ jobs:
                                           # Todo código HTTP superior a 0 es válido, excepto errores internos catastróficos
                                           if st_code > 0 and st_code not in [500, 502, 504]:
                                               pm['status'] = "UP"
-                                          stats = res_data.get('stats', {})
-                                          pm['latency'] = stats.get('total', res_data.get('time', 0))
+                                          timings = res_data.get('timings', {})
+                                          pm['latency'] = timings.get('total', res_data.get('time', 0))
                           except Exception:
                               pass
                       if all_finished: break
