@@ -43,5 +43,7 @@
     "serviceAffected": "Servicio afectado:",
     "timelineTitle": "Cronología de actualizaciones",
     "noUpdates": "No hay actualizaciones registradas.",
-    "backToHome": "← Volver al Dashboard"
+    "backToHome": "← Volver al Dashboard",
+    "apiWarningBlocked": "<b>Monitorización detenida:</b> Tienes {count} webs, superando el límite gratuito ({limit}). Añade <code>GLOBALPING_API_KEY</code> en los Secretos de GitHub.",
+    "apiWarningRecommendation": "<b>Recomendación:</b> Estás usando la API de forma anónima ({count}/{limit} webs). Te sugerimos añadir <code>GLOBALPING_API_KEY</code> en GitHub para evitar bloqueos."
 }

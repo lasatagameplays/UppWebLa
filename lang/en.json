@@ -43,5 +43,7 @@
     "serviceAffected": "Affected service:",
     "timelineTitle": "Update timeline",
     "noUpdates": "No updates recorded.",
-    "backToHome": "← Back to Dashboard"
+    "backToHome": "← Back to Dashboard",
+    "apiWarningBlocked": "<b>Monitoring stopped:</b> You have {count} sites, exceeding the free limit ({limit}). Add <code>GLOBALPING_API_KEY</code> to GitHub Secrets.",
+    "apiWarningRecommendation": "<b>Recommendation:</b> You are using the API anonymously ({count}/{limit} sites). We recommend adding <code>GLOBALPING_API_KEY</code> in GitHub to avoid limits."
 }

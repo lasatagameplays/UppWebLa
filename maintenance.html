@@ -482,15 +482,13 @@
                 let bg = info.status === 'blocked' ? 'rgba(248, 81, 73, 0.1)' : 'rgba(210, 153, 34, 0.1)';
                 let icon = info.status === 'blocked' ? '🚨' : '⚠️';
 
-                let textEs = info.status === 'blocked'
-                    ? `<b>Monitorización detenida:</b> Tienes ${info.count} webs, superando el límite gratuito (${info.limit}). Añade <code>GLOBALPING_API_KEY</code> en los Secretos de GitHub.`
-                    : `<b>Recomendación:</b> Estás usando la API de forma anónima (${info.count}/${info.limit} webs). Te sugerimos añadir <code>GLOBALPING_API_KEY</code> en GitHub para evitar bloqueos.`;
+                // Lee el texto del diccionario de idiomas dinámico (es.json o en.json)
+                let textRaw = info.status === 'blocked'
+                    ? (dict.apiWarningBlocked || `<b>Monitorización detenida:</b> Tienes {count} webs. Añade GLOBALPING_API_KEY.`)
+                    : (dict.apiWarningRecommendation || `<b>Recomendación:</b> Modo anónimo ({count}/{limit} webs). Añade GLOBALPING_API_KEY.`);
 
-                let textEn = info.status === 'blocked'
-                    ? `<b>Monitoring stopped:</b> You have ${info.count} sites, exceeding the free limit (${info.limit}). Add <code>GLOBALPING_API_KEY</code> to GitHub Secrets.`
-                    : `<b>Recommendation:</b> You are using the API anonymously (${info.count}/${info.limit} sites). We recommend adding <code>GLOBALPING_API_KEY</code> in GitHub to avoid limits.`;
-
-                let text = (typeof currentLang !== 'undefined' && currentLang === 'en') ? textEn : textEs;
+                // Inyecta los números reales
+                let text = textRaw.replace('{count}', info.count).replace('{limit}', info.limit);
 
                 const header = document.querySelector('.header');
                 if (header && !document.getElementById('api-warning-banner')) {

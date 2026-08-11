@@ -27,13 +27,13 @@ jobs:
               targets = json.load(f)
 
           target_count = len(targets)
-          limit_x = 5 # ⚙️ LÍMITE DE WEBS SIN API KEY
+          limit_x = 5
 
           api_status = "ok"
           if not token:
               if target_count > limit_x:
                   api_status = "blocked"
-                  print(f"🚨 ERROR: Tienes {target_count} webs, superando el límite anónimo de {limit_x}.")
+                  print(f"🚨 ERROR: Tienes {target_count} webs, superando el límite anónimo.")
               else:
                   api_status = "warning"
                   print(f"⚠️ AVISO: Modo anónimo sin API Key ({target_count}/{limit_x} webs).")
@@ -55,7 +55,16 @@ jobs:
               for target in targets:
                   url = target.get('url')
                   if not url: continue
-                  domain = url.split('//')[-1].split('/')[0]
+                  
+                  # Arreglo crítico para URLs con puerto (Ej: s1.lasata.eu:8083)
+                  domain_full = url.split('//')[-1].split('/')[0]
+                  if ':' in domain_full:
+                      domain, port_str = domain_full.split(':')
+                      port = int(port_str)
+                  else:
+                      domain = domain_full
+                      port = 443 if url.startswith("https") else 80
+
                   target_id = target['id']
 
                   for reg_name, cont in regions.items():
@@ -63,43 +72,65 @@ jobs:
                           "type": "http",
                           "target": domain,
                           "locations": [{"continent": cont, "limit": 1}],
-                          "measurementOptions": {"request": {"path": "/", "protocol": "HTTPS" if "https" in url else "HTTP"}}
+                          "measurementOptions": {
+                              "protocol": "HTTPS" if url.startswith("https") else "HTTP",
+                              "port": port,
+                              "request": {"path": "/"}
+                          }
                       }).encode('utf-8')
 
                       try:
                           req = urllib.request.Request("https://api.globalping.io/v1/measurements", data=req_data, headers=headers)
                           with urllib.request.urlopen(req) as response:
                               res = json.loads(response.read().decode())
-                              pending_measurements.append({'id': res['id'], 'reg_name': reg_name, 'target_id': target_id})
+                              pending_measurements.append({
+                                  'id': res['id'], 
+                                  'reg_name': reg_name, 
+                                  'target_id': target_id,
+                                  'finished': False,
+                                  'status': 'DOWN',
+                                  'latency': 0
+                              })
                       except Exception as e:
                           print(f"⚠️ Error al crear test para {target_id} en {reg_name}: {e}")
-                          results[reg_name][target_id] = {"status": "DOWN", "latency": 0}
 
               if pending_measurements:
-                  print(f"⏳ Esperando 12 segundos a que los servidores físicos hagan ping...")
-                  time.sleep(12)
-
+                  print("⏳ Esperando respuestas de los servidores físicos...")
+                  # Bucle inteligente: espera hasta 24 segundos, revisando cada 3s
+                  for attempt in range(8): 
+                      all_finished = True
+                      for pm in pending_measurements:
+                          if pm['finished']: continue
+                          all_finished = False
+                          try:
+                              poll_req = urllib.request.Request(f"https://api.globalping.io/v1/measurements/{pm['id']}")
+                              with urllib.request.urlopen(poll_req) as p_response:
+                                  poll_res = json.loads(p_response.read().decode())
+                                  if poll_res.get('status') == 'finished':
+                                      pm['finished'] = True
+                                      if poll_res.get('results'):
+                                          res_data = poll_res['results'][0]['result']
+                                          st_code = res_data.get('statusCode', 0)
+                                          # Todo código HTTP superior a 0 es válido, excepto errores internos catastróficos
+                                          if st_code > 0 and st_code not in [500, 502, 504]:
+                                              pm['status'] = "UP"
+                                          stats = res_data.get('stats', {})
+                                          pm['latency'] = stats.get('total', res_data.get('time', 0))
+                          except Exception:
+                              pass
+                      if all_finished: break
+                      time.sleep(3)
+                  
+                  # Guardar en diccionario final
                   for pm in pending_measurements:
-                      measurement_id = pm['id']
-                      reg_name = pm['reg_name']
-                      target_id = pm['target_id']
-                      status, latency = "DOWN", 0
-                      
-                      try:
-                          poll_req = urllib.request.Request(f"https://api.globalping.io/v1/measurements/{measurement_id}")
-                          with urllib.request.urlopen(poll_req) as p_response:
-                              poll_res = json.loads(p_response.read().decode())
-                              if poll_res.get('status') == 'finished' and poll_res.get('results'):
-                                  result_data = poll_res['results'][0]['result']
-                                  if result_data.get('statusCode', 0) in [200, 301, 302, 403, 503]:
-                                      status = "UP"
-                                  latency = result_data.get('time', 0)
-                      except Exception as e:
-                          print(f"⚠️ Error obteniendo resultado de {target_id} en {reg_name}: {e}")
-                      
-                      results[reg_name][target_id] = {"status": status, "latency": int(latency)}
+                      results[pm['reg_name']][pm['target_id']] = {"status": pm['status'], "latency": int(pm['latency'])}
 
-          # Guardar resultados
+          # Rellenar con caídas seguras en caso de error interno extremo
+          for target in targets:
+              for reg_name in regions:
+                  if target['id'] not in results[reg_name]:
+                      results[reg_name][target['id']] = {"status": "DOWN", "latency": 0}
+
           for reg_name in regions:
               with open(f'{reg_name}.json', 'w') as f:
                   json.dump(results[reg_name], f)
