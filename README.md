@@ -4,7 +4,7 @@
   
   <p>
     <a href="https://github.com/lasatagameplays/UppWebLa/releases/latest"><img src="https://img.shields.io/github/v/release/lasatagameplays/UppWebLa?label=latest%20release&style=flat-square&color=58a6ff" alt="Latest Release" /></a>
-    <a href="https://github.com/lasatagameplays/UppWebLa/actions/workflows/uptime.yml"><img src="https://img.shields.io/github/actions/workflow/status/lasatagameplays/UppWebLa/uptime.yml?label=build&style=flat-square&color=2ea043" alt="Build Status" /></a>
+    <a href="https://github.com/lasatagameplays/UppWebLa/actions/workflows/uppwebla.yml"><img src="https://img.shields.io/github/actions/workflow/status/lasatagameplays/UppWebLa/uppwebla.yml?label=build&style=flat-square&color=2ea043" alt="Build Status" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/stargazers"><img src="https://img.shields.io/github/stars/lasatagameplays/UppWebLa?style=flat-square&color=d29922" alt="GitHub Stars" /></a>
     <a href="https://github.com/lasatagameplays/UppWebLa/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square" alt="License: MIT" /></a>
     <img src="https://img.shields.io/github/repo-size/lasatagameplays/UppWebLa?label=repo%20size&style=flat-square&color=8b949e" alt="Repo Size" />
@@ -70,7 +70,7 @@ Si quieres monitorizar de 6 a infinitas páginas, [crea una cuenta gratuita en G
 
 ## 🛠️ ¿Cómo funciona la arquitectura?
 
-1. **El Motor de Pings:** Un disparador externo (`Webhook`) ejecuta el flujo de trabajo (`uptime.yml`) exactamente **cada 5 minutos** con prioridad máxima en los servidores de GitHub.
+1. **El Motor de Pings:** Un disparador externo (`Webhook`) ejecuta el flujo de trabajo (`uppwebla.yml`) exactamente **cada 5 minutos** con prioridad máxima en los servidores de GitHub.
 2. **Geo-Pings:** Los runners ejecutan peticiones avanzadas para medir códigos HTTP y tiempos de respuesta desde 3 continentes en base a los servicios definidos en `targets.json`.
 3. **Historial Modular e Incidencias:** Un trabajo final unifica los datos, guarda el historial de cada servicio y empaqueta las carpetas de incidencias y mantenimientos de forma automática.
 4. **Despliegue Automático:** Un bot hace un push silencioso y GitHub Pages sirve el dashboard estático al instante.
@@ -323,7 +323,7 @@ If you want to monitor 6 to unlimited pages, create a free account on Globalping
 
 ## 🛠️ How does the architecture work?
 
-1. **The Ping Engine:** An external trigger (`Webhook`) executes the workflow (`uptime.yml`) exactly **every 5 minutes** with top priority on GitHub servers.
+1. **The Ping Engine:** An external trigger (`Webhook`) executes the workflow (`uppwebla.yml`) exactly **every 5 minutes** with top priority on GitHub servers.
 2. **Geo-Pings:** GitHub runners execute advanced requests to measure HTTP status and response times based on the services defined in `targets.json`.
 3. **Modular History & Incidents:** A final job collects data, saves independent history files, and automatically packages incident and maintenance folders.
 4. **Automated Deployment:** A bot silently pushes the updates, and GitHub Pages serves the static dashboard instantly.
