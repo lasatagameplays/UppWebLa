@@ -1,6 +1,14 @@
 ﻿<div align="center">
   <img src="src/images/logoNoChange.png" alt="UppWebLa Logo" width="720" />
-  <h1>💻 UppWebLa 2.9</h1>
+  <h1>💻 UppWebLa 3.1</h1>
+  
+  <p>
+    <a href="https://github.com/lasatagameplays/UppWebLa/releases/latest"><img src="https://img.shields.io/github/v/release/lasatagameplays/UppWebLa?label=latest%20release&style=flat-square&color=58a6ff" alt="Latest Release" /></a>
+    <a href="https://github.com/lasatagameplays/UppWebLa/actions/workflows/uptime.yml"><img src="https://img.shields.io/github/actions/workflow/status/lasatagameplays/UppWebLa/uptime.yml?label=build&style=flat-square&color=2ea043" alt="Build Status" /></a>
+    <a href="https://github.com/lasatagameplays/UppWebLa/stargazers"><img src="https://img.shields.io/github/stars/lasatagameplays/UppWebLa?style=flat-square&color=d29922" alt="GitHub Stars" /></a>
+    <a href="https://github.com/lasatagameplays/UppWebLa/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-1f6feb?style=flat-square" alt="License: MIT" /></a>
+    <img src="https://img.shields.io/github/repo-size/lasatagameplays/UppWebLa?label=repo%20size&style=flat-square&color=8b949e" alt="Repo Size" />
+  </p>
   
   <p>
     <a href="#-español"><b>🇪🇸 Español</b></a> •
@@ -15,6 +23,21 @@
 <p><b>Monitor de estado web (Uptime) Open Source, Multirregión, con Gráficas de Latencia y 100% Serverless.</b></p>
 
 > 🌐 **¿Quieres verlo en acción?** Visita la demo en vivo del software en [uppwebla.lasata.eu](https://uppwebla.lasata.eu/).
+
+## 📋 Índice
+1. [🚀 ¿Qué es UppWebLa?](#-qué-es-uppwebla)
+2. [✨ Características Principales](#-características-principales)
+3. [🌍 Monitorización Multirregión y Límites API](#-monitorización-multirregión-y-límites-api)
+4. [🛠️ ¿Cómo funciona la arquitectura?](#️-cómo-funciona-la-arquitectura)
+5. [🚀 Cómo usar UppWebLa en tu propio proyecto](#-cómo-usar-uppwebla-en-tu-propio-proyecto)
+6. [⏱️ Forzar Pings Exactos (CronJob Externo)](#️-forzar-pings-exactos-cronjob-externo)
+7. [🎨 Personalización de la Interfaz (White Label)](#-personalización-de-la-interfaz-white-label)
+8. [📢 Gestión de Incidencias](#-gestión-de-incidencias)
+9. [🤖 Auto-Incidencias (Automático)](#-auto-incidencias-automático)
+10. [⚙️ Tareas Programadas y Reinicios (Cron)](#️-tareas-programadas-y-reinicios-cron)
+11. [🔧 Mantenimientos Programados](#-mantenimientos-programados)
+12. [🔄 Sistema de Actualizaciones y Copias de Seguridad](#-sistema-de-actualizaciones-y-copias-de-seguridad)
+13. [📄 Licencia y Copyright](#-licencia-y-copyright)
 
 ## 🚀 ¿Qué es UppWebLa?
 
@@ -34,6 +57,16 @@ A diferencia de otros sistemas, UppWebLa **no utiliza Node.js, npm, ni framework
 * 🌐 **Interfaz Multilenguaje 100% Dinámica:** Cambia de idioma al instante. Detecta el idioma del navegador y extrae automáticamente los textos en Español, Inglés (o cualquier otro que añadas).
 * 💸 **100% Gratuito:** Sin costes de servidores, bases de datos o servicios de terceros. Todo se ejecuta y se aloja dentro de GitHub.
 * 💾 **Almacenamiento Histórico Infinito (Downsampling):** Motor de compresión de datos y particionamiento en tiempo real que convierte registros masivos de pings en promedios mensuales ultra-ligeros. Permite configurar una retención visual de 1 a 200 años sin exceder los límites de tamaño de GitHub ni colapsar la memoria del navegador.
+
+## 🌍 Monitorización Multirregión y Límites API
+Este proyecto utiliza la potente y abierta infraestructura de [Globalping by jsDelivr](https://globalping.io/) para comprobar tus servicios reales desde servidores físicos en 3 continentes.
+
+El software viene preconfigurado con una **Degradación Inteligente**:
+- **Menos de 6 monitores (Modo Anónimo):** Funciona automáticamente "Out of the box". Sin registros ni configuraciones extra. Verás un ligero aviso amarillo recomendando poner una API Key, pero funcionará perfectamente.
+- **6 o más monitores (Modo Bloqueo por Límite):** Si superas el límite de peticiones gratuitas anónimas, el programa detendrá la recolección para no generar errores falsos y mostrará una alerta roja en tu interfaz web.
+
+**⚠️ Cómo desbloquear el modo Premium (Gratis):**
+Si quieres monitorizar de 6 a infinitas páginas, [crea una cuenta gratuita en Globalping](https://globalping.io/), obtén un Token de API, y guárdalo en tu repositorio yendo a **Settings > Secrets and variables > Actions > New repository secret** bajo el nombre `GLOBALPING_API_KEY`. ¡El código lo detectará y se actualizará automáticamente sin tocar nada más!
 
 ## 🛠️ ¿Cómo funciona la arquitectura?
 
@@ -82,10 +115,10 @@ Puedes personalizar la apariencia y los idiomas del dashboard editando el archiv
 ```json
 {
   "companyName": "Mi Empresa",
-  "companyLogo": "[https://midominio.com/logo.png](https://midominio.com/logo.png)",
+  "companyLogo": "https://midominio.com/logo.png",
   "returnLinkTextES": "Volver a la web principal",
   "returnLinkTextEN": "Return to main website",
-  "returnLinkUrl": "[https://midominio.com](https://midominio.com)",
+  "returnLinkUrl": "https://midominio.com",
   "globalTitleES": "Monitorización Global",
   "globalTitleEN": "Global Monitoring",
   "globalDescES": "Supervisión en tiempo real. Actualizado cada 5 minutos.",
@@ -150,7 +183,7 @@ El sistema leerá la expresión cron y, si la tarea está en curso, suspenderá 
 {
   "id": "mi-servidor",
   "name": "Servidor Principal",
-  "url": "[https://midominio.com](https://midominio.com)",
+  "url": "https://midominio.com",
   "scheduled_tasks": [
     {
       "cron": "0 1 * * 0",
@@ -243,6 +276,21 @@ Creado, diseñado y mantenido con ❤️ por **[Rubén Castañeda Matute](https:
 
 > 🌐 **Want to see it in action?** Check out the live demo at [uppwebla.lasata.eu](https://uppwebla.lasata.eu/).
 
+## 📋 Table of Contents
+1. [🚀 What is UppWebLa?](#-what-is-uppwebla)
+2. [✨ Main Features](#-main-features)
+3. [🌍 Multi-Region Monitoring and API Limits](#-multi-region-monitoring-and-api-limits)
+4. [🛠️ How does the architecture work?](#️-how-does-the-architecture-work)
+5. [🚀 How to use UppWebLa in your own project](#-how-to-use-uppwebla-in-your-own-project)
+6. [⏱️ Force Exact Pings (External CronJob)](#️-force-exact-pings-external-cronjob)
+7. [🎨 UI Customization (White Label)](#-ui-customization-white-label)
+8. [📢 Incident Management](#-incident-management)
+9. [🤖 Auto-Incidents (Automatic)](#-auto-incidents-automatic)
+10. [⚙️ Scheduled Tasks & Reboots (Cron)](#️-scheduled-tasks--reboots-cron)
+11. [🔧 Scheduled Maintenances](#-scheduled-maintenances)
+12. [🔄 Updates and Backup System](#-updates-and-backup-system)
+13. [📄 License and Copyright](#-license-and-copyright)
+
 ## 🚀 What is UppWebLa?
 
 **UppWebLa** is an ultra-lightweight, modern, static clone of *Upptime*. It continuously monitors your websites and APIs using the free infrastructure of **GitHub Actions** and **GitHub Pages**.
@@ -261,6 +309,17 @@ Unlike other systems, UppWebLa **does not use Node.js, npm, or heavy frameworks*
 * 🌐 **100% Dynamic Multilingual UI:** Switch languages instantly. Automatically extracts texts in Spanish, English (or any other you add).
 * 💸 **100% Free:** Zero server or database costs. Fully hosted and executed within GitHub.
 * 💾 **Infinite Historical Storage (Downsampling):** Real-time data compression and partitioning engine that converts massive ping records into ultra-lightweight monthly averages. It allows you to configure a visual retention span from 1 up to 200 years without exceeding GitHub's file size limits or crashing the browser's memory.
+
+## 🌍 Multi-Region Monitoring and API Limits
+This project uses the powerful and open infrastructure of [Globalping by jsDelivr](https://globalping.io/) to monitor your real-time services from physical servers on 3 continents.
+
+The software comes pre-configured with **Intelligent Degradation**:
+- **Fewer than 6 monitors (Anonymous Mode):** Works automatically "out of the box." No registration or extra configuration is required. You'll see a small yellow warning recommending you enter an API key, but it will work perfectly.
+
+- **6 or more monitors (Limit Blocking Mode):** If you exceed the limit of free anonymous requests, the program will stop collecting data to avoid generating false errors and will display a red alert in your web interface.
+
+**⚠️ How to unlock Premium mode (Free):**
+If you want to monitor 6 to unlimited pages, create a free account on Globalping (https://globalping.io/), obtain an API token, and save it in your repository by going to Settings > Secrets and variables > Actions > New repository secret under the name `GLOBALPING_API_KEY`. The code will detect it and update automatically without any further changes!
 
 ## 🛠️ How does the architecture work?
 
@@ -286,7 +345,7 @@ Go to the **Actions** tab and manually run the workflow for the first time. From
 
 ## ⏱️ Force Exact Pings (External CronJob)
 
-Since free GitHub Actions servers execute internal scheduled tasks with low priority—causing delays—UppWeb delegates their execution to an external cron system to ensure accurate measurements every 5 minutes.
+Since free GitHub Actions servers execute internal scheduled tasks with low priority—causing delays—UppWebLa delegates their execution to an external cron system to ensure accurate measurements every 5 minutes.
 
 To configure the main webhook in your repository:
 
@@ -314,10 +373,10 @@ You can customize the dashboard's appearance and languages by editing the `confi
 ```json
 {
   "companyName": "My Company",
-  "companyLogo": "[https://mydomain.com/logo.png](https://mydomain.com/logo.png)",
+  "companyLogo": "https://mydomain.com/logo.png",
   "returnLinkTextES": "Volver a la web principal",
   "returnLinkTextEN": "Return to main website",
-  "returnLinkUrl": "[https://mydomain.com](https://mydomain.com)",
+  "returnLinkUrl": "https://midominio.com",
   "globalTitleES": "Monitorización Global",
   "globalTitleEN": "Global Monitoring",
   "globalDescES": "Supervisión en tiempo real. Actualizado cada 5 minutos.",
@@ -382,7 +441,7 @@ The system will read the cron expression and, if the task is ongoing, it will su
 {
   "id": "my-server",
   "name": "Main Server",
-  "url": "[https://mydomain.com](https://mydomain.com)",
+  "url": "https://mydomain.com",
   "scheduled_tasks": [
     {
       "cron": "0 1 * * 0",

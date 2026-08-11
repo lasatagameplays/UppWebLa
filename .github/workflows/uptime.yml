@@ -9,70 +9,102 @@ permissions:
   contents: write
 
 jobs:
-  ping-regions:
-    strategy:
-      matrix:
-        include:
-          - region: US
-            os: ubuntu-latest
-          - region: EU
-            os: windows-latest
-          - region: ASIA
-            os: macos-latest
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
+  monitor-and-publish:
+    runs-on: ubuntu-latest
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v5
 
-      - name: Ping a los servicios y medir latencia
+      - name: Medir Latencias Globales (Globalping API)
+        env:
+          GLOBALPING_TOKEN: ${{ secrets.GLOBALPING_API_KEY }}
         run: |
-          check_service() {
-            local url=$1
-            local res=$(curl -L -k -m 10 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -o /dev/null -s -w "%{http_code} %{time_total}" "$url" || echo "000 0")
-            local code=$(echo "$res" | awk '{print $1}')
-            local time_sec=$(echo "$res" | awk '{print $2}')
-            local time_ms=$(jq -n --arg t "$time_sec" '($t | tonumber * 1000) | round')
+          cat << 'EOF' > globalping.py
+          import urllib.request, json, time, os
 
-            local status="DOWN"
-            if [[ "$code" =~ ^(200|301|302|403|503)$ ]]; then
-              status="UP"
-            fi
-            echo "{\"status\": \"$status\", \"latency\": $time_ms}"
-          }
+          token = os.environ.get('GLOBALPING_TOKEN', '').strip()
+          with open('targets.json') as f:
+              targets = json.load(f)
 
-          echo "{}" > region_data.json
-          
-          jq -c '.[]' targets.json | while read i; do
-            ID=$(echo "$i" | jq -r '.id')
-            URL=$(echo "$i" | jq -r '.url')
-            RES=$(check_service "$URL")
-            jq --arg id "$ID" --argjson res "$RES" '.[$id] = $res' region_data.json > tmp.json && mv tmp.json region_data.json
-          done
-          
-          jq --arg reg "${{ matrix.region }}" '{region: $reg} + .' region_data.json > ${{ matrix.region }}.json
+          target_count = len(targets)
+          limit_x = 5 # ⚙️ LÍMITE DE WEBS SIN API KEY
 
-      - name: Subir artefacto temporal
-        uses: actions/upload-artifact@v5
-        with:
-          name: result-${{ matrix.region }}
-          path: ${{ matrix.region }}.json
-          retention-days: 1
+          api_status = "ok"
+          if not token:
+              if target_count > limit_x:
+                  api_status = "blocked"
+                  print(f"🚨 ERROR: Tienes {target_count} webs, superando el límite anónimo de {limit_x}.")
+              else:
+                  api_status = "warning"
+                  print(f"⚠️ AVISO: Modo anónimo sin API Key ({target_count}/{limit_x} webs).")
+          else:
+              print("✅ MODO PREMIUM: API Key de Globalping detectada.")
 
-  merge-and-publish:
-    needs: ping-regions
-    runs-on: ubuntu-latest
-    steps:
-      - name: Descargar el repositorio
-        uses: actions/checkout@v5
+          with open('api_status.json', 'w') as f:
+              json.dump({"status": api_status, "count": target_count, "limit": limit_x}, f)
 
-      - name: Descargar artefactos regionales
-        uses: actions/download-artifact@v5
-        with:
-          pattern: result-*
-          merge-multiple: true
+          regions = {'US': 'NA', 'EU': 'EU', 'ASIA': 'AS'}
+          results = {'US': {}, 'EU': {}, 'ASIA': {}}
+          pending_measurements = []
+
+          if api_status != "blocked":
+              headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+              if token:
+                  headers['Authorization'] = f'Bearer {token}'
+
+              for target in targets:
+                  url = target.get('url')
+                  if not url: continue
+                  domain = url.split('//')[-1].split('/')[0]
+                  target_id = target['id']
+
+                  for reg_name, cont in regions.items():
+                      req_data = json.dumps({
+                          "type": "http",
+                          "target": domain,
+                          "locations": [{"continent": cont, "limit": 1}],
+                          "measurementOptions": {"request": {"path": "/", "protocol": "HTTPS" if "https" in url else "HTTP"}}
+                      }).encode('utf-8')
+
+                      try:
+                          req = urllib.request.Request("https://api.globalping.io/v1/measurements", data=req_data, headers=headers)
+                          with urllib.request.urlopen(req) as response:
+                              res = json.loads(response.read().decode())
+                              pending_measurements.append({'id': res['id'], 'reg_name': reg_name, 'target_id': target_id})
+                      except Exception as e:
+                          print(f"⚠️ Error al crear test para {target_id} en {reg_name}: {e}")
+                          results[reg_name][target_id] = {"status": "DOWN", "latency": 0}
+
+              if pending_measurements:
+                  print(f"⏳ Esperando 12 segundos a que los servidores físicos hagan ping...")
+                  time.sleep(12)
+
+                  for pm in pending_measurements:
+                      measurement_id = pm['id']
+                      reg_name = pm['reg_name']
+                      target_id = pm['target_id']
+                      status, latency = "DOWN", 0
+                      
+                      try:
+                          poll_req = urllib.request.Request(f"https://api.globalping.io/v1/measurements/{measurement_id}")
+                          with urllib.request.urlopen(poll_req) as p_response:
+                              poll_res = json.loads(p_response.read().decode())
+                              if poll_res.get('status') == 'finished' and poll_res.get('results'):
+                                  result_data = poll_res['results'][0]['result']
+                                  if result_data.get('statusCode', 0) in [200, 301, 302, 403, 503]:
+                                      status = "UP"
+                                  latency = result_data.get('time', 0)
+                      except Exception as e:
+                          print(f"⚠️ Error obteniendo resultado de {target_id} en {reg_name}: {e}")
+                      
+                      results[reg_name][target_id] = {"status": status, "latency": int(latency)}
+
+          # Guardar resultados
+          for reg_name in regions:
+              with open(f'{reg_name}.json', 'w') as f:
+                  json.dump(results[reg_name], f)
+          EOF
+          python3 globalping.py
 
       - name: Evaluar Tareas Programadas (Cron Engine)
         run: |
@@ -107,7 +139,7 @@ jobs:
                   cron = task.get('cron')
                   if not cron: continue
                   duration = task.get('duration_minutes', 5)
-                  tz_str = task.get('timezone', 'Europe/Madrid') # Adaptado a España por defecto
+                  tz_str = task.get('timezone', 'Europe/Madrid')
                   try:
                       tz = ZoneInfo(tz_str)
                   except:
@@ -132,87 +164,99 @@ jobs:
           DATE_STAMP=$(date -u +"%Y-%m-%d")
           mkdir -p history
           
-          echo "{\"last_check\": \"$TIMESTAMP\", \"components\": []}" > data.json
+          if [ ! -f api_status.json ]; then echo '{"status":"ok","count":0,"limit":5}' > api_status.json; fi
+          API_INFO=$(cat api_status.json)
+          API_STATUS=$(echo "$API_INFO" | jq -r '.status')
+          
+          echo "{\"last_check\": \"$TIMESTAMP\", \"api_info\": $API_INFO, \"components\": []}" > data.json
           
           jq -c '.[]' targets.json | while read i; do
             ID=$(echo "$i" | jq -r '.id')
             NAME_ES=$(echo "$i" | jq -r '.name_es // .name // $id' --arg id "$ID")
             NAME_EN=$(echo "$i" | jq -r '.name_en // .name // $id' --arg id "$ID")
             
-            ST_US=$(jq -c --arg id "$ID" '.[$id]' US.json)
-            if [ "$ST_US" == "null" ] || [ -z "$ST_US" ]; then ST_US='{"status":"DOWN","latency":0}'; fi
-            
-            ST_EU=$(jq -c --arg id "$ID" '.[$id]' EU.json)
-            if [ "$ST_EU" == "null" ] || [ -z "$ST_EU" ]; then ST_EU='{"status":"DOWN","latency":0}'; fi
-            
-            ST_AS=$(jq -c --arg id "$ID" '.[$id]' ASIA.json)
-            if [ "$ST_AS" == "null" ] || [ -z "$ST_AS" ]; then ST_AS='{"status":"DOWN","latency":0}'; fi
-
-            # ⚙️ INYECCIÓN DE TAREAS PROGRAMADAS
-            ACTIVE_TASK=$(jq -c --arg id "$ID" '.[$id] // empty' active_tasks.json)
-            if [ ! -z "$ACTIVE_TASK" ]; then
-                ST_US=$(echo "$ST_US" | jq '.status = "MAINTENANCE" | .latency = 0')
-                ST_EU=$(echo "$ST_EU" | jq '.status = "MAINTENANCE" | .latency = 0')
-                ST_AS=$(echo "$ST_AS" | jq '.status = "MAINTENANCE" | .latency = 0')
-                TASK_DESC_ES=$(echo "$ACTIVE_TASK" | jq -r '.desc_es // ""')
-                TASK_DESC_EN=$(echo "$ACTIVE_TASK" | jq -r '.desc_en // ""')
-                COMP_EXTRA=$(jq -n --arg es "$TASK_DESC_ES" --arg en "$TASK_DESC_EN" '{active_task: {desc_es: $es, desc_en: $en}}')
-            else
-                COMP_EXTRA="{}"
-            fi
-    
-            # 📁 NUEVO: Crear la subcarpeta específica para este ID
             mkdir -p "history/$ID"
-    
-            # 📁 NUEVO: Guardar historial en su propia subcarpeta
             HFILE="history/$ID/$ID.json"
-    
-            if [ -f "$HFILE" ] && jq empty "$HFILE" >/dev/null 2>&1; then 
-                # El archivo existe y es válido, lo procesamos directamente leyendo el archivo
-                jq --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
-                '. + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}] | .[-105120:]' "$HFILE" > "tmp_hist.json"
-                mv "tmp_hist.json" "$HFILE"
+            
+            if [ "$API_STATUS" != "blocked" ]; then
+                # LECTURA NORMAL DE RED
+                ST_US=$(jq -c --arg id "$ID" '.[$id]' US.json)
+                if [ "$ST_US" == "null" ] || [ -z "$ST_US" ]; then ST_US='{"status":"DOWN","latency":0}'; fi
+                ST_EU=$(jq -c --arg id "$ID" '.[$id]' EU.json)
+                if [ "$ST_EU" == "null" ] || [ -z "$ST_EU" ]; then ST_EU='{"status":"DOWN","latency":0}'; fi
+                ST_AS=$(jq -c --arg id "$ID" '.[$id]' ASIA.json)
+                if [ "$ST_AS" == "null" ] || [ -z "$ST_AS" ]; then ST_AS='{"status":"DOWN","latency":0}'; fi
+
+                # TAREAS PROGRAMADAS
+                ACTIVE_TASK=$(jq -c --arg id "$ID" '.[$id] // empty' active_tasks.json)
+                if [ ! -z "$ACTIVE_TASK" ]; then
+                    ST_US=$(echo "$ST_US" | jq '.status = "MAINTENANCE" | .latency = 0')
+                    ST_EU=$(echo "$ST_EU" | jq '.status = "MAINTENANCE" | .latency = 0')
+                    ST_AS=$(echo "$ST_AS" | jq '.status = "MAINTENANCE" | .latency = 0')
+                    TASK_DESC_ES=$(echo "$ACTIVE_TASK" | jq -r '.desc_es // ""')
+                    TASK_DESC_EN=$(echo "$ACTIVE_TASK" | jq -r '.desc_en // ""')
+                    COMP_EXTRA=$(jq -n --arg es "$TASK_DESC_ES" --arg en "$TASK_DESC_EN" '{active_task: {desc_es: $es, desc_en: $en}}')
+                else
+                    COMP_EXTRA="{}"
+                fi
+        
+                # GUARDAR HISTORIAL
+                if [ -f "$HFILE" ] && jq empty "$HFILE" >/dev/null 2>&1; then 
+                    jq --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
+                    '. + [{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}] | .[-105120:]' "$HFILE" > "tmp_hist.json"
+                    mv "tmp_hist.json" "$HFILE"
+                else
+                    jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
+                    '[{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}]' > "$HFILE"
+                fi
+      
+                # DOWNSAMPLING
+                CURRENT_MONTH=$(date -u +"%Y-%m")
+                MONTH_TIMESTAMP="${CURRENT_MONTH}-01T00:00:00Z"
+        
+                jq -c --arg month "$CURRENT_MONTH" --arg ts "$MONTH_TIMESTAMP" '
+                map(select(.timestamp | startswith($month))) | 
+                if length == 0 then empty else
+                {
+                    timestamp: $ts,
+                    US: {
+                        status: (if (map(select(.US.status == "UP" or .US.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                        latency: (if length > 0 then (map(.US.latency) | add / length | round) else 0 end)
+                    },
+                    EU: {
+                        status: (if (map(select(.EU.status == "UP" or .EU.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                        latency: (if length > 0 then (map(.EU.latency) | add / length | round) else 0 end)
+                    },
+                    ASIA: {
+                        status: (if (map(select(.ASIA.status == "UP" or .ASIA.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
+                        latency: (if length > 0 then (map(.ASIA.latency) | add / length | round) else 0 end)
+                    }
+                } end
+                ' "$HFILE" > "history/$ID/${ID}_tmp.json"
+        
+                if [ -s "history/$ID/${ID}_tmp.json" ]; then
+                    SFILE="history/$ID/${ID}_summary.json"
+                    if [ ! -f "$SFILE" ]; then echo "[]" > "$SFILE"; fi
+                    jq -c --arg ts "$MONTH_TIMESTAMP" --slurpfile new_item "history/$ID/${ID}_tmp.json" '
+                    map(select(.timestamp != $ts)) + $new_item
+                    ' "$SFILE" > tmp_sum.json && mv tmp_sum.json "$SFILE"
+                fi
             else
-                # El archivo no existe o está corrupto, iniciamos un array nuevo
-                jq -n --arg ts "$TIMESTAMP" --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" \
-                '[{timestamp: $ts, US: $us, EU: $eu, ASIA: $as}]' > "$HFILE"
+                # 🚫 MODO BLOQUEADO (LÍMITE SUPERADO) - Recuperamos último estado para no romper la web.
+                COMP_EXTRA="{}"
+                if [ -f "$HFILE" ] && jq empty "$HFILE" >/dev/null 2>&1; then
+                    LAST_STATE=$(jq '.[-1]' "$HFILE")
+                    ST_US=$(echo "$LAST_STATE" | jq -c '{status: .US.status, latency: .US.latency}')
+                    ST_EU=$(echo "$LAST_STATE" | jq -c '{status: .EU.status, latency: .EU.latency}')
+                    ST_AS=$(echo "$LAST_STATE" | jq -c '{status: .ASIA.status, latency: .ASIA.latency}')
+                else
+                    ST_US='{"status":"DOWN","latency":0}'
+                    ST_EU='{"status":"DOWN","latency":0}'
+                    ST_AS='{"status":"DOWN","latency":0}'
+                fi
             fi
-  
-            # -------------------------------------------------------------
-            # MOTOR DE COMPRESIÓN (Downsampling Mensual para hasta 200 Años)
-            # -------------------------------------------------------------
-            CURRENT_MONTH=$(date -u +"%Y-%m")
-            MONTH_TIMESTAMP="${CURRENT_MONTH}-01T00:00:00Z"
-    
-            jq -c --arg month "$CURRENT_MONTH" --arg ts "$MONTH_TIMESTAMP" '
-            map(select(.timestamp | startswith($month))) | 
-            if length == 0 then empty else
-            {
-                timestamp: $ts,
-                US: {
-                    status: (if (map(select(.US.status == "UP" or .US.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
-                    latency: (if length > 0 then (map(.US.latency) | add / length | round) else 0 end)
-                },
-                EU: {
-                    status: (if (map(select(.EU.status == "UP" or .EU.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
-                    latency: (if length > 0 then (map(.EU.latency) | add / length | round) else 0 end)
-                },
-                ASIA: {
-                    status: (if (map(select(.ASIA.status == "UP" or .ASIA.status == "MAINTENANCE")) | length) >= (length / 2) then "UP" else "DOWN" end),
-                    latency: (if length > 0 then (map(.ASIA.latency) | add / length | round) else 0 end)
-                }
-            } end
-            ' "$HFILE" > "history/$ID/${ID}_tmp.json"
-    
-            if [ -s "history/$ID/${ID}_tmp.json" ]; then
-                SFILE="history/$ID/${ID}_summary.json"
-                if [ ! -f "$SFILE" ]; then echo "[]" > "$SFILE"; fi
-                jq -c --arg ts "$MONTH_TIMESTAMP" --slurpfile new_item "history/$ID/${ID}_tmp.json" '
-                map(select(.timestamp != $ts)) + $new_item
-                ' "$SFILE" > tmp_sum.json && mv tmp_sum.json "$SFILE"
-            fi
-            # -------------------------------------------------------------
               
+            # Inyectar componentes
             jq --argjson comp "$i" --arg hfile "$HFILE" \
                --argjson us "$ST_US" --argjson eu "$ST_EU" --argjson as "$ST_AS" --argjson extra "$COMP_EXTRA" \
                '.components += [($comp + {regions: {US: $us, EU: $eu, ASIA: $as}, history_file: $hfile} + $extra)]' data.json > tmp.json && mv tmp.json data.json
@@ -222,70 +266,72 @@ jobs:
             mkdir -p "maintenances/$ID"
             touch "maintenances/$ID/.gitkeep"
 
-            # 🤖 MOTOR DE AUTO-INCIDENCIAS
-            US_STATUS=$(echo "$ST_US" | jq -r '.status')
-            EU_STATUS=$(echo "$ST_EU" | jq -r '.status')
-            AS_STATUS=$(echo "$ST_AS" | jq -r '.status')
+            # 🤖 MOTOR DE AUTO-INCIDENCIAS (Solo si no está bloqueado)
+            if [ "$API_STATUS" != "blocked" ]; then
+                US_STATUS=$(echo "$ST_US" | jq -r '.status')
+                EU_STATUS=$(echo "$ST_EU" | jq -r '.status')
+                AS_STATUS=$(echo "$ST_AS" | jq -r '.status')
 
-            if [ "$US_STATUS" == "DOWN" ] && [ "$EU_STATUS" == "DOWN" ] && [ "$AS_STATUS" == "DOWN" ]; then
-              ACTIVE_AUTO_INC=""
-              shopt -s nullglob
-              for inc_file in incidents/$ID/*-auto-*.json; do
-                if [ -f "$inc_file" ]; then
-                  ST=$(jq -r '.status // ""' "$inc_file")
-                  if [ "$ST" == "active" ]; then ACTIVE_AUTO_INC="$inc_file"; break; fi
-                fi
-              done
-              shopt -u nullglob
+                if [ "$US_STATUS" == "DOWN" ] && [ "$EU_STATUS" == "DOWN" ] && [ "$AS_STATUS" == "DOWN" ]; then
+                  ACTIVE_AUTO_INC=""
+                  shopt -s nullglob
+                  for inc_file in incidents/$ID/*-auto-*.json; do
+                    if [ -f "$inc_file" ]; then
+                      ST=$(jq -r '.status // ""' "$inc_file")
+                      if [ "$ST" == "active" ]; then ACTIVE_AUTO_INC="$inc_file"; break; fi
+                    fi
+                  done
+                  shopt -u nullglob
 
-              if [ -z "$ACTIVE_AUTO_INC" ]; then
-                AUTO_ID="${DATE_STAMP}-auto-${ID}"
-                FILE_PATH="incidents/${ID}/${AUTO_ID}.json"
-                
-                jq -n --arg id "$AUTO_ID" --arg service "$NAME_ES" --arg ts "$TIMESTAMP" \
-                      --arg name_es "$NAME_ES" --arg name_en "$NAME_EN" '
-                {
-                  id: $id,
-                  service: $service,
-                  title_es: ("🔴 Caída automática detectada en " + $name_es),
-                  title_en: ("🔴 Automatic outage detected on " + $name_en),
-                  start_time: $ts,
-                  end_time: null,
-                  status: "active",
-                  description_es: "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
-                  description_en: "The monitoring system has detected a complete service outage across all regions.",
-                  updates: [
+                  if [ -z "$ACTIVE_AUTO_INC" ]; then
+                    AUTO_ID="${DATE_STAMP}-auto-${ID}"
+                    FILE_PATH="incidents/${ID}/${AUTO_ID}.json"
+                    
+                    jq -n --arg id "$AUTO_ID" --arg service "$NAME_ES" --arg ts "$TIMESTAMP" \
+                          --arg name_es "$NAME_ES" --arg name_en "$NAME_EN" '
                     {
-                      time: $ts,
-                      text_es: "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
-                      text_en: "🔴 Service outage detected, automatic report opened."
-                    }
-                  ]
-                }' > "$FILE_PATH"
-              fi
-            else
-              shopt -s nullglob
-              for inc_file in incidents/$ID/*-auto-*.json; do
-                if [ -f "$inc_file" ]; then
-                  ST=$(jq -r '.status // ""' "$inc_file")
-                  if [ "$ST" == "active" ]; then
-                    jq --arg ts "$TIMESTAMP" '
-                      .status = "resolved_auto" |
-                      .end_time = $ts |
-                      .updates += [{
-                        time: $ts,
-                        text_es: "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
-                        text_en: "⚡ The service has automatically recovered and the incident has been closed."
-                      }]
-                    ' "$inc_file" > tmp_inc.json && mv tmp_inc.json "$inc_file"
+                      id: $id,
+                      service: $service,
+                      title_es: ("🔴 Caída automática detectada en " + $name_es),
+                      title_en: ("🔴 Automatic outage detected on " + $name_en),
+                      start_time: $ts,
+                      end_time: null,
+                      status: "active",
+                      description_es: "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
+                      description_en: "The monitoring system has detected a complete service outage across all regions.",
+                      updates: [
+                        {
+                          time: $ts,
+                          text_es: "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
+                          text_en: "🔴 Service outage detected, automatic report opened."
+                        }
+                      ]
+                    }' > "$FILE_PATH"
                   fi
+                else
+                  shopt -s nullglob
+                  for inc_file in incidents/$ID/*-auto-*.json; do
+                    if [ -f "$inc_file" ]; then
+                      ST=$(jq -r '.status // ""' "$inc_file")
+                      if [ "$ST" == "active" ]; then
+                        jq --arg ts "$TIMESTAMP" '
+                          .status = "resolved_auto" |
+                          .end_time = $ts |
+                          .updates += [{
+                            time: $ts,
+                            text_es: "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
+                            text_en: "⚡ The service has automatically recovered and the incident has been closed."
+                          }]
+                        ' "$inc_file" > tmp_inc.json && mv tmp_inc.json "$inc_file"
+                      fi
+                    fi
+                  done
+                  shopt -u nullglob
                 fi
-              done
-              shopt -u nullglob
             fi
           done
 
-          # 🛡️ INDEXAR INCIDENCIAS
+          # 🛡️ INDEXAR INCIDENCIAS Y MANTENIMIENTOS
           shopt -s nullglob
           inc_files=(incidents/*/*.json)
           valid_inc=()
@@ -299,7 +345,6 @@ jobs:
             jq -s 'sort_by(.start_time) | reverse' "${valid_inc[@]}" > incidents-index.json
           else echo "[]" > incidents-index.json; fi
 
-          # 🛡️ INDEXAR MANTENIMIENTOS
           maint_files=(maintenances/*/*.json)
           valid_maint=()
           for file in "${maint_files[@]}"; do

@@ -391,7 +391,7 @@
         let currentLang = localStorage.getItem('uppwebla_lang') || (navigator.language.startsWith('es') ? 'es' : 'en');
         let dict = { ...(fallbackDicts[currentLang] || fallbackDicts['es']) };
         let currentIncident = null;
-        let localVersion = { version: "3.0", release_date_es: "10 de agosto de 2026", release_date_en: "August 10, 2026" };
+        let localVersion = { version: "3.1", release_date_es: "11 de agosto de 2026", release_date_en: "August 11, 2026" };
 
         function getDynamicText(obj, key) {
             const loc = key + '_' + currentLang;
@@ -459,6 +459,41 @@
                 document.getElementById('langMenu').classList.remove('show');
         });
 
+        async function checkApiBanner() {
+            try {
+                const res = await fetch(`data.json?t=${new Date().getTime()}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.api_info || data.api_info.status === 'ok') {
+                    const el = document.getElementById('api-warning-banner');
+                    if (el) el.remove();
+                    return;
+                }
+
+                const info = data.api_info;
+                let color = info.status === 'blocked' ? '#f85149' : '#d29922';
+                let bg = info.status === 'blocked' ? 'rgba(248, 81, 73, 0.1)' : 'rgba(210, 153, 34, 0.1)';
+                let icon = info.status === 'blocked' ? '🚨' : '⚠️';
+
+                let textEs = info.status === 'blocked'
+                    ? `<b>Monitorización detenida:</b> Tienes ${info.count} webs, superando el límite gratuito (${info.limit}). Añade <code>GLOBALPING_API_KEY</code> en los Secretos de GitHub.`
+                    : `<b>Recomendación:</b> Estás usando la API de forma anónima (${info.count}/${info.limit} webs). Te sugerimos añadir <code>GLOBALPING_API_KEY</code> en GitHub para evitar bloqueos.`;
+
+                let textEn = info.status === 'blocked'
+                    ? `<b>Monitoring stopped:</b> You have ${info.count} sites, exceeding the free limit (${info.limit}). Add <code>GLOBALPING_API_KEY</code> to GitHub Secrets.`
+                    : `<b>Recommendation:</b> You are using the API anonymously (${info.count}/${info.limit} sites). We recommend adding <code>GLOBALPING_API_KEY</code> in GitHub to avoid limits.`;
+
+                let text = (typeof currentLang !== 'undefined' && currentLang === 'en') ? textEn : textEs;
+
+                const header = document.querySelector('.header');
+                if (header && !document.getElementById('api-warning-banner')) {
+                    header.insertAdjacentHTML('afterend', `<div id="api-warning-banner" style="background-color: ${bg}; border: 1px solid ${color}; color: ${color}; padding: 12px 20px; margin: 15px auto; border-radius: 8px; max-width: 800px; text-align: center; font-size: 0.95rem; line-height: 1.5;">${icon} ${text}</div>`);
+                } else if (document.getElementById('api-warning-banner')) {
+                    document.getElementById('api-warning-banner').innerHTML = `${icon} ${text}`;
+                }
+            } catch (e) { }
+        }
+
         async function changeLang(lang) {
             currentLang = lang;
             localStorage.setItem('uppwebla_lang', lang);
@@ -484,6 +519,9 @@
             // Recargar vista según corresponda (en incident.html o maintenance.html)
             if (typeof currentIncident !== 'undefined' && currentIncident) renderIncident(currentIncident);
             if (typeof currentMaint !== 'undefined' && currentMaint) renderMaint(currentMaint);
+
+            // Llamada de avisos por limite de webs en versión sin API Key
+            checkApiBanner();
         }
 
         async function checkRemoteVersion() {
