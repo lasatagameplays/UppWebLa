@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-26T17:41:24Z",
+  "last_check": "2026-08-26T17:45:57Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,8 +39,8 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 418
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "DOWN",
@@ -48,7 +48,7 @@
         },
         "ASIA": {
           "status": "UP",
-          "latency": 387
+          "latency": 954
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 522
+          "latency": 498
         },
         "EU": {
           "status": "UP",
-          "latency": 22
+          "latency": 152
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 812
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 358
         },
         "EU": {
           "status": "UP",
-          "latency": 56
+          "latency": 132
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 791
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 492
-        },
-        "EU": {
           "status": "DOWN",
           "latency": 0
         },
-        "ASIA": {
+        "EU": {
           "status": "UP",
-          "latency": 810
+          "latency": 42
+        },
+        "ASIA": {
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/server-s1/server-s1.json"
