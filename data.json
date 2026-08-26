@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-26T18:20:38Z",
+  "last_check": "2026-08-26T18:25:52Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 426
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 134
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
           "status": "UP",
-          "latency": 887
+          "latency": 895
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 488
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 79
+          "latency": 100
         },
         "ASIA": {
           "status": "UP",
-          "latency": 815
+          "latency": 800
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 498
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 179
+          "latency": 106
         },
         "ASIA": {
           "status": "UP",
-          "latency": 806
+          "latency": 813
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 371
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 148
-        },
-        "ASIA": {
           "status": "DOWN",
           "latency": 0
+        },
+        "EU": {
+          "status": "DOWN",
+          "latency": 0
+        },
+        "ASIA": {
+          "status": "UP",
+          "latency": 798
         }
       },
       "history_file": "history/server-s1/server-s1.json"
