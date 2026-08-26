@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-26T16:29:22Z",
+  "last_check": "2026-08-26T16:30:07Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 714
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 83
-        },
-        "ASIA": {
           "status": "DOWN",
           "latency": 0
+        },
+        "EU": {
+          "status": "DOWN",
+          "latency": 0
+        },
+        "ASIA": {
+          "status": "UP",
+          "latency": 885
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
+          "status": "UP",
+          "latency": 493
+        },
+        "EU": {
           "status": "DOWN",
           "latency": 0
         },
-        "EU": {
-          "status": "UP",
-          "latency": 365
-        },
         "ASIA": {
           "status": "UP",
-          "latency": 752
+          "latency": 798
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 1002
         },
         "EU": {
           "status": "UP",
-          "latency": 279
+          "latency": 167
         },
         "ASIA": {
           "status": "UP",
-          "latency": 731
+          "latency": 821
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 391
-        },
-        "EU": {
-          "status": "UP",
-          "latency": 118
-        },
-        "ASIA": {
           "status": "DOWN",
           "latency": 0
+        },
+        "EU": {
+          "status": "DOWN",
+          "latency": 0
+        },
+        "ASIA": {
+          "status": "UP",
+          "latency": 830
         }
       },
       "history_file": "history/server-s1/server-s1.json"
