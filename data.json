@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-26T23:01:14Z",
+  "last_check": "2026-08-26T23:05:51Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 544
         },
         "EU": {
           "status": "UP",
-          "latency": 68
+          "latency": 114
         },
         "ASIA": {
           "status": "UP",
-          "latency": 887
+          "latency": 863
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 431
+          "latency": 382
         },
         "EU": {
-          "status": "UP",
-          "latency": 27
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
           "status": "UP",
-          "latency": 846
+          "latency": 797
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -134,15 +134,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 464
+          "latency": 545
         },
         "EU": {
-          "status": "UP",
-          "latency": 68
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
           "status": "UP",
-          "latency": 870
+          "latency": 771
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 492
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 323
+          "latency": 159
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 800
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/server-s1/server-s1.json"
