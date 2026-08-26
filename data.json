@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-26T19:35:53Z",
+  "last_check": "2026-08-26T19:40:40Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 630
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 72
+          "latency": 85
         },
         "ASIA": {
           "status": "UP",
-          "latency": 903
+          "latency": 868
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 396
+          "latency": 490
         },
         "EU": {
           "status": "UP",
-          "latency": 105
+          "latency": 271
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 762
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 370
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 68
+          "latency": 173
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 892
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 399
         },
         "EU": {
           "status": "UP",
-          "latency": 27
+          "latency": 144
         },
         "ASIA": {
           "status": "UP",
-          "latency": 805
+          "latency": 729
         }
       },
       "history_file": "history/server-s1/server-s1.json"
