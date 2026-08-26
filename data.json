@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-26T13:51:01Z",
+  "last_check": "2026-08-26T13:55:55Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 602
         },
         "EU": {
           "status": "UP",
-          "latency": 151
+          "latency": 92
         },
         "ASIA": {
           "status": "UP",
-          "latency": 920
+          "latency": 897
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 520
+          "latency": 398
         },
         "EU": {
-          "status": "UP",
-          "latency": 152
-        },
-        "ASIA": {
           "status": "DOWN",
           "latency": 0
+        },
+        "ASIA": {
+          "status": "UP",
+          "latency": 810
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -134,15 +134,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 369
+          "latency": 388
         },
         "EU": {
-          "status": "UP",
-          "latency": 276
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
           "status": "UP",
-          "latency": 812
+          "latency": 1273
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -181,15 +181,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 479
+          "latency": 332
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 69
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 798
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/server-s1/server-s1.json"
