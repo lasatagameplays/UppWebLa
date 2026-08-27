@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-27T09:25:52Z",
+  "last_check": "2026-08-27T09:31:07Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 476
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 92
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 467
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 417
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 128
         },
         "ASIA": {
           "status": "UP",
-          "latency": 837
+          "latency": 773
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -134,15 +134,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 978
+          "latency": 502
         },
         "EU": {
           "status": "UP",
-          "latency": 301
+          "latency": 103
         },
         "ASIA": {
           "status": "UP",
-          "latency": 798
+          "latency": 818
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -181,15 +181,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 488
+          "latency": 392
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 163
         },
         "ASIA": {
           "status": "UP",
-          "latency": 770
+          "latency": 750
         }
       },
       "history_file": "history/server-s1/server-s1.json"
