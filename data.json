@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-27T00:40:58Z",
+  "last_check": "2026-08-27T00:45:36Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 720
         },
         "EU": {
           "status": "UP",
-          "latency": 78
+          "latency": 58
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 896
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 489
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 368
         },
         "ASIA": {
           "status": "UP",
-          "latency": 733
+          "latency": 795
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 506
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 155
+          "latency": 282
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 795
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 489
         },
         "EU": {
           "status": "UP",
-          "latency": 126
+          "latency": 157
         },
         "ASIA": {
           "status": "UP",
-          "latency": 849
+          "latency": 747
         }
       },
       "history_file": "history/server-s1/server-s1.json"
