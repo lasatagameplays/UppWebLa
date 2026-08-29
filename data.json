@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-08-29T04:00:57Z",
+  "last_check": "2026-08-29T04:05:31Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,23 +39,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 623
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 79
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 920
         }
       },
-      "history_file": "history/web-principal/web-principal.json",
-      "active_task": {
-        "desc_es": "Sincronización FTP HestiaCP",
-        "desc_en": "HestiaCP FTP synchronization"
-      }
+      "history_file": "history/web-principal/web-principal.json"
     },
     {
       "id": "nube-privada",
@@ -90,23 +86,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 345
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 132
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 1887
         }
       },
-      "history_file": "history/nube-privada/nube-privada.json",
-      "active_task": {
-        "desc_es": "Sincronización FTP HestiaCP",
-        "desc_en": "HestiaCP FTP synchronization"
-      }
+      "history_file": "history/nube-privada/nube-privada.json"
     },
     {
       "id": "webmail",
@@ -141,23 +133,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 356
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 151
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 753
         }
       },
-      "history_file": "history/webmail/webmail.json",
-      "active_task": {
-        "desc_es": "Sincronización FTP HestiaCP",
-        "desc_en": "HestiaCP FTP synchronization"
-      }
+      "history_file": "history/webmail/webmail.json"
     },
     {
       "id": "server-s1",
@@ -192,23 +180,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 358
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 36
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 798
         }
       },
-      "history_file": "history/server-s1/server-s1.json",
-      "active_task": {
-        "desc_es": "Sincronización FTP HestiaCP",
-        "desc_en": "HestiaCP FTP synchronization"
-      }
+      "history_file": "history/server-s1/server-s1.json"
     }
   ]
 }
