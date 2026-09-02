@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-09-02T04:55:34Z",
+  "last_check": "2026-09-02T05:01:00Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 441
+          "status": "DOWN",
+          "latency": 433
         },
         "EU": {
           "status": "UP",
-          "latency": 111
+          "latency": 108
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 1771
+          "status": "DOWN",
+          "latency": 1329
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 407
+          "latency": 396
         },
         "EU": {
           "status": "UP",
-          "latency": 38
+          "latency": 63
         },
         "ASIA": {
           "status": "UP",
-          "latency": 818
+          "latency": 813
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 352
+          "status": "DOWN",
+          "latency": 372
         },
         "EU": {
-          "status": "UP",
-          "latency": 172
+          "status": "DOWN",
+          "latency": 41
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 778
+          "status": "DOWN",
+          "latency": 755
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -181,15 +181,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 363
+          "latency": 424
         },
         "EU": {
           "status": "UP",
-          "latency": 33
+          "latency": 246
         },
         "ASIA": {
           "status": "UP",
-          "latency": 794
+          "latency": 750
         }
       },
       "history_file": "history/server-s1/server-s1.json"
