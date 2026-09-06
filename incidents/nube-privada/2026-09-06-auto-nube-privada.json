@@ -3,21 +3,16 @@
   "service": "Nube Privada (FileBrowser)",
   "title_es": "🔴 Caída automática detectada en Nube Privada (FileBrowser)",
   "title_en": "🔴 Automatic outage detected on Private Cloud (FileBrowser)",
-  "start_time": "2026-09-06T11:55:27Z",
-  "end_time": "2026-09-06T12:00:55Z",
-  "status": "resolved_auto",
+  "start_time": "2026-09-06T16:50:31Z",
+  "end_time": null,
+  "status": "active",
   "description_es": "El sistema de monitorización ha detectado una caída completa del servicio en todas las regiones.",
   "description_en": "The monitoring system has detected a complete service outage across all regions.",
   "updates": [
     {
-      "time": "2026-09-06T11:55:27Z",
+      "time": "2026-09-06T16:50:31Z",
       "text_es": "🔴 Se ha detectado la caída del servicio y se ha abierto el reporte automático.",
       "text_en": "🔴 Service outage detected, automatic report opened."
-    },
-    {
-      "time": "2026-09-06T12:00:55Z",
-      "text_es": "⚡ El servicio se ha restablecido automáticamente y la incidencia ha sido cerrada.",
-      "text_en": "⚡ The service has automatically recovered and the incident has been closed."
     }
   ]
 }

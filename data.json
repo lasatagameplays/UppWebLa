@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-09-06T16:45:38Z",
+  "last_check": "2026-09-06T16:50:31Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 470
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 54
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 799
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 343
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 80
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 830
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 389
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 76
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 828
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 140
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 135
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 749
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/server-s1/server-s1.json"
