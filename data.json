@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-09-11T02:20:40Z",
+  "last_check": "2026-09-11T02:25:35Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 761
+          "status": "DOWN",
+          "latency": 1859
         },
         "EU": {
           "status": "UP",
-          "latency": 34
+          "latency": 61
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 315
+          "status": "DOWN",
+          "latency": 1460
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 504
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 472
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 804
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 711
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 393
         },
         "ASIA": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 804
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -181,15 +181,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 506
+          "latency": 344
         },
         "EU": {
           "status": "UP",
-          "latency": 39
+          "latency": 41
         },
         "ASIA": {
           "status": "UP",
-          "latency": 751
+          "latency": 792
         }
       },
       "history_file": "history/server-s1/server-s1.json"
