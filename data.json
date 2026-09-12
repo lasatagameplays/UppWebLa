@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-09-12T07:25:38Z",
+  "last_check": "2026-09-12T07:30:47Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 431
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 119
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 267
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 556
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
-          "status": "UP",
-          "latency": 142
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 771
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/server-s1/server-s1.json"
