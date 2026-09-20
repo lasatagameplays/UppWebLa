@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-09-20T01:36:06Z",
+  "last_check": "2026-09-20T01:40:39Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,23 +39,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 486
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 63
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 795
         }
       },
-      "history_file": "history/web-principal/web-principal.json",
-      "active_task": {
-        "desc_es": "Copia de seguridad local",
-        "desc_en": "Local backup in progress"
-      }
+      "history_file": "history/web-principal/web-principal.json"
     },
     {
       "id": "nube-privada",
@@ -90,23 +86,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 380
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 468
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 759
         }
       },
-      "history_file": "history/nube-privada/nube-privada.json",
-      "active_task": {
-        "desc_es": "Copia de seguridad local",
-        "desc_en": "Local backup in progress"
-      }
+      "history_file": "history/nube-privada/nube-privada.json"
     },
     {
       "id": "webmail",
@@ -141,23 +133,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 534
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 47
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 765
         }
       },
-      "history_file": "history/webmail/webmail.json",
-      "active_task": {
-        "desc_es": "Copia de seguridad local",
-        "desc_en": "Local backup in progress"
-      }
+      "history_file": "history/webmail/webmail.json"
     },
     {
       "id": "server-s1",
@@ -192,23 +180,19 @@
       ],
       "regions": {
         "US": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 352
         },
         "EU": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 120
         },
         "ASIA": {
-          "status": "MAINTENANCE",
-          "latency": 0
+          "status": "UP",
+          "latency": 852
         }
       },
-      "history_file": "history/server-s1/server-s1.json",
-      "active_task": {
-        "desc_es": "Copia de seguridad local",
-        "desc_en": "Local backup in progress"
-      }
+      "history_file": "history/server-s1/server-s1.json"
     }
   ]
 }
