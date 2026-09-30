@@ -213478,5 +213478,20 @@
       "status": "MAINTENANCE",
       "latency": 0
     }
+  },
+  {
+    "timestamp": "2026-09-30T02:40:35Z",
+    "US": {
+      "status": "UP",
+      "latency": 410
+    },
+    "EU": {
+      "status": "UP",
+      "latency": 279
+    },
+    "ASIA": {
+      "status": "UP",
+      "latency": 799
+    }
   }
 ]
