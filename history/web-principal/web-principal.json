@@ -291118,5 +291118,20 @@
       "status": "UP",
       "latency": 1071
     }
+  },
+  {
+    "timestamp": "2026-10-18T04:01:00Z",
+    "US": {
+      "status": "MAINTENANCE",
+      "latency": 0
+    },
+    "EU": {
+      "status": "MAINTENANCE",
+      "latency": 0
+    },
+    "ASIA": {
+      "status": "MAINTENANCE",
+      "latency": 0
+    }
   }
 ]
