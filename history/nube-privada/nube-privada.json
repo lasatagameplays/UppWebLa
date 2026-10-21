@@ -303838,5 +303838,20 @@
       "status": "MAINTENANCE",
       "latency": 0
     }
+  },
+  {
+    "timestamp": "2026-10-21T02:40:41Z",
+    "US": {
+      "status": "UP",
+      "latency": 403
+    },
+    "EU": {
+      "status": "UP",
+      "latency": 28
+    },
+    "ASIA": {
+      "status": "UP",
+      "latency": 868
+    }
   }
 ]
