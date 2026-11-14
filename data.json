@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-11-14T03:21:02Z",
+  "last_check": "2026-11-14T03:25:55Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 564
         },
         "EU": {
           "status": "UP",
-          "latency": 101
+          "latency": 73
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 855
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -86,16 +86,16 @@
       ],
       "regions": {
         "US": {
+          "status": "UP",
+          "latency": 383
+        },
+        "EU": {
           "status": "DOWN",
           "latency": 0
         },
-        "EU": {
-          "status": "UP",
-          "latency": 146
-        },
         "ASIA": {
           "status": "UP",
-          "latency": 742
+          "latency": 870
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -134,15 +134,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 407
+          "latency": 413
         },
         "EU": {
-          "status": "UP",
-          "latency": 68
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 885
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 877
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 736
+          "latency": 133
         },
         "ASIA": {
           "status": "UP",
-          "latency": 788
+          "latency": 701
         }
       },
       "history_file": "history/server-s1/server-s1.json"
