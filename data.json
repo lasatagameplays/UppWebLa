@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-11-14T12:11:04Z",
+  "last_check": "2026-11-14T12:16:02Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -39,16 +39,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 594
         },
         "EU": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 92
         },
         "ASIA": {
-          "status": "UP",
-          "latency": 846
+          "status": "DOWN",
+          "latency": 0
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 348
+          "latency": 352
         },
         "EU": {
-          "status": "UP",
-          "latency": 21
+          "status": "DOWN",
+          "latency": 0
         },
         "ASIA": {
           "status": "UP",
-          "latency": 858
+          "latency": 847
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -133,16 +133,16 @@
       ],
       "regions": {
         "US": {
-          "status": "UP",
-          "latency": 374
+          "status": "DOWN",
+          "latency": 0
         },
         "EU": {
           "status": "UP",
-          "latency": 223
+          "latency": 126
         },
         "ASIA": {
           "status": "UP",
-          "latency": 768
+          "latency": 782
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -180,16 +180,16 @@
       ],
       "regions": {
         "US": {
-          "status": "DOWN",
-          "latency": 0
+          "status": "UP",
+          "latency": 382
         },
         "EU": {
           "status": "UP",
-          "latency": 132
+          "latency": 140
         },
         "ASIA": {
           "status": "UP",
-          "latency": 812
+          "latency": 781
         }
       },
       "history_file": "history/server-s1/server-s1.json"
