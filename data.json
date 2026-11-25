@@ -1,5 +1,5 @@
 {
-  "last_check": "2026-11-25T06:05:45Z",
+  "last_check": "2026-11-25T06:10:48Z",
   "api_info": {
     "status": "ok",
     "count": 4,
@@ -40,15 +40,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 239
+          "latency": 511
         },
         "EU": {
           "status": "UP",
-          "latency": 546
+          "latency": 51
         },
         "ASIA": {
           "status": "UP",
-          "latency": 841
+          "latency": 886
         }
       },
       "history_file": "history/web-principal/web-principal.json"
@@ -87,15 +87,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 407
+          "latency": 522
         },
         "EU": {
           "status": "UP",
-          "latency": 175
+          "latency": 32
         },
         "ASIA": {
           "status": "UP",
-          "latency": 765
+          "latency": 796
         }
       },
       "history_file": "history/nube-privada/nube-privada.json"
@@ -134,15 +134,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 414
+          "latency": 496
         },
         "EU": {
           "status": "UP",
-          "latency": 160
+          "latency": 90
         },
         "ASIA": {
           "status": "UP",
-          "latency": 885
+          "latency": 1966
         }
       },
       "history_file": "history/webmail/webmail.json"
@@ -181,15 +181,15 @@
       "regions": {
         "US": {
           "status": "UP",
-          "latency": 358
+          "latency": 473
         },
         "EU": {
           "status": "UP",
-          "latency": 142
+          "latency": 134
         },
         "ASIA": {
           "status": "UP",
-          "latency": 575
+          "latency": 779
         }
       },
       "history_file": "history/server-s1/server-s1.json"
